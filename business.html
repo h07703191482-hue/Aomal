@@ -86,7 +86,7 @@
         }
         #splash-screen.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
         
-        /* --- مشهد الشارع والدراجة الجديد --- */
+        /* --- مشهد الشارع والدراجة المعدل --- */
         .splash-scene {
             position: relative;
             width: 100%;
@@ -98,14 +98,14 @@
             margin-bottom: 20px;
         }
 
-        /* كراج/مظلة شعار البندر (البوكس + الكلمة) */
+        /* شعار البندر */
         .garage-container {
             position: absolute;
-            bottom: 50px; /* فوق الشارع مباشرة */
+            bottom: 50px; 
             left: 50%;
             transform: translateX(-50%);
             text-align: center;
-            z-index: 10; /* أعلى من الدراجة لتبدو الدراجة كأنها تخرج من الداخل */
+            z-index: 10; 
             animation: scaleIn 0.8s ease;
         }
 
@@ -124,13 +124,13 @@
             text-shadow: 0 4px 10px rgba(0,0,0,0.3);
         }
 
-        /* الشارع الواقعي الجديد */
+        /* الشارع الواقعي */
         .asphalt-road {
             width: 100%;
             height: 60px;
-            background: #2C3E50; /* لون الإسفلت */
-            border-top: 5px solid #95A5A6; /* رصيف علوي */
-            border-bottom: 5px solid #95A5A6; /* رصيف سفلي */
+            background: #2C3E50; 
+            border-top: 5px solid #95A5A6; 
+            border-bottom: 5px solid #95A5A6; 
             position: absolute;
             bottom: 0;
             left: 0;
@@ -148,32 +148,37 @@
             animation: moveRoadLines 0.6s linear infinite;
         }
 
-        /* حركة الشارع لليسار (تعطي إيحاء بأن الدراجة تسرع لليمين) */
         @keyframes moveRoadLines {
             from { background-position: 60px 0; }
             to { background-position: 0 0; }
         }
 
-        /* الدراجة (تخرج من البوكس) */
+        /* الدراجة المعدلة (تنطلق من اليسار لليمين ووجهها يسار) */
         .bike-box {
             position: absolute;
-            bottom: 25px; /* تمشي على الإسفلت */
-            left: 50%; /* تبدأ من المنتصف بالضبط تحت الشعار */
-            transform: translateX(-50%);
+            bottom: 5px; /* نزلتها حتى تكون قريبة من الإسفلت */
+            left: -100px; /* تبدأ خارج الشاشة تماماً من جهة اليسار */
             font-size: 45px;
-            color: var(--secondary-gold); /* لون ذهبي حتى تبرز */
-            z-index: 5; /* Z-index أقل من الشعار حتى تبين تطلع من جوه */
+            color: var(--secondary-gold); 
+            z-index: 5; 
             display: flex;
             align-items: flex-end;
             opacity: 0;
-            animation: emergeBike 2.8s ease-in forwards;
+            /* تم زيادة الوقت للانطلاق وتغيير اسم الانيميشن */
+            animation: bikeLeftToRightFacingLeft 3.5s ease-in forwards;
             animation-delay: 0.5s;
         }
 
-        @keyframes emergeBike {
-            0% { left: 50%; opacity: 0; transform: translateX(-50%) scale(0.5); }
-            15% { left: 50%; opacity: 1; transform: translateX(-50%) scale(1); } /* تظهر من داخل الشعار */
-            100% { left: 150%; opacity: 1; transform: translateX(0) scale(1); } /* تنطلق بسرعة نحو اليمين */
+        /* لقلب الدراجة لتصبح وجهها لليسار */
+        .bike-box i {
+            transform: scaleX(-1);
+        }
+
+        /* انيميشن الانطلاق من اليسار لليمين */
+        @keyframes bikeLeftToRightFacingLeft {
+            0% { left: -100px; opacity: 0; transform: scale(0.5); }
+            15% { left: 10px; opacity: 1; transform: scale(1); } /* تدخل الشاشة بسرعة */
+            100% { left: 110%; opacity: 1; transform: scale(1); } /* تطلع خارج الشاشة من اليمين */
         }
 
         /* الدخان */
