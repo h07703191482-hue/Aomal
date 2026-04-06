@@ -76,7 +76,7 @@
         @keyframes scaleIn { 0% { transform: scale(0); } 100% { transform: scale(1); } }
         @keyframes fadeInDown { 0% { opacity: 0; transform: translateY(-20px); } 100% { opacity: 1; transform: translateY(0); } }
 
-        /* --- الشاشة الترحيبية الجديدة (Splash Screen) --- */
+        /* --- الشاشة الترحيبية (Splash Screen) --- */
         #splash-screen { 
             position: fixed; top: 0; left: 0; width: 100%; height: 100vh; 
             background-color: var(--card-bg); display: flex; flex-direction: column; justify-content: center; align-items: center; 
@@ -380,10 +380,9 @@
             }).catch(e => console.log(e));
         }
 
-        // تم تعديل دالة عرض الطلبات لجعلها تظهر "لا يوجد طلبات"
         function renderOrders() {
             const list = document.getElementById('orders-list');
-            const orders = []; // مصفوفة فارغة لأنه لا يوجد طلبات وهمية حالياً
+            const orders = []; // قائمة الطلبات الحالية فارغة
             
             if (orders.length === 0) {
                 list.innerHTML = `
