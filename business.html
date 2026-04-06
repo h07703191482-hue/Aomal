@@ -4,6 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>البندر - أعمال</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
     <style>
         /* --- تعريف الألوان --- */
         :root {
@@ -17,6 +20,11 @@
             --text-main: #111827;
             --text-sub: #6B7280;
             --border-color: #E5E7EB;
+            --gold: #FFC107;
+            --surface: #FFFFFF;
+            --radius-lg: 15px;
+            --radius-pill: 50px;
+            --shadow-sm: 0 4px 6px rgba(0,0,0,0.05);
         }
 
         @media (prefers-color-scheme: dark) {
@@ -27,63 +35,95 @@
                 --text-main: #F9FAFB;
                 --text-sub: #9CA3AF;
                 --border-color: #334155;
+                --surface: #1E1E1E;
             }
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; }
         body { background-color: var(--bg-color); color: var(--text-main); overflow-x: hidden; transition: 0.3s; }
 
-        /* --- Splash Screen --- */
-        #splash-screen {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100vh;
-            background-color: var(--card-bg); display: flex; justify-content: center; align-items: center;
-            z-index: 10000; transition: 0.8s;
-        }
-        #splash-screen.hidden { opacity: 0; visibility: hidden; }
+        /* --- إعدادات الشاشات الجديدة --- */
+        .screen { display: none; }
+        .container { padding: 20px; max-width: 800px; margin: 0 auto; }
+        .form-card { background: var(--card-bg); padding: 20px; border-radius: 15px; margin-bottom: 20px; border: 1px solid var(--border-color); }
+        .form-group { margin-bottom: 15px; text-align: right; }
+        .form-group label { display: block; margin-bottom: 5px; color: var(--text-sub); font-size: 14px; }
+        .form-group input, .form-group select { width: 100%; padding: 12px; border: 1px solid var(--border-color); border-radius: 10px; background: var(--bg-color); color: var(--text-main); outline: none; }
+        .screen-header-title { margin-bottom: 20px; color: var(--text-main); font-size: 22px; font-weight: bold; }
+        .form-card-title { font-size: 16px; font-weight: bold; margin-bottom: 15px; color: var(--primary); display: flex; align-items: center; gap: 8px; }
+        .back-btn { background: none; border: none; color: var(--text-main); font-size: 20px; cursor: pointer; margin-bottom: 15px; display: inline-block; }
+        .send-btn { width: 100%; padding: 12px; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; color: white; display: flex; justify-content: center; align-items: center; gap: 8px; }
+        .resign-btn { width: 100%; padding: 12px; background: rgba(239, 68, 68, 0.1); color: var(--danger); border: 1px solid var(--danger); border-radius: 10px; font-weight: bold; cursor: pointer; }
+        
+        /* تصميم البطاقات المضافة */
+        .select-card { background: var(--card-bg); border-radius: var(--radius-lg); border: 1px solid var(--border-color); cursor: pointer; transition: 0.3s; }
+        .card-full { padding: 15px; margin: 10px 0; display: flex; align-items: center; gap: 15px; }
+        .card-full:hover { background: var(--bg-color); }
+        .icon-wrapper { width: 45px; height: 45px; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 20px; }
+        .card-text h3 { margin: 0; font-size: 16px; }
+        .card-text small { color: var(--text-sub); font-size: 12px; }
+        .arrow-icon { margin-right: auto; color: var(--text-sub); }
 
+        /* شريط حالة المندوب أعلى الشاشة */
+        .driver-status-bar { display: none; background: var(--gold); color: #000; font-weight: 800; letter-spacing: 0.5px; font-size: 12px; padding: 6px 0; position: absolute; top: 0; left: 0; width: 100%; z-index: 10; text-align: center; transition: background 0.3s ease, color 0.3s ease; }
+        
+        /* أزرار الخدمات الخاصة بالمندوب */
+        .card-join .icon-wrapper { background: rgba(16, 185, 129, 0.1); color: var(--success); }
+        .card-plaza .icon-wrapper { background: rgba(139, 92, 246, 0.1); color: #8B5CF6; }
+
+        /* شاشة الترحيب والتفعيل */
+        #welcome-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100vh; background: var(--card-bg); z-index: 100000; flex-direction: column; justify-content: center; align-items: center; text-align: center; }
+        @keyframes scaleIn { 0% { transform: scale(0); } 100% { transform: scale(1); } }
+
+        /* --- Splash Screen --- */
+        #splash-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100vh; background-color: var(--card-bg); display: flex; justify-content: center; align-items: center; z-index: 9999; transition: 0.8s; }
+        #splash-screen.hidden { opacity: 0; visibility: hidden; }
         .street-container { position: relative; width: 100%; height: 100px; overflow: hidden; background: var(--bg-color); margin-top: 20px; }
         .street { position: absolute; bottom: 20px; width: 100%; height: 20px; background: #333; }
-        .motorcycle-wrapper { position: absolute; bottom: 15px; left: -100px; animation: moveRight 2.5s linear forwards; }
+        .motorcycle-wrapper { position: absolute; bottom: 15px; left: -100px; animation: moveRight 2.5s linear forwards; display: flex; align-items: flex-end;}
+        .motorcycle { font-size: 45px; transform: scaleX(-1); }
+        .exhaust-smoke { position: absolute; left: -15px; bottom: 8px; display: flex; flex-direction: row-reverse; }
+        .smoke { display: block; width: 10px; height: 10px; background-color: rgba(150, 150, 150, 0.6); border-radius: 50%; margin-left: -5px; opacity: 0; animation: emitSmoke 0.6s infinite; }
+        .smoke-1 { animation-delay: 0s; } .smoke-2 { animation-delay: 0.2s; } .smoke-3 { animation-delay: 0.4s; }
         @keyframes moveRight { 0% { left: -100px; } 100% { left: 110%; } }
+        @keyframes emitSmoke { 0% { opacity: 0; transform: translate(0, 0) scale(0.5); } 30% { opacity: 1; transform: translate(-10px, -5px) scale(1); } 100% { opacity: 0; transform: translate(-20px, -15px) scale(1.5); } }
 
         /* --- واجهات تسجيل الدخول --- */
-        .auth-container {
-            display: none; height: 100vh; flex-direction: column; justify-content: center; align-items: center; padding: 20px;
-        }
-        .auth-card {
-            background: var(--card-bg); padding: 30px; border-radius: 20px; width: 100%; max-width: 400px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.1); text-align: center;
-        }
+        .auth-container { display: none; height: 100vh; flex-direction: column; justify-content: center; align-items: center; padding: 20px; }
+        .auth-card { background: var(--card-bg); padding: 30px; border-radius: 20px; width: 100%; max-width: 400px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); text-align: center; border: 1px solid var(--border-color); }
         .auth-card h2 { margin-bottom: 20px; color: var(--primary); }
-        .auth-card input {
-            width: 100%; padding: 12px; margin-bottom: 15px; border: 2px solid var(--border-color);
-            border-radius: 10px; background: var(--bg-color); color: var(--text-main); outline: none;
-        }
-        .auth-card button {
-            width: 100%; padding: 12px; background: var(--primary); color: white; border: none;
-            border-radius: 10px; font-weight: bold; cursor: pointer; transition: 0.3s;
-        }
-        .role-btn {
-            background: var(--card-bg) !important; color: var(--text-main) !important;
-            border: 2px solid var(--primary) !important; margin-bottom: 10px;
-        }
+        .auth-card button { width: 100%; padding: 12px; background: var(--primary); color: white; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; transition: 0.3s; }
+        .role-btn { background: var(--card-bg) !important; color: var(--text-main) !important; border: 2px solid var(--primary) !important; margin-bottom: 10px; }
         .role-btn:hover { background: var(--primary) !important; color: white !important; }
 
         /* --- التطبيق الرئيسي --- */
-        #main-app { display: none; }
+        #main-app { display: none; padding-top: 25px; /* لمراعاة شريط الحالة */ }
         .navbar { background: var(--primary); color: white; padding: 15px; display: flex; justify-content: space-between; align-items: center; }
-        .container { padding: 20px; max-width: 800px; margin: 0 auto; }
+        .navbar-right { display: flex; align-items: center; gap: 10px; }
+        .logout-btn { background: var(--danger); color: white; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer; font-size: 12px; }
         .order-card { background: var(--card-bg); padding: 15px; border-radius: 12px; margin-bottom: 15px; border: 1px solid var(--border-color); border-right: 5px solid var(--secondary-gold); }
         .btn-group { display: flex; gap: 10px; margin-top: 15px; }
-        .btn { flex: 1; padding: 10px; border: none; border-radius: 8px; color: white; font-weight: bold; cursor: pointer; }
+        .btn-group .btn { flex: 1; padding: 10px; border: none; border-radius: 8px; color: white; font-weight: bold; cursor: pointer; }
     </style>
 </head>
 <body>
 
+    <div id="driver-status-badge" class="driver-status-bar">أنت الآن في وضع العمل النشط 🟢</div>
+
     <div id="splash-screen">
         <div style="text-align: center; width: 100%;">
-            <h1 style="color: var(--primary);">مرحبا يا مندوبين البندر</h1>
-            <div class="street-container"><div class="street"></div><div class="motorcycle-wrapper">🛵</div></div>
+            <h1 style="color: var(--primary); font-weight: bold; margin-bottom: 30px;">مرحبا يا مندوبين البندر</h1>
+            <div class="street-container">
+                <div class="street"></div>
+                <div class="motorcycle-wrapper">
+                    <div class="motorcycle">🛵</div>
+                    <div class="exhaust-smoke">
+                        <span class="smoke smoke-1"></span>
+                        <span class="smoke smoke-2"></span>
+                        <span class="smoke smoke-3"></span>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -91,7 +131,7 @@
         <div class="auth-card">
             <h2>أهلاً بك!</h2>
             <p style="margin-bottom: 15px; color: var(--text-sub);">ما هو اسمك؟</p>
-            <input type="text" id="user-name" placeholder="أدخل اسمك الكامل">
+            <div class="form-group"><input type="text" id="user-name" placeholder="أدخل اسمك الكامل"></div>
             <button onclick="goToPhone()">متابعة</button>
         </div>
     </div>
@@ -100,7 +140,9 @@
         <div class="auth-card">
             <h2>رقم الهاتف</h2>
             <p style="margin-bottom: 15px; color: var(--text-sub);">يرجى إدخال رقم هاتف عراقي</p>
-            <input type="tel" id="user-phone" placeholder="07XXXXXXXXX" maxlength="11">
+            <div class="form-group">
+                <input type="tel" id="user-phone" placeholder="07XXXXXXXXX" dir="ltr" maxlength="11" oninput="this.value = this.value.replace(/[^0-9]/g, '');">
+            </div>
             <button onclick="goToRoles()">تأكيد الرقم</button>
         </div>
     </div>
@@ -116,82 +158,404 @@
     <div id="main-app">
         <header class="navbar">
             <h1>مندوبين <span>البندر</span></h1>
-            <span id="display-user-role" style="font-size: 12px; background: rgba(255,255,255,0.2); padding: 5px 10px; border-radius: 20px;"></span>
+            <div class="navbar-right">
+                <span id="display-user-role" style="font-size: 12px; background: rgba(255,255,255,0.2); padding: 5px 10px; border-radius: 20px;"></span>
+                <button class="logout-btn" onclick="logout()">خروج</button>
+            </div>
         </header>
         <div class="container">
-            <h2 id="view-title" style="margin-bottom: 20px;">الطلبات المتوفرة</h2>
+            <div id="driver-plaza-card" class="select-card card-full card-plaza" style="display: none;" onclick="showScreen('plaza-screen')">
+                <div class="icon-wrapper"><i class="fas fa-briefcase"></i></div>
+                <div class="card-text"><h3 id="srv-plaza-title">لوحة الكابتن</h3><small id="srv-plaza-sub">تسليم الطلبات والإحصائيات</small></div>
+                <i class="fas fa-chevron-left arrow-icon"></i>
+            </div>
+
+            <h2 id="view-title" style="margin-bottom: 20px; margin-top:10px;">الطلبات المتوفرة</h2>
             <div id="orders-list"></div>
         </div>
     </div>
 
-    <script>
-        let userName = "";
-        let userRole = "";
+    <div id="plaza-screen" class="screen container">
+        <button class="back-btn" onclick="showScreen('main-app')"><i class="fas fa-arrow-right"></i></button>
+        <h2 class="screen-header-title"><i class="fas fa-briefcase" style="color:#8B5CF6;"></i> لوحة الكابتن</h2>
 
-        // تشغيل الـ Splash ثم إظهار واجهة الاسم
+        <div class="note" style="background: rgba(239, 68, 68, 0.1); border-right: 4px solid var(--danger); padding: 10px; color: var(--danger); font-size: 14px; font-weight: 800; margin-bottom: 20px; border-radius: 8px;">
+            <i class="fas fa-exclamation-circle" style="font-size: 18px;"></i> 
+            <span style="display: block; margin-top: 5px;">قانون صارم: ممنوع تشتري أي مسواك أو تتحرك قبل ما تتصل بالزبون وتتأكد منه! إذا الزبون ما جاوب، الغي الطلب فوراً. المندوب اللي يخالف ويشتري بدون اتصال يتحمل الخسارة.</span>
+        </div>
+
+        <div class="form-card" style="text-align: center; padding: 15px;">
+            <button id="statusToggleBtn" class="send-btn" style="background: #10B981;" onclick="toggleDriverStatus()">
+                <i class="fas fa-check-circle"></i> أنا متاح للعمل
+            </button>
+            <button id="soundToggleBtn" class="send-btn" style="background: var(--text-muted); margin-top: 10px;" onclick="toggleOrderSound()">
+                <i class="fas fa-bell-slash"></i> جرس الطلبات: معطل
+            </button>
+            <button class="send-btn" style="background: var(--bg-color); color: var(--primary); border: 2px solid var(--primary); margin-top: 10px;" onclick="showScreen('log-screen'); renderDriverLog();">
+                <i class="fas fa-list-alt"></i> سجل الطلبات المنجزة
+            </button>
+        </div>
+        
+        <div class="form-card" style="background: linear-gradient(135deg, var(--primary) 0%, #818CF8 100%); color:white; border:none; text-align:center;">
+            <h4 style="color:rgba(255,255,255,0.8); margin:0; font-size:15px;">إجمالي العمليات المنجزة 📦</h4>
+            <p id="stat-count" style="font-size: 45px; font-weight:800; color:white; margin:10px 0 0;">0</p>
+        </div>
+
+        <div class="form-card">
+            <div class="form-card-title"><i class="fas fa-qrcode"></i> تأكيد تسليم/تحصيل جديد</div>
+            <div class="form-group">
+                <label>رقم هاتف الزبون</label>
+                <input type="tel" id="driverVerifyPhoneInput" placeholder="مثال: 07700000000" style="text-align:center;" dir="ltr" maxlength="11" oninput="this.value = this.value.replace(/[^0-9]/g, ''); checkPhoneLive(this)">
+                <span class="phone-error" style="display:none; color:var(--danger); margin-top:5px; font-size:12px; font-weight:bold;">⚠️ الرقم غير صحيح</span>
+            </div>
+            <div class="form-group">
+                <label>كود التأكيد (من الزبون)</label>
+                <input type="number" id="driverVerifyInput" placeholder="مثال: 1234" style="text-align:center; font-size:22px; letter-spacing:4px; font-weight:bold;">
+            </div>
+            <button class="send-btn" style="background: #10B981; margin-top:5px;" onclick="processVerifyCode()"><i class="fas fa-check-circle"></i> تأكيد العملية</button>
+        </div>
+
+        <a href="tg://resolve?domain=uumqaser" class="select-card" style="background: #0088cc; color: white; border:none; padding:15px; text-decoration: none; display: flex; align-items:center;">
+            <div class="icon-wrapper" style="background: rgba(255,255,255,0.2); color:white; width:50px; height:50px;"><i class="fab fa-telegram-plane" style="font-size:22px;"></i></div>
+            <div class="card-text" style="margin-right:15px;"><h3 style="margin:0; font-size:16px;">قناة العمل الرسمية</h3><small style="color:rgba(255,255,255,0.8);">انضم لتلقي الإشعارات والعمليات</small></div>
+        </a>
+
+        <p id="driver-display-name" style="text-align: center; font-weight: 700; color: var(--text-muted); margin-top:30px;"></p>
+        <button class="resign-btn" style="margin-top:15px;" onclick="resignDriver()"><i class="fas fa-sign-out-alt"></i> تسجيل خروج / استقالة</button>
+    </div>
+
+    <div id="log-screen" class="screen container">
+        <button class="back-btn" onclick="showScreen('plaza-screen')"><i class="fas fa-arrow-right"></i></button>
+        <h2 class="screen-header-title"><i class="fas fa-clipboard-list" style="color:var(--primary);"></i> سجل الطلبات المنجزة</h2>
+        <div id="driver-log-container"></div>
+    </div>
+
+    <div id="welcome-overlay" onclick="skipWelcome()">
+        <i class="fas fa-check-circle" style="font-size: 80px; color: #10B981; margin-bottom: 20px; animation: scaleIn 0.5s ease;"></i>
+        <h1 id="welcome-title" style="margin:0 0 10px; font-weight:800;">تم التفعيل! 🥳</h1>
+        <div style="background: var(--bg-color); padding: 20px; border-radius: var(--radius-lg); border: 1px solid var(--border-color); width: 80%; max-width:300px;">
+            <p id="wel-p1" style="margin:0; font-weight:700;">أنت الآن كابتن رسمي</p>
+            <p id="wel-p2" style="margin:5px 0 0; font-size: 14px; color:var(--text-muted);">جاري تجهيز لوحة التحكم...</p>
+        </div>
+    </div>
+
+    <script>
+        // إعدادات بوت التليكرام والموقع
+        const BOT_TOKEN = "8640123901:AAFfl57lPpounm1y-SM-KmQadiT2fnqjFOM";
+        const ADMIN_CHAT_ID = "7479342799"; 
+        const GS_URL = ""; // رابط سكربت جوجل إذا وجد مستقبلاً
+
+        // المتغيرات العامة
+        let userName = localStorage.getItem('albandar_name') || "";
+        let userPhone = localStorage.getItem('albandar_phone') || "";
+        let userRole = localStorage.getItem('albandar_role') || "";
+
+        // متغيرات جرس الطلبات
+        let lastOrderCount = -1;
+        let orderPollInterval = null;
+        let isSoundEnabled = localStorage.getItem('sound_enabled') === 'true';
+        const newOrderAudio = new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3');
+
+        // أدوات مساعدة
+        function validateIraqiPhone(phone) { return /^07[0-9]{9}$/.test(phone); }
+        function checkPhoneLive(input) {
+            const errorSpan = input.nextElementSibling;
+            if(errorSpan && errorSpan.classList.contains('phone-error')) {
+                errorSpan.style.display = validateIraqiPhone(input.value) ? 'none' : 'block';
+            }
+        }
+        function showToast(msg) { alert(msg); }
+        function showScreen(screenId) {
+            document.querySelectorAll('.screen, #main-app, .auth-container').forEach(el => el.style.display = 'none');
+            const target = document.getElementById(screenId);
+            if(target) target.style.display = 'block';
+            if(screenId === 'main-app' && userRole === 'driver') {
+                document.getElementById('driver-status-badge').style.display = 'block';
+            } else {
+                document.getElementById('driver-status-badge').style.display = 'none';
+            }
+        }
+        function skipWelcome() {
+            document.getElementById('welcome-overlay').style.display = 'none';
+        }
+
+        // بدء التشغيل والشاشة الترحيبية
         window.onload = () => {
             setTimeout(() => {
                 document.getElementById('splash-screen').classList.add('hidden');
-                document.getElementById('step-name').style.display = 'flex';
                 document.body.style.overflow = 'auto';
+                if (userName && userPhone && userRole) {
+                    showMainApp(userRole);
+                    initDriverStatus();
+                } else {
+                    document.getElementById('step-name').style.display = 'flex';
+                }
             }, 3000);
         };
 
+        // مسار تسجيل الدخول
         function goToPhone() {
-            userName = document.getElementById('user-name').value;
-            if (userName.length < 3) return alert("يرجى إدخال اسم حقيقي");
+            const nameInput = document.getElementById('user-name').value.trim();
+            if (nameInput.length < 3) return showToast("يرجى إدخال اسم حقيقي");
+            userName = nameInput;
             document.getElementById('step-name').style.display = 'none';
             document.getElementById('step-phone').style.display = 'flex';
         }
 
         function goToRoles() {
-            const phone = document.getElementById('user-phone').value;
-            const iraqiPhoneRegex = /^07[0-9]{9}$/;
-            if (!iraqiPhoneRegex.test(phone)) return alert("يرجى إدخال رقم عراقي صحيح مكون من 11 رقم");
+            const phoneInput = document.getElementById('user-phone').value.trim();
+            if (!validateIraqiPhone(phoneInput)) return showToast("يرجى إدخال رقم عراقي صحيح مكون من 11 رقم (يبدأ بـ 07)");
+            userPhone = phoneInput;
             document.getElementById('step-phone').style.display = 'none';
             document.getElementById('step-roles').style.display = 'flex';
         }
 
         function checkRestaurantCode() {
             const code = prompt("يرجى إدخال رمز التحقق الخاص بالمطاعم:");
-            // الرمز الافتراضي حالياً هو 1234
-            if (code === "1234") { 
-                finishLogin('restaurant');
-            } else {
-                alert("الرمز غير صحيح، يرجى مراجعة الإدارة");
-            }
+            if (code === "1234") { finishLogin('restaurant'); } 
+            else { showToast("الرمز غير صحيح، يرجى مراجعة الإدارة"); }
         }
 
         function finishLogin(role) {
             userRole = role;
+            localStorage.setItem('albandar_name', userName);
+            localStorage.setItem('albandar_phone', userPhone);
+            localStorage.setItem('albandar_role', userRole);
+            sendTelegramNotification(userName, userPhone, userRole);
+            
+            // إظهار شاشة النجاح
             document.getElementById('step-roles').style.display = 'none';
-            document.getElementById('main-app').style.display = 'block';
+            document.getElementById('welcome-overlay').style.display = 'flex';
+            try { confetti({ particleCount: 200, spread: 90, origin: { y: 0.5 } }); } catch(e){}
+            
+            setTimeout(() => {
+                skipWelcome();
+                showMainApp(userRole);
+                initDriverStatus();
+            }, 2500);
+        }
+
+        function showMainApp(role) {
+            showScreen('main-app');
             document.getElementById('display-user-role').innerText = role === 'restaurant' ? "صاحب مطعم" : "مندوب";
+            
+            // إظهار زر لوحة الكابتن فقط للمندوب
+            const plazaCard = document.getElementById('driver-plaza-card');
+            if(role === 'driver') {
+                plazaCard.style.display = 'flex';
+                document.getElementById('driver-display-name').innerText = "المندوب: " + userName;
+                updateStatsUI();
+            } else {
+                plazaCard.style.display = 'none';
+            }
             renderOrders();
         }
 
+        function logout() {
+            if(confirm("هل أنت متأكد من تسجيل الخروج؟")) {
+                localStorage.clear();
+                location.reload(); 
+            }
+        }
+
+        // إشعارات التليكرام
+        function sendTelegramNotification(name, phone, role) {
+            if(!ADMIN_CHAT_ID) return;
+            const roleName = role === 'restaurant' ? "صاحب مطعم 🏪" : "مندوب 🛵";
+            const textMsg = `🔔 تسجيل دخول جديد في البندر أعمال!\n\n👤 الاسم: ${name}\n📱 الرقم: ${phone}\nنوع الحساب: ${roleName}`;
+            fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+                method: 'POST', headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ chat_id: ADMIN_CHAT_ID, text: textMsg })
+            }).catch(e => console.log(e));
+        }
+
+        // عرض الطلبات الافتراضية
         function renderOrders() {
             const list = document.getElementById('orders-list');
             const orders = [
                 { id: "101", customer: "أحمد علي", items: "وجبة برغر عائلية", price: "15,000 د.ع" },
                 { id: "102", customer: "سارة محمود", items: "بيتزا ايطالية عدد 2", price: "22,000 د.ع" }
             ];
-            
             list.innerHTML = orders.map(o => `
                 <div class="order-card">
-                    <div style="display:flex; justify-content:space-between; font-weight:bold;">
+                    <div style="display:flex; justify-content:space-between; font-weight:bold; margin-bottom: 10px;">
                         <span>طلب #${o.id}</span><span>${o.customer}</span>
                     </div>
-                    <p style="color:var(--text-sub); margin: 10px 0;">${o.items}</p>
-                    <div style="color:var(--success); font-weight:bold;">${o.price}</div>
+                    <p style="color:var(--text-sub); margin-bottom: 15px; font-size: 14px;">${o.items}</p>
+                    <div style="color:var(--success); font-weight:bold; font-size: 18px; margin-bottom: 15px;">${o.price}</div>
                     <div class="btn-group">
                         ${userRole === 'restaurant' ? 
                             `<button class="btn" style="background:var(--success)">تجهيز</button><button class="btn" style="background:var(--danger)">رفض</button>` : 
-                            `<button class="btn" style="background:var(--primary)">استلام</button>`
+                            `<button class="btn" style="background:var(--primary)">استلام الطلب</button>`
                         }
                     </div>
                 </div>
             `).join('');
+        }
+
+        // --- وظائف لوحة الكابتن (Plaza) المضافة ---
+        
+        function toggleOrderSound() {
+            isSoundEnabled = !isSoundEnabled;
+            localStorage.setItem('sound_enabled', isSoundEnabled); 
+            const btn = document.getElementById('soundToggleBtn');
+            if (isSoundEnabled) {
+                btn.innerHTML = '<i class="fas fa-bell"></i> جرس الطلبات: مفعل';
+                btn.style.background = '#F59E0B'; 
+                btn.style.color = 'white';
+                newOrderAudio.play().catch(e => {}); 
+                startOrderPolling();
+                showToast("🔔 تم تفعيل جرس تنبيه الطلبات!");
+            } else {
+                btn.innerHTML = '<i class="fas fa-bell-slash"></i> جرس الطلبات: معطل';
+                btn.style.background = 'var(--text-muted)';
+                btn.style.color = 'white';
+                clearInterval(orderPollInterval);
+                showToast("تم إيقاف الجرس 🔕");
+            }
+        }
+
+        async function checkNewOrdersForSound() {
+            if(!isSoundEnabled || !navigator.onLine || !GS_URL) return;
+            try {
+                const resp = await fetch(`${GS_URL}?action=checkNewOrders&t=${new Date().getTime()}`);
+                const currentCount = parseInt(await resp.text());
+                if(!isNaN(currentCount)) {
+                    if(lastOrderCount !== -1 && currentCount > lastOrderCount) {
+                        newOrderAudio.play().catch(e=>{});
+                        showToast("🔔 طلب جديد نزل بالساحة!");
+                        if(navigator.vibrate) navigator.vibrate([200, 100, 200]);
+                    }
+                    lastOrderCount = currentCount;
+                }
+            } catch(e) {}
+        }
+
+        function startOrderPolling() {
+            if(orderPollInterval) clearInterval(orderPollInterval);
+            checkNewOrdersForSound(); 
+            orderPollInterval = setInterval(checkNewOrdersForSound, 10000); 
+        }
+
+        function toggleDriverStatus() {
+            const btn = document.getElementById('statusToggleBtn'); 
+            const badge = document.getElementById('driver-status-badge');
+            let current = localStorage.getItem('driver_status') || 'available';
+            
+            if(current === 'available') {
+                localStorage.setItem('driver_status', 'busy'); 
+                btn.style.background = 'var(--danger)'; 
+                btn.innerHTML = '<i class="fas fa-minus-circle"></i> أنا مشغول حالياً';
+                if(badge) { badge.innerText = 'أنت الآن مشغول 🔴'; badge.style.background = 'var(--danger)'; badge.style.color = 'white'; }
+            } else {
+                localStorage.setItem('driver_status', 'available'); 
+                btn.style.background = 'var(--success)'; 
+                btn.innerHTML = '<i class="fas fa-check-circle"></i> أنا متاح للعمل';
+                if(badge) { badge.innerText = 'أنت الآن في وضع العمل النشط 🟢'; badge.style.background = 'var(--gold)'; badge.style.color = '#000'; }
+            }
+        }
+
+        function initDriverStatus() {
+            if(userRole !== 'driver') return;
+            let current = localStorage.getItem('driver_status') || 'available';
+            const btn = document.getElementById('statusToggleBtn'); 
+            const badge = document.getElementById('driver-status-badge');
+            
+            if(current === 'busy') { 
+                if(btn) { btn.style.background = 'var(--danger)'; btn.innerHTML = '<i class="fas fa-minus-circle"></i> أنا مشغول حالياً'; } 
+                if(badge) { badge.innerText = 'أنت الآن مشغول 🔴'; badge.style.background = 'var(--danger)'; badge.style.color = 'white'; } 
+            } else { 
+                if(btn) { btn.style.background = 'var(--success)'; btn.innerHTML = '<i class="fas fa-check-circle"></i> أنا متاح للعمل'; } 
+                if(badge) { badge.innerText = 'أنت الآن في وضع العمل النشط 🟢'; badge.style.background = 'var(--gold)'; badge.style.color = '#000'; } 
+            }
+            
+            const soundBtn = document.getElementById('soundToggleBtn');
+            if(isSoundEnabled) {
+                if(soundBtn) {
+                    soundBtn.innerHTML = '<i class="fas fa-bell"></i> جرس الطلبات: مفعل';
+                    soundBtn.style.background = '#F59E0B'; 
+                    soundBtn.style.color = 'white';
+                }
+                startOrderPolling();
+            }
+        }
+
+        async function processVerifyCode() {
+            const custPhone = document.getElementById('driverVerifyPhoneInput').value.trim();
+            const code = document.getElementById('driverVerifyInput').value.trim(); 
+            
+            if(!validateIraqiPhone(custPhone) || !code) return showToast("أدخل بيانات صحيحة ⚠️");
+            
+            // محاكاة التأكيد السريع
+            try { const cashAudio = new Audio('https://assets.mixkit.co/active_storage/sfx/2013/2013-preview.mp3'); cashAudio.play(); confetti({ particleCount: 300, spread: 100, origin: { y: 0.5 } }); } catch(e) {}
+            
+            let logs = JSON.parse(localStorage.getItem('driver_logs') || '[]');
+            logs.unshift({ date: new Date().toLocaleString('en-US', { hour12: true, year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute:'2-digit' }), phone: custPhone, price: "2,000 د.ع" });
+            localStorage.setItem('driver_logs', JSON.stringify(logs));
+            localStorage.setItem('d_count', parseInt(localStorage.getItem('d_count') || 0) + 1);
+            updateStatsUI();
+            
+            if(GS_URL) {
+                let adminCut = parseInt(localStorage.getItem('d_count')) * 500;
+                fetch(`${GS_URL}?action=updateStats&name=${encodeURIComponent(userName)}&phone=${userPhone}&inCount=${localStorage.getItem('d_count')}&inDriver=0&inAdmin=${adminCut}`);
+            }
+            
+            showToast(`تم تأكيد العملية بنجاح! عاشت ايدك 👏`); 
+            document.getElementById('driverVerifyInput').value = ""; 
+            document.getElementById('driverVerifyPhoneInput').value = "";
+        }
+
+        function renderDriverLog() {
+            const container = document.getElementById('driver-log-container');
+            if(!container) return;
+            let logs = JSON.parse(localStorage.getItem('driver_logs') || '[]');
+            if(logs.length === 0) {
+                container.innerHTML = '<div class="form-card" style="text-align:center;"><i class="fas fa-box-open" style="font-size:40px; color:var(--border-color); margin-bottom:10px;"></i><p style="color:var(--text-muted); font-weight:bold; margin:0;">السجل فارغ حالياً.</p></div>';
+                return;
+            }
+            container.innerHTML = logs.map((log, i) => `
+                <div class="form-card" style="border-right: 4px solid var(--primary); padding: 15px;">
+                    <div style="display:flex; justify-content:space-between; border-bottom:1px solid var(--border-color); padding-bottom:8px; margin-bottom:8px;">
+                        <span style="font-weight:800; color:var(--primary);">الطلب #${logs.length - i}</span>
+                        <span style="font-size:12px; color:var(--text-muted);" dir="ltr">${log.date}</span>
+                    </div>
+                    <div style="font-size:14px; margin-bottom:5px;"><i class="fas fa-phone-alt" style="color:var(--text-muted); width:20px;"></i> هاتف الزبون: <strong>${log.phone}</strong></div>
+                    <div style="font-size:14px; margin-bottom:5px;"><i class="fas fa-map-marker-alt" style="color:var(--danger); width:20px;"></i> الموقع: <strong>أم قصر</strong></div>
+                    <div style="font-size:14px;"><i class="fas fa-money-bill-wave" style="color:var(--gold); width:20px;"></i> أجرة التوصيل: <strong>${log.price}</strong></div>
+                </div>
+            `).join('');
+        }
+
+        function updateStatsUI() { 
+            if(document.getElementById('stat-count')) {
+                document.getElementById('stat-count').innerText = localStorage.getItem('d_count') || 0; 
+            }
+        }
+
+        async function resignDriver() { 
+            if (confirm("هل أنت متأكد من تسجيل الخروج والاستقالة؟")) { 
+                try {
+                    const msg = `❌ استقالة / تسجيل خروج كابتن:\n👤 الاسم: ${userName}\n📞 الهاتف: ${userPhone}`;
+                    await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ chat_id: ADMIN_CHAT_ID, text: msg }) });
+                } catch(e) {}
+                localStorage.clear(); 
+                location.reload(); 
+            } 
+        }
+
+        // تفريغ إحصائيات المندوب عن بعد (إذا ارتبطت بقاعدة بيانات)
+        async function checkRemoteReset() {
+            if(!GS_URL) return;
+            try {
+                if(!userPhone) return;
+                const response = await fetch(`${GS_URL}?action=checkReset&phone=${userPhone}`);
+                const result = await response.text();
+                if (result === "reset_now") { 
+                    localStorage.setItem('d_count', 0); localStorage.removeItem('driver_logs'); 
+                    updateStatsUI(); 
+                    if(document.getElementById('log-screen').style.display === 'block') { renderDriverLog(); }
+                } 
+            } catch(e) {}
         }
     </script>
 </body>
