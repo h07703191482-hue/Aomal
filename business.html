@@ -79,30 +79,112 @@
         /* --- الشاشة الترحيبية (Splash Screen) باللون البنفسجي --- */
         #splash-screen { 
             position: fixed; top: 0; left: 0; width: 100%; height: 100vh; 
-            background-color: var(--primary); /* الخلفية بنفسجية */
+            background-color: var(--primary); 
             display: flex; flex-direction: column; justify-content: center; align-items: center; 
             z-index: 99999; transition: opacity 0.8s ease-out, visibility 0.8s ease-out; 
-            color: white; /* لون النص أبيض */
+            color: white; 
         }
         #splash-screen.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
         
-        #app-logo-splash { animation: scaleIn 0.8s ease; margin-bottom: 15px; }
-        #app-logo-splash i { color: white !important; } /* أيقونة الصندوق بيضاء */
+        /* --- مشهد الشارع والدراجة الجديد --- */
+        .splash-scene {
+            position: relative;
+            width: 100%;
+            height: 280px;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
 
-        .splash-welcome-text { text-align: center; animation: fadeInDown 1s ease-out; margin-bottom: 60px; } /* تم تقليل الهامش السفلي لمراعاة رفع الدراجة */
-        
-        /* تنسيق الشارع والدراجة - صعدها فوك */
-        .road-realistic { position: absolute; top: 120px; /* تم رفع الشارع للأعلى */ width: 100%; height: 4px; }
-        .road-lines { position: absolute; top: 0; width: 100%; height: 6px; background-image: linear-gradient(to right, var(--secondary-gold) 50%, transparent 0%); background-size: 40px 6px; }
-        
-        .bike-box { position: absolute; top: 124px; /* تم رفع الدراجة للأعلى */ left: -100px; display: flex; align-items: flex-end; animation: moveRightBike 2.5s linear forwards; font-size: 50px; color: white; /* الدراجة بيضاء */ }
-        .exhaust { position: absolute; left: -15px; bottom: 10px; display: flex; flex-direction: row-reverse; }
+        /* كراج/مظلة شعار البندر (البوكس + الكلمة) */
+        .garage-container {
+            position: absolute;
+            bottom: 50px; /* فوق الشارع مباشرة */
+            left: 50%;
+            transform: translateX(-50%);
+            text-align: center;
+            z-index: 10; /* أعلى من الدراجة لتبدو الدراجة كأنها تخرج من الداخل */
+            animation: scaleIn 0.8s ease;
+        }
+
+        .garage-container i {
+            font-size: 80px;
+            color: white;
+            text-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .garage-container h2 {
+            margin: -5px 0 0;
+            font-size: 45px;
+            font-weight: 900;
+            color: white;
+            letter-spacing: 1px;
+            text-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        }
+
+        /* الشارع الواقعي الجديد */
+        .asphalt-road {
+            width: 100%;
+            height: 60px;
+            background: #2C3E50; /* لون الإسفلت */
+            border-top: 5px solid #95A5A6; /* رصيف علوي */
+            border-bottom: 5px solid #95A5A6; /* رصيف سفلي */
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            display: flex;
+            align-items: center;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+            z-index: 1;
+        }
+
+        .asphalt-lines {
+            width: 100%;
+            height: 4px;
+            background-image: linear-gradient(to right, var(--secondary-gold) 50%, transparent 0%);
+            background-size: 60px 4px;
+            animation: moveRoadLines 0.6s linear infinite;
+        }
+
+        /* حركة الشارع لليسار (تعطي إيحاء بأن الدراجة تسرع لليمين) */
+        @keyframes moveRoadLines {
+            from { background-position: 60px 0; }
+            to { background-position: 0 0; }
+        }
+
+        /* الدراجة (تخرج من البوكس) */
+        .bike-box {
+            position: absolute;
+            bottom: 25px; /* تمشي على الإسفلت */
+            left: 50%; /* تبدأ من المنتصف بالضبط تحت الشعار */
+            transform: translateX(-50%);
+            font-size: 45px;
+            color: var(--secondary-gold); /* لون ذهبي حتى تبرز */
+            z-index: 5; /* Z-index أقل من الشعار حتى تبين تطلع من جوه */
+            display: flex;
+            align-items: flex-end;
+            opacity: 0;
+            animation: emergeBike 2.8s ease-in forwards;
+            animation-delay: 0.5s;
+        }
+
+        @keyframes emergeBike {
+            0% { left: 50%; opacity: 0; transform: translateX(-50%) scale(0.5); }
+            15% { left: 50%; opacity: 1; transform: translateX(-50%) scale(1); } /* تظهر من داخل الشعار */
+            100% { left: 150%; opacity: 1; transform: translateX(0) scale(1); } /* تنطلق بسرعة نحو اليمين */
+        }
+
+        /* الدخان */
+        .exhaust { position: absolute; left: -15px; bottom: 5px; display: flex; flex-direction: row-reverse; }
         .smoke { display: block; width: 12px; height: 12px; background-color: rgba(255, 255, 255, 0.8); border-radius: 50%; margin-left: -5px; opacity: 0; animation: emitSmoke 0.6s infinite; }
         .smoke:nth-child(1) { animation-delay: 0s; } .smoke:nth-child(2) { animation-delay: 0.2s; } .smoke:nth-child(3) { animation-delay: 0.4s; }
-        
-        @keyframes moveRightBike { 0% { left: -100px; } 100% { left: 110%; } }
         @keyframes emitSmoke { 0% { opacity: 0; transform: translate(0, 0) scale(0.5); } 30% { opacity: 1; transform: translate(-10px, -5px) scale(1); } 100% { opacity: 0; transform: translate(-20px, -15px) scale(1.5); } }
 
+        /* نص الترحيب السفلي */
+        .splash-welcome-text { text-align: center; animation: fadeInDown 1s ease-out; margin-bottom: 20px; z-index: 10; position: relative;}
+        
         /* --- واجهات تسجيل الدخول --- */
         .auth-container { display: none; height: 100vh; flex-direction: column; justify-content: center; align-items: center; padding: 20px; }
         .auth-card { background: var(--card-bg); padding: 30px; border-radius: 20px; width: 100%; max-width: 400px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); text-align: center; border: 1px solid var(--border-color); }
@@ -126,26 +208,28 @@
     <div id="driver-status-badge" class="driver-status-bar">أنت الآن في وضع العمل النشط 🟢</div>
 
     <div id="splash-screen">
-        <div id="app-logo-splash">
-            <i class="fas fa-box-open" style="font-size: 65px;"></i>
+        <div class="splash-scene">
+            <div class="asphalt-road">
+                <div class="asphalt-lines"></div>
+            </div>
+            
+            <div class="garage-container">
+                <i class="fas fa-box-open"></i>
+                <h2>البندر</h2>
+            </div>
+            
+            <div class="bike-box">
+                <i class="fas fa-motorcycle"></i>
+                <div class="exhaust">
+                    <div class="smoke"></div>
+                    <div class="smoke"></div>
+                    <div class="smoke"></div>
+                </div>
+            </div>
         </div>
         
         <div class="splash-welcome-text">
-            <h2 id="splash-title" style="margin: 0; font-size: 32px; font-weight: 800; letter-spacing: 1px;">البندر</h2>
-            <p id="splash-subtitle" style="margin: 8px 0 0; opacity: 0.9; font-size: 16px; font-weight: 500;">أسرع تطبيق للتوصيل والتحصيل في أم قصر</p>
-        </div>
-        
-        <div class="road-realistic">
-            <div class="road-lines"></div>
-        </div>
-        
-        <div class="bike-box">
-            <i class="fas fa-motorcycle"></i>
-            <div class="exhaust">
-                <div class="smoke"></div>
-                <div class="smoke"></div>
-                <div class="smoke"></div>
-            </div>
+            <p id="splash-subtitle" style="margin: 0; opacity: 0.9; font-size: 16px; font-weight: 500;">أسرع تطبيق للتوصيل والتحصيل في أم قصر</p>
         </div>
     </div>
 
@@ -263,7 +347,6 @@
     </div>
 
     <script>
-        // إعدادات بوت التليكرام
         const BOT_TOKEN = "8640123901:AAFfl57lPpounm1y-SM-KmQadiT2fnqjFOM";
         const ADMIN_CHAT_ID = "7479342799"; 
         const GS_URL = ""; 
@@ -298,7 +381,7 @@
         }
         function skipWelcome() { document.getElementById('welcome-overlay').style.display = 'none'; }
 
-        // بدء التشغيل
+        // بدء التشغيل مع تأخير الشاشة الترحيبية
         window.onload = () => {
             setTimeout(() => {
                 document.getElementById('splash-screen').classList.add('hidden');
@@ -309,7 +392,7 @@
                 } else {
                     document.getElementById('step-name').style.display = 'flex';
                 }
-            }, 3000);
+            }, 3500); // زيدت الوقت شوية حتى المشهد يكمل
         };
 
         function goToPhone() {
@@ -367,11 +450,10 @@
             renderOrders();
         }
 
-        // تم تعديل دالة تسجيل الخروج لجعلها تذهب إلى واجهة اختيار الدور
         function logout() {
             if(confirm("هل أنت متأكد من تسجيل الخروج؟")) {
                 localStorage.clear();
-                showScreen('step-roles'); // العودة لواجهة اختيار الدور
+                showScreen('step-roles');
             }
         }
 
@@ -387,7 +469,7 @@
 
         function renderOrders() {
             const list = document.getElementById('orders-list');
-            const orders = []; // قائمة الطلبات الحالية فارغة
+            const orders = []; 
             
             if (orders.length === 0) {
                 list.innerHTML = `
