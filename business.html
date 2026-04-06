@@ -74,18 +74,29 @@
         /* شاشة الترحيب والتفعيل */
         #welcome-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100vh; background: var(--card-bg); z-index: 100000; flex-direction: column; justify-content: center; align-items: center; text-align: center; }
         @keyframes scaleIn { 0% { transform: scale(0); } 100% { transform: scale(1); } }
+        @keyframes fadeInDown { 0% { opacity: 0; transform: translateY(-20px); } 100% { opacity: 1; transform: translateY(0); } }
 
-        /* --- Splash Screen --- */
-        #splash-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100vh; background-color: var(--card-bg); display: flex; justify-content: center; align-items: center; z-index: 9999; transition: 0.8s; }
+        /* --- الشاشة الترحيبية الجديدة (Splash Screen) --- */
+        #splash-screen { 
+            position: fixed; top: 0; left: 0; width: 100%; height: 100vh; 
+            background-color: var(--card-bg); display: flex; flex-direction: column; justify-content: center; align-items: center; 
+            z-index: 9999; transition: 0.8s; 
+        }
         #splash-screen.hidden { opacity: 0; visibility: hidden; }
-        .street-container { position: relative; width: 100%; height: 100px; overflow: hidden; background: var(--bg-color); margin-top: 20px; }
-        .street { position: absolute; bottom: 20px; width: 100%; height: 20px; background: #333; }
-        .motorcycle-wrapper { position: absolute; bottom: 15px; left: -100px; animation: moveRight 2.5s linear forwards; display: flex; align-items: flex-end;}
-        .motorcycle { font-size: 45px; transform: scaleX(-1); }
-        .exhaust-smoke { position: absolute; left: -15px; bottom: 8px; display: flex; flex-direction: row-reverse; }
+        
+        #app-logo-splash { animation: scaleIn 0.8s ease; margin-bottom: 15px; }
+        .splash-welcome-text { text-align: center; animation: fadeInDown 1s ease-out; margin-bottom: 60px; color: var(--text-main); }
+        
+        /* تنسيق الشارع والدراجة */
+        .road-realistic { position: absolute; bottom: 20px; width: 100%; height: 30px; background: #333; border-top: 3px solid var(--border-color); border-bottom: 3px solid var(--border-color); }
+        .road-lines { position: absolute; top: 50%; width: 100%; height: 3px; background-image: linear-gradient(to right, #fff 50%, rgba(255, 255, 255, 0) 0%); background-size: 30px 3px; transform: translateY(-50%); }
+        
+        .bike-box { position: absolute; bottom: 22px; left: -100px; display: flex; align-items: flex-end; animation: moveRightBike 2.5s linear forwards; font-size: 45px; color: var(--primary); }
+        .exhaust { position: absolute; left: -15px; bottom: 8px; display: flex; flex-direction: row-reverse; }
         .smoke { display: block; width: 10px; height: 10px; background-color: rgba(150, 150, 150, 0.6); border-radius: 50%; margin-left: -5px; opacity: 0; animation: emitSmoke 0.6s infinite; }
-        .smoke-1 { animation-delay: 0s; } .smoke-2 { animation-delay: 0.2s; } .smoke-3 { animation-delay: 0.4s; }
-        @keyframes moveRight { 0% { left: -100px; } 100% { left: 110%; } }
+        .smoke:nth-child(1) { animation-delay: 0s; } .smoke:nth-child(2) { animation-delay: 0.2s; } .smoke:nth-child(3) { animation-delay: 0.4s; }
+        
+        @keyframes moveRightBike { 0% { left: -100px; } 100% { left: 110%; } }
         @keyframes emitSmoke { 0% { opacity: 0; transform: translate(0, 0) scale(0.5); } 30% { opacity: 1; transform: translate(-10px, -5px) scale(1); } 100% { opacity: 0; transform: translate(-20px, -15px) scale(1.5); } }
 
         /* --- واجهات تسجيل الدخول --- */
@@ -97,7 +108,7 @@
         .role-btn:hover { background: var(--primary) !important; color: white !important; }
 
         /* --- التطبيق الرئيسي --- */
-        #main-app { display: none; padding-top: 25px; /* لمراعاة شريط الحالة */ }
+        #main-app { display: none; padding-top: 25px; }
         .navbar { background: var(--primary); color: white; padding: 15px; display: flex; justify-content: space-between; align-items: center; }
         .navbar-right { display: flex; align-items: center; gap: 10px; }
         .logout-btn { background: var(--danger); color: white; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer; font-size: 12px; }
@@ -111,18 +122,25 @@
     <div id="driver-status-badge" class="driver-status-bar">أنت الآن في وضع العمل النشط 🟢</div>
 
     <div id="splash-screen">
-        <div style="text-align: center; width: 100%;">
-            <h1 style="color: var(--primary); font-weight: bold; margin-bottom: 30px;">مرحبا يا مندوبين البندر</h1>
-            <div class="street-container">
-                <div class="street"></div>
-                <div class="motorcycle-wrapper">
-                    <div class="motorcycle">🛵</div>
-                    <div class="exhaust-smoke">
-                        <span class="smoke smoke-1"></span>
-                        <span class="smoke smoke-2"></span>
-                        <span class="smoke smoke-3"></span>
-                    </div>
-                </div>
+        <div id="app-logo-splash">
+            <i class="fas fa-box-open" style="font-size: 65px; color: var(--primary);"></i>
+        </div>
+        
+        <div class="splash-welcome-text">
+            <h2 id="splash-title" style="margin: 0; font-size: 32px; font-weight: 800; letter-spacing: 1px;">البندر</h2>
+            <p id="splash-subtitle" style="margin: 8px 0 0; opacity: 0.9; font-size: 16px; font-weight: 500;">أسرع تطبيق للتوصيل والتحصيل في أم قصر</p>
+        </div>
+        
+        <div class="road-realistic">
+            <div class="road-lines"></div>
+        </div>
+        
+        <div class="bike-box">
+            <i class="fas fa-motorcycle"></i>
+            <div class="exhaust">
+                <div class="smoke"></div>
+                <div class="smoke"></div>
+                <div class="smoke"></div>
             </div>
         </div>
     </div>
@@ -164,14 +182,15 @@
             </div>
         </header>
         <div class="container">
-            <div id="driver-plaza-card" class="select-card card-full card-plaza" style="display: none;" onclick="showScreen('plaza-screen')">
+            <h2 id="view-title" style="margin-bottom: 20px; margin-top:10px;">الطلبات المتوفرة</h2>
+            
+            <div id="orders-list"></div>
+            
+            <div id="driver-plaza-card" class="select-card card-full card-plaza" style="display: none; margin-top: 30px;" onclick="showScreen('plaza-screen')">
                 <div class="icon-wrapper"><i class="fas fa-briefcase"></i></div>
                 <div class="card-text"><h3 id="srv-plaza-title">لوحة الكابتن</h3><small id="srv-plaza-sub">تسليم الطلبات والإحصائيات</small></div>
                 <i class="fas fa-chevron-left arrow-icon"></i>
             </div>
-
-            <h2 id="view-title" style="margin-bottom: 20px; margin-top:10px;">الطلبات المتوفرة</h2>
-            <div id="orders-list"></div>
         </div>
     </div>
 
@@ -240,23 +259,20 @@
     </div>
 
     <script>
-        // إعدادات بوت التليكرام والموقع
+        // إعدادات بوت التليكرام
         const BOT_TOKEN = "8640123901:AAFfl57lPpounm1y-SM-KmQadiT2fnqjFOM";
         const ADMIN_CHAT_ID = "7479342799"; 
-        const GS_URL = ""; // رابط سكربت جوجل إذا وجد مستقبلاً
+        const GS_URL = ""; 
 
-        // المتغيرات العامة
         let userName = localStorage.getItem('albandar_name') || "";
         let userPhone = localStorage.getItem('albandar_phone') || "";
         let userRole = localStorage.getItem('albandar_role') || "";
 
-        // متغيرات جرس الطلبات
         let lastOrderCount = -1;
         let orderPollInterval = null;
         let isSoundEnabled = localStorage.getItem('sound_enabled') === 'true';
         const newOrderAudio = new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3');
 
-        // أدوات مساعدة
         function validateIraqiPhone(phone) { return /^07[0-9]{9}$/.test(phone); }
         function checkPhoneLive(input) {
             const errorSpan = input.nextElementSibling;
@@ -265,6 +281,7 @@
             }
         }
         function showToast(msg) { alert(msg); }
+        
         function showScreen(screenId) {
             document.querySelectorAll('.screen, #main-app, .auth-container').forEach(el => el.style.display = 'none');
             const target = document.getElementById(screenId);
@@ -275,11 +292,9 @@
                 document.getElementById('driver-status-badge').style.display = 'none';
             }
         }
-        function skipWelcome() {
-            document.getElementById('welcome-overlay').style.display = 'none';
-        }
+        function skipWelcome() { document.getElementById('welcome-overlay').style.display = 'none'; }
 
-        // بدء التشغيل والشاشة الترحيبية
+        // بدء التشغيل
         window.onload = () => {
             setTimeout(() => {
                 document.getElementById('splash-screen').classList.add('hidden');
@@ -293,7 +308,6 @@
             }, 3000);
         };
 
-        // مسار تسجيل الدخول
         function goToPhone() {
             const nameInput = document.getElementById('user-name').value.trim();
             if (nameInput.length < 3) return showToast("يرجى إدخال اسم حقيقي");
@@ -323,7 +337,6 @@
             localStorage.setItem('albandar_role', userRole);
             sendTelegramNotification(userName, userPhone, userRole);
             
-            // إظهار شاشة النجاح
             document.getElementById('step-roles').style.display = 'none';
             document.getElementById('welcome-overlay').style.display = 'flex';
             try { confetti({ particleCount: 200, spread: 90, origin: { y: 0.5 } }); } catch(e){}
@@ -339,7 +352,6 @@
             showScreen('main-app');
             document.getElementById('display-user-role').innerText = role === 'restaurant' ? "صاحب مطعم" : "مندوب";
             
-            // إظهار زر لوحة الكابتن فقط للمندوب
             const plazaCard = document.getElementById('driver-plaza-card');
             if(role === 'driver') {
                 plazaCard.style.display = 'flex';
@@ -358,7 +370,6 @@
             }
         }
 
-        // إشعارات التليكرام
         function sendTelegramNotification(name, phone, role) {
             if(!ADMIN_CHAT_ID) return;
             const roleName = role === 'restaurant' ? "صاحب مطعم 🏪" : "مندوب 🛵";
@@ -369,13 +380,20 @@
             }).catch(e => console.log(e));
         }
 
-        // عرض الطلبات الافتراضية
+        // تم تعديل دالة عرض الطلبات لجعلها تظهر "لا يوجد طلبات"
         function renderOrders() {
             const list = document.getElementById('orders-list');
-            const orders = [
-                { id: "101", customer: "أحمد علي", items: "وجبة برغر عائلية", price: "15,000 د.ع" },
-                { id: "102", customer: "سارة محمود", items: "بيتزا ايطالية عدد 2", price: "22,000 د.ع" }
-            ];
+            const orders = []; // مصفوفة فارغة لأنه لا يوجد طلبات وهمية حالياً
+            
+            if (orders.length === 0) {
+                list.innerHTML = `
+                    <div class="form-card" style="text-align:center; padding: 40px 20px;">
+                        <i class="fas fa-box-open" style="font-size:50px; color:var(--border-color); margin-bottom:15px;"></i>
+                        <p style="color:var(--text-sub); font-size:18px; font-weight:bold; margin:0;">لا يوجد طلبات حالياً</p>
+                    </div>`;
+                return;
+            }
+
             list.innerHTML = orders.map(o => `
                 <div class="order-card">
                     <div style="display:flex; justify-content:space-between; font-weight:bold; margin-bottom: 10px;">
@@ -393,8 +411,6 @@
             `).join('');
         }
 
-        // --- وظائف لوحة الكابتن (Plaza) المضافة ---
-        
         function toggleOrderSound() {
             isSoundEnabled = !isSoundEnabled;
             localStorage.setItem('sound_enabled', isSoundEnabled); 
@@ -486,7 +502,6 @@
             
             if(!validateIraqiPhone(custPhone) || !code) return showToast("أدخل بيانات صحيحة ⚠️");
             
-            // محاكاة التأكيد السريع
             try { const cashAudio = new Audio('https://assets.mixkit.co/active_storage/sfx/2013/2013-preview.mp3'); cashAudio.play(); confetti({ particleCount: 300, spread: 100, origin: { y: 0.5 } }); } catch(e) {}
             
             let logs = JSON.parse(localStorage.getItem('driver_logs') || '[]');
@@ -543,7 +558,6 @@
             } 
         }
 
-        // تفريغ إحصائيات المندوب عن بعد (إذا ارتبطت بقاعدة بيانات)
         async function checkRemoteReset() {
             if(!GS_URL) return;
             try {
