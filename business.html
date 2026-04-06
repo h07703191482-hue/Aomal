@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>البندر - للمندوبين والمطاعم</title>
+    <style>
+        /* إعدادات عامة */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #f4f7f6;
+            color: #333;
+        }
+
+        /* الشريط العلوي */
+        .navbar {
+            background-color: #2c3e50;
+            color: white;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .logo h1 {
+            font-size: 22px;
+        }
+
+        .logo span {
+            color: #e74c3c;
+        }
+
+        .user-role select {
+            padding: 5px 10px;
+            border-radius: 5px;
+            border: none;
+            outline: none;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        /* الحاوية الرئيسية */
+        .container {
+            padding: 20px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .dashboard-header {
+            margin-bottom: 20px;
+            border-bottom: 2px solid #ddd;
+            padding-bottom: 10px;
+        }
+
+        /* بطاقات الطلبات */
+        .orders-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .order-card {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            border-right: 5px solid #f1c40f;
+            transition: transform 0.2s;
+        }
+
+        .order-card:hover {
+            transform: translateY(-2px);
+        }
+
+        .order-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+
+        .order-details {
+            font-size: 14px;
+            color: #555;
+            line-height: 1.6;
+            margin-bottom: 15px;
+        }
+
+        .order-price {
+            font-size: 18px;
+            color: #27ae60;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+
+        /* الأزرار */
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            font-size: 15px;
+            font-weight: bold;
+            cursor: pointer;
+            color: white;
+            transition: opacity 0.2s;
+        }
+
+        .btn:active {
+            opacity: 0.8;
+        }
+
+        .btn-accept { background-color: #2ecc71; }
+        .btn-reject { background-color: #e74c3c; }
+        .btn-pickup { background-color: #f39c12; }
+        .btn-deliver { background-color: #3498db; }
+    </style>
+</head>
+<body>
+    <header class="navbar">
+        <div class="logo">
+            <h1>البندر <span>أعمال</span></h1>
+        </div>
+        <div class="user-role">
+            <label for="role-select">الدخول كـ:</label>
+            <select id="role-select">
+                <option value="restaurant">صاحب مطعم</option>
+                <option value="driver">مندوب توصيل</option>
+            </select>
+        </div>
+    </header>
+
+    <main class="container">
+        <div class="dashboard-header">
+            <h2 id="dashboard-title">لوحة تحكم المطعم - الطلبات الجديدة</h2>
+        </div>
+
+        <div id="orders-container" class="orders-grid">
+            </div>
+    </main>
+
+    <script>
+        // بيانات وهمية لطلبات مبدئية للتجربة
+        const orders = [
+            {
+                id: "101",
+                customerName: "علي محمد",
+                items: "2x شاورما دجاج, 1x بيبسي",
+                price: "12,000 دينار",
+                address: "أم قصر - حي الضباط",
+                status: "new" // الحالات: new, preparing, ready, out_for_delivery, delivered
+            },
+            {
+                id: "102",
+                customerName: "حسن جاسم",
+                items: "1x بيتزا وسط, 2x عصير برتقال",
+                price: "18,000 دينار",
+                address: "أم قصر - السوق",
+                status: "new"
+            }
+        ];
+
+        const roleSelect = document.getElementById('role-select');
+        const dashboardTitle = document.getElementById('dashboard-title');
+        const ordersContainer = document.getElementById('orders-container');
+
+        // تحديث الواجهة بناءً على الدور (مطعم أو مندوب)
+        function renderOrders() {
+            const role = roleSelect.value;
+            ordersContainer.innerHTML = ''; // مسح الطلبات القديمة
+
+            if (role === 'restaurant') {
+                dashboardTitle.innerText = 'لوحة تحكم المطعم - إدارة الطلبات';
+            } else {
+                dashboardTitle.innerText = 'لوحة المندوب - طلبات بانتظار التوصيل';
+            }
+
+            orders.forEach(order => {
+                // إنشاء بطاقة الطلب
+                const card = document.createElement('div');
+                card.className = 'order-card';
+
+                // محتوى البطاقة الأساسي
+                let cardHTML = `
+                    <div class="order-header">
+                        <span>طلب #${order.id}</span>
+                        <span>الزبون: ${order.customerName}</span>
+                    </div>
+                    <div class="order-details">
+                        <p><strong>التفاصيل:</strong> ${order.items}</p>
+                        <p><strong>العنوان:</strong> ${order.address}</p>
+                        <div class="order-price">${order.price}</div>
+                    </div>
+                    <div class="action-buttons">
+                `;
+
+                // إضافة الأزرار المخصصة لكل دور
+                if (role === 'restaurant') {
+                    cardHTML += `
+                        <button class="btn btn-accept" onclick="updateStatus('${order.id}', 'قيد التجهيز')">قبول وتجهيز</button>
+                        <button class="btn btn-reject" onclick="updateStatus('${order.id}', 'مرفوض')">رفض</button>
+                    `;
+                } else if (role === 'driver') {
+                    cardHTML += `
+                        <button class="btn btn-pickup" onclick="updateStatus('${order.id}', 'جاري التوصيل')">استلام الطلب</button>
+                        <button class="btn btn-deliver" onclick="updateStatus('${order.id}', 'تم التوصيل')">تأكيد التسليم</button>
+                    `;
+                }
+
+                cardHTML += `</div>`;
+                card.innerHTML = cardHTML;
+                ordersContainer.appendChild(card);
+            });
+        }
+
+        // دالة وهمية لتحديث حالة الطلب (حالياً فقط تظهر رسالة تنبيه)
+        function updateStatus(orderId, newStatus) {
+            alert(`تم تحديث حالة الطلب #${orderId} إلى: ${newStatus}`);
+            // في المستقبل، هنا سنضع كود إرسال التحديث إلى قاعدة البيانات
+        }
+
+        // مراقبة تغيير الدور (من مطعم إلى مندوب والعكس) لتحديث الواجهة فوراً
+        roleSelect.addEventListener('change', renderOrders);
+
+        // تشغيل الدالة لعرض الطلبات عند فتح التطبيق لأول مرة
+        renderOrders();
+    </script>
+</body>
+</html>
