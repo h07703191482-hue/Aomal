@@ -98,26 +98,23 @@
             margin-bottom: 20px;
         }
 
-        /* حاوية الشعار (دراجة ثابتة بدل البوكس) */
+        /* حاوية الشعار الثابتة (الدراجة + النص) */
         .garage-container {
             position: absolute;
-            bottom: 50px; 
+            bottom: 40px; /* لتبدو الدراجة وكأنها تسير على الشارع */
             left: 50%;
             transform: translateX(-50%);
             text-align: center;
             z-index: 10; 
             animation: scaleIn 0.8s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
             width: 100%;
         }
 
-        .garage-container i {
-            font-size: 80px; 
-            color: white;
-            text-shadow: 0 5px 15px rgba(0,0,0,0.2);
-        }
-
         .garage-container h2 {
-            margin: 5px 0 0;
+            margin: 10px 0 0;
             font-size: 38px;
             font-weight: 900;
             color: white;
@@ -146,8 +143,8 @@
             height: 4px;
             background-image: linear-gradient(to right, var(--secondary-gold) 50%, transparent 0%);
             background-size: 60px 4px;
-            /* عكست الحركة لليمين لتعطي سرعة للدراجة الذاهبة لليسار */
-            animation: moveRoadLinesRight 0.6s linear infinite; 
+            /* الشارع يتحرك لليمين مما يعطي إيحاء بأن الدراجة تنطلق لليسار */
+            animation: moveRoadLinesRight 0.4s linear infinite; 
         }
 
         @keyframes moveRoadLinesRight {
@@ -155,43 +152,39 @@
             to { background-position: 60px 0; }
         }
 
-        /* الدراجة المتحركة (تنطلق من اليمين لليسار ووجهها لليسار) */
+        /* الدراجة الثابتة في المنتصف مع اهتزاز بسيط */
         .bike-box {
-            position: absolute;
-            bottom: 5px; 
-            left: 110%; /* تبدأ من خارج الشاشة يميناً */
-            font-size: 45px; 
+            position: relative;
+            font-size: 65px; 
             color: var(--secondary-gold); 
             z-index: 5; 
             display: flex;
             align-items: flex-end;
-            opacity: 0;
-            animation: bikeRightToLeft 3.5s ease-in forwards;
-            animation-delay: 0.5s;
+            animation: bikeBounce 0.4s infinite alternate ease-in-out; /* حركة الاهتزاز */
         }
 
         /* لقلب الدراجة لتصبح وجهها لليسار */
         .bike-box i {
             transform: scaleX(-1);
+            text-shadow: 0 5px 15px rgba(0,0,0,0.4);
         }
 
-        /* انيميشن الانطلاق من اليمين لليسار */
-        @keyframes bikeRightToLeft {
-            0% { left: 110%; opacity: 0; transform: scale(0.5); }
-            15% { left: 90%; opacity: 1; transform: scale(1); } /* الدخول السريع */
-            100% { left: -100px; opacity: 1; transform: scale(1); } /* الخروج من اليسار */
+        /* انيميشن الاهتزاز للدراجة الثابتة لتصبح طبيعية */
+        @keyframes bikeBounce {
+            0% { transform: translateY(0); }
+            100% { transform: translateY(-5px); }
         }
 
-        /* الدخان (تم نقله للخلف - جهة اليمين - ليتناسب مع الاتجاه الجديد) */
-        .exhaust { position: absolute; right: -15px; bottom: 5px; display: flex; flex-direction: row; }
+        /* الدخان (يخرج للخلف - جهة اليمين) */
+        .exhaust { position: absolute; right: -25px; bottom: 5px; display: flex; flex-direction: row; }
         .smoke { display: block; width: 12px; height: 12px; background-color: rgba(255, 255, 255, 0.8); border-radius: 50%; margin-right: -5px; opacity: 0; animation: emitSmokeRight 0.6s infinite; }
         .smoke:nth-child(1) { animation-delay: 0s; } .smoke:nth-child(2) { animation-delay: 0.2s; } .smoke:nth-child(3) { animation-delay: 0.4s; }
         
-        /* انيميشن الدخان يتجه لليمين (لخلف الدراجة) */
+        /* انيميشن الدخان يتجه لليمين بقوة (لخلف الدراجة) */
         @keyframes emitSmokeRight { 
             0% { opacity: 0; transform: translate(0, 0) scale(0.5); } 
-            30% { opacity: 1; transform: translate(10px, -5px) scale(1); } 
-            100% { opacity: 0; transform: translate(20px, -15px) scale(1.5); } 
+            30% { opacity: 1; transform: translate(15px, -5px) scale(1); } 
+            100% { opacity: 0; transform: translate(35px, -15px) scale(1.5); } 
         }
 
         /* --- واجهات تسجيل الدخول --- */
@@ -223,17 +216,15 @@
             </div>
             
             <div class="garage-container">
-                <i class="fas fa-motorcycle"></i>
-                <h2>البندر للمندوبين</h2>
-            </div>
-            
-            <div class="bike-box">
-                <i class="fas fa-motorcycle"></i>
-                <div class="exhaust">
-                    <div class="smoke"></div>
-                    <div class="smoke"></div>
-                    <div class="smoke"></div>
+                <div class="bike-box">
+                    <i class="fas fa-motorcycle"></i>
+                    <div class="exhaust">
+                        <div class="smoke"></div>
+                        <div class="smoke"></div>
+                        <div class="smoke"></div>
+                    </div>
                 </div>
+                <h2>البندر للمندوبين</h2>
             </div>
         </div>
     </div>
@@ -664,4 +655,4 @@
         }
     </script>
 </body>
-</html>
+    </html>
