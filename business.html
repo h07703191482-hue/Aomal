@@ -3,425 +3,196 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>البندر - للمندوبين والمطاعم</title>
+    <title>البندر - أعمال</title>
     <style>
-        /* إعدادات عامة */
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        /* --- تعريف الألوان --- */
+        :root {
+            --primary: #5A228B;
+            --primary-hover: #4A1A75;
+            --secondary-gold: #FFC107;
+            --danger: #EF4444;
+            --success: #10B981;
+            --bg-color: #F4F6F9;
+            --card-bg: #FFFFFF;
+            --text-main: #111827;
+            --text-sub: #6B7280;
+            --border-color: #E5E7EB;
         }
 
-        body {
-            background-color: #f4f7f6;
-            color: #333;
-            overflow: hidden; /* منع التمرير أثناء الشاشة الترحيبية */
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --primary: #7A3BBA;
+                --bg-color: #121212;
+                --card-bg: #1E1E1E;
+                --text-main: #F9FAFB;
+                --text-sub: #9CA3AF;
+                --border-color: #334155;
+            }
         }
 
-        /* --- أنماط الشاشة الترحيبية (Splash Screen) --- */
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; }
+        body { background-color: var(--bg-color); color: var(--text-main); overflow-x: hidden; transition: 0.3s; }
+
+        /* --- Splash Screen --- */
         #splash-screen {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100vh;
-            background-color: #ffffff; /* خلفية بيضاء صافية */
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 9999; /* التأكد من أنها فوق كل شيء */
-            opacity: 1;
-            transition: opacity 0.8s ease-out, visibility 0.8s ease-out; /* حركة الاختفاء */
+            position: fixed; top: 0; left: 0; width: 100%; height: 100vh;
+            background-color: var(--card-bg); display: flex; justify-content: center; align-items: center;
+            z-index: 10000; transition: 0.8s;
         }
+        #splash-screen.hidden { opacity: 0; visibility: hidden; }
 
-        /* كلاس لإخفاء الشاشة الترحيبية بواسطة الجافاسكربت */
-        #splash-screen.hidden {
-            opacity: 0;
-            visibility: hidden;
-            pointer-events: none;
+        .street-container { position: relative; width: 100%; height: 100px; overflow: hidden; background: var(--bg-color); margin-top: 20px; }
+        .street { position: absolute; bottom: 20px; width: 100%; height: 20px; background: #333; }
+        .motorcycle-wrapper { position: absolute; bottom: 15px; left: -100px; animation: moveRight 2.5s linear forwards; }
+        @keyframes moveRight { 0% { left: -100px; } 100% { left: 110%; } }
+
+        /* --- واجهات تسجيل الدخول --- */
+        .auth-container {
+            display: none; height: 100vh; flex-direction: column; justify-content: center; align-items: center; padding: 20px;
         }
-
-        .splash-content {
-            text-align: center;
-            width: 100%;
-            position: relative;
+        .auth-card {
+            background: var(--card-bg); padding: 30px; border-radius: 20px; width: 100%; max-width: 400px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1); text-align: center;
         }
-
-        .welcome-text {
-            font-size: 2.2rem;
-            color: #2c3e50;
-            margin-bottom: 40px;
-            font-weight: bold;
-            animation: fadeInDown 1s ease-out; /* تحرك النص للأسفل */
+        .auth-card h2 { margin-bottom: 20px; color: var(--primary); }
+        .auth-card input {
+            width: 100%; padding: 12px; margin-bottom: 15px; border: 2px solid var(--border-color);
+            border-radius: 10px; background: var(--bg-color); color: var(--text-main); outline: none;
         }
-
-        /* حاوية الشارع والدراجة */
-        .street-container {
-            position: relative;
-            width: 100%;
-            height: 120px;
-            overflow: hidden; /* إخفاء العناصر خارج الحدود */
-            background-color: #f8f9fa; /* لون خلفية خفيف للشارع */
+        .auth-card button {
+            width: 100%; padding: 12px; background: var(--primary); color: white; border: none;
+            border-radius: 10px; font-weight: bold; cursor: pointer; transition: 0.3s;
         }
-
-        /* رسم الشارع */
-        .street {
-            position: absolute;
-            bottom: 20px;
-            left: 0;
-            width: 100%;
-            height: 30px;
-            background-color: #333; /* لون الإسفلت */
-            border-top: 3px solid #fff;
-            border-bottom: 3px solid #fff;
+        .role-btn {
+            background: var(--card-bg) !important; color: var(--text-main) !important;
+            border: 2px solid var(--primary) !important; margin-bottom: 10px;
         }
+        .role-btn:hover { background: var(--primary) !important; color: white !important; }
 
-        /* خطوط الشارع المتقطعة */
-        .street::after {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 0;
-            width: 100%;
-            height: 3px;
-            background-image: linear-gradient(to right, #fff 50%, rgba(255, 255, 255, 0) 0%);
-            background-size: 30px 3px;
-            background-repeat: repeat-x;
-            transform: translateY(-50%);
-        }
-
-        /* حاوية الدراجة والبخار */
-        .motorcycle-wrapper {
-            position: absolute;
-            bottom: 22px; /* الوقوف على الشارع */
-            right: -100px; /* البداية خارج الشاشة من اليمين */
-            display: flex;
-            align-items: flex-end;
-            /* أنيميشن الحركة من اليمين لليسار */
-            animation: moveMotorcycle 2.5s linear forwards;
-        }
-
-        .motorcycle {
-            font-size: 45px; /* حجم الدراجة */
-            transform: scaleX(-1); /* قلب الدراجة لتواجه اليسار */
-            position: relative;
-        }
-
-        /* أنماط البخار/الدخان */
-        .exhaust-smoke {
-            position: absolute;
-            right: -8px; /* خلف الدراجة المقلوبة */
-            bottom: 8px;
-            display: flex;
-        }
-
-        .smoke {
-            display: block;
-            width: 8px;
-            height: 8px;
-            background-color: rgba(180, 180, 180, 0.7); /* لون دخان رمادي فاتح */
-            border-radius: 50%;
-            margin-right: -4px;
-            opacity: 0;
-            /* أنيميشن خروج البخار */
-            animation: emitSmoke 0.6s infinite;
-        }
-
-        /* تأخير بسيط لكل فقاعة دخان */
-        .smoke-1 { animation-delay: 0s; }
-        .smoke-2 { animation-delay: 0.2s; }
-        .smoke-3 { animation-delay: 0.4s; }
-
-        /* --- التعريفات الحركية (Keyframes) --- */
-
-        /* حركة الدراجة من اليمين لليسار */
-        @keyframes moveMotorcycle {
-            0% {
-                right: -100px;
-            }
-            100% {
-                right: 100%; /* الوصول لنهاية اليسار */
-                transform: translateX(-100px); /* تعويض لعنصر يخرج بالكامل */
-            }
-        }
-
-        /* حركة البخار (يكبر ويختفي) */
-        @keyframes emitSmoke {
-            0% {
-                opacity: 0;
-                transform: translate(0, 0) scale(0.5);
-            }
-            30% {
-                opacity: 1;
-                transform: translate(5px, -3px) scale(1);
-            }
-            100% {
-                opacity: 0;
-                transform: translate(12px, -8px) scale(1.5);
-            }
-        }
-
-        /* حركة ظهور النص */
-        @keyframes fadeInDown {
-            0% {
-                opacity: 0;
-                transform: translateY(-20px);
-            }
-            100% {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        /* --- أنماط التطبيق الرئيسي (نفسها بدون تغيير) --- */
-        #main-content {
-            opacity: 0;
-            transition: opacity 0.5s ease-in;
-        }
-
-        body.loaded #main-content {
-            opacity: 1;
-        }
-
-        .navbar {
-            background-color: #2c3e50;
-            color: white;
-            padding: 15px 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-        }
-
-        .logo h1 {
-            font-size: 22px;
-        }
-
-        .logo span {
-            color: #e74c3c;
-        }
-
-        .user-role select {
-            padding: 5px 10px;
-            border-radius: 5px;
-            border: none;
-            outline: none;
-            font-weight: bold;
-            cursor: pointer;
-        }
-
-        .container {
-            padding: 20px;
-            max-width: 800px;
-            margin: 0 auto;
-        }
-
-        .dashboard-header {
-            margin-bottom: 20px;
-            border-bottom: 2px solid #ddd;
-            padding-bottom: 10px;
-        }
-
-        .orders-grid {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-        }
-
-        .order-card {
-            background: white;
-            padding: 15px;
-            border-radius: 10px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-            border-right: 5px solid #f1c40f;
-            transition: transform 0.2s;
-        }
-
-        .order-card:hover {
-            transform: translateY(-2px);
-        }
-
-        .order-header {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 10px;
-            font-weight: bold;
-        }
-
-        .order-details {
-            font-size: 14px;
-            color: #555;
-            line-height: 1.6;
-            margin-bottom: 15px;
-        }
-
-        .order-price {
-            font-size: 18px;
-            color: #27ae60;
-            font-weight: bold;
-            margin-top: 10px;
-        }
-
-        .action-buttons {
-            display: flex;
-            gap: 10px;
-        }
-
-        .btn {
-            flex: 1;
-            padding: 10px;
-            border: none;
-            border-radius: 5px;
-            font-size: 15px;
-            font-weight: bold;
-            cursor: pointer;
-            color: white;
-            transition: opacity 0.2s;
-        }
-
-        .btn:active {
-            opacity: 0.8;
-        }
-
-        .btn-accept { background-color: #2ecc71; }
-        .btn-reject { background-color: #e74c3c; }
-        .btn-pickup { background-color: #f39c12; }
-        .btn-deliver { background-color: #3498db; }
+        /* --- التطبيق الرئيسي --- */
+        #main-app { display: none; }
+        .navbar { background: var(--primary); color: white; padding: 15px; display: flex; justify-content: space-between; align-items: center; }
+        .container { padding: 20px; max-width: 800px; margin: 0 auto; }
+        .order-card { background: var(--card-bg); padding: 15px; border-radius: 12px; margin-bottom: 15px; border: 1px solid var(--border-color); border-right: 5px solid var(--secondary-gold); }
+        .btn-group { display: flex; gap: 10px; margin-top: 15px; }
+        .btn { flex: 1; padding: 10px; border: none; border-radius: 8px; color: white; font-weight: bold; cursor: pointer; }
     </style>
 </head>
 <body>
 
     <div id="splash-screen">
-        <div class="splash-content">
-            <h1 class="welcome-text">مرحبا يا مندوبين البندر</h1>
-            <div class="street-container">
-                <div class="street"></div>
-                <div class="motorcycle-wrapper">
-                    <div class="motorcycle">🛵</div>
-                    <div class="exhaust-smoke">
-                        <span class="smoke smoke-1"></span>
-                        <span class="smoke smoke-2"></span>
-                        <span class="smoke smoke-3"></span>
-                    </div>
-                </div>
-            </div>
+        <div style="text-align: center; width: 100%;">
+            <h1 style="color: var(--primary);">مرحبا يا مندوبين البندر</h1>
+            <div class="street-container"><div class="street"></div><div class="motorcycle-wrapper">🛵</div></div>
         </div>
     </div>
 
-    <div id="main-content">
+    <div id="step-name" class="auth-container">
+        <div class="auth-card">
+            <h2>أهلاً بك!</h2>
+            <p style="margin-bottom: 15px; color: var(--text-sub);">ما هو اسمك؟</p>
+            <input type="text" id="user-name" placeholder="أدخل اسمك الكامل">
+            <button onclick="goToPhone()">متابعة</button>
+        </div>
+    </div>
+
+    <div id="step-phone" class="auth-container">
+        <div class="auth-card">
+            <h2>رقم الهاتف</h2>
+            <p style="margin-bottom: 15px; color: var(--text-sub);">يرجى إدخال رقم هاتف عراقي</p>
+            <input type="tel" id="user-phone" placeholder="07XXXXXXXXX" maxlength="11">
+            <button onclick="goToRoles()">تأكيد الرقم</button>
+        </div>
+    </div>
+
+    <div id="step-roles" class="auth-container">
+        <div class="auth-card">
+            <h2>كيف تود الانضمام؟</h2>
+            <button class="role-btn" onclick="checkRestaurantCode()">انضمام كـ صاحب مطعم</button>
+            <button class="role-btn" onclick="finishLogin('driver')">انضمام كـ مندوب</button>
+        </div>
+    </div>
+
+    <div id="main-app">
         <header class="navbar">
-            <div class="logo">
-                <h1>مندوبين <span>البندر</span></h1>
-            </div>
-            <div class="user-role">
-                <label for="role-select">الدخول كـ:</label>
-                <select id="role-select">
-                    <option value="restaurant">صاحب مطعم</option>
-                    <option value="driver">مندوب توصيل</option>
-                </select>
-            </div>
+            <h1>مندوبين <span>البندر</span></h1>
+            <span id="display-user-role" style="font-size: 12px; background: rgba(255,255,255,0.2); padding: 5px 10px; border-radius: 20px;"></span>
         </header>
-
-        <main class="container">
-            <div class="dashboard-header">
-                <h2 id="dashboard-title">لوحة تحكم المطعم - الطلبات الجديدة</h2>
-            </div>
-
-            <div id="orders-container" class="orders-grid">
-                </div>
-        </main>
+        <div class="container">
+            <h2 id="view-title" style="margin-bottom: 20px;">الطلبات المتوفرة</h2>
+            <div id="orders-list"></div>
+        </div>
     </div>
 
     <script>
-        // بيانات وهمية لطلبات مبدئية للتجربة
-        const orders = [
-            {
-                id: "101",
-                customerName: "علي محمد",
-                items: "2x شاورما دجاج, 1x بيبسي",
-                price: "12,000 دينار",
-                address: "أم قصر - حي الضباط",
-                status: "new" // الحالات: new, preparing, ready, out_for_delivery, delivered
-            },
-            {
-                id: "102",
-                customerName: "حسن جاسم",
-                items: "1x بيتزا وسط, 2x عصير برتقال",
-                price: "18,000 دينار",
-                address: "أم قصر - السوق",
-                status: "new"
-            }
-        ];
+        let userName = "";
+        let userRole = "";
 
-        const roleSelect = document.getElementById('role-select');
-        const dashboardTitle = document.getElementById('dashboard-title');
-        const ordersContainer = document.getElementById('orders-container');
-
-        // --- إدارة الشاشة الترحيبية ---
-        document.addEventListener('DOMContentLoaded', () => {
-            const splashScreen = document.getElementById('splash-screen');
-            
-            // إخفاء الشاشة الترحيبية بعد 3 ثواني (3000 ميلي ثانية)
+        // تشغيل الـ Splash ثم إظهار واجهة الاسم
+        window.onload = () => {
             setTimeout(() => {
-                splashScreen.classList.add('hidden');
-                document.body.style.overflow = 'auto'; // السماح بالتمرير مجدداً
-                document.body.classList.add('loaded'); // إظهار المحتوى الرئيسي بسلاسة
+                document.getElementById('splash-screen').classList.add('hidden');
+                document.getElementById('step-name').style.display = 'flex';
+                document.body.style.overflow = 'auto';
             }, 3000);
-        });
+        };
 
-        // --- منطق التطبيق الرئيسي (نفسه بدون تغيير) ---
-        function renderOrders() {
-            const role = roleSelect.value;
-            ordersContainer.innerHTML = ''; // مسح الطلبات القديمة
+        function goToPhone() {
+            userName = document.getElementById('user-name').value;
+            if (userName.length < 3) return alert("يرجى إدخال اسم حقيقي");
+            document.getElementById('step-name').style.display = 'none';
+            document.getElementById('step-phone').style.display = 'flex';
+        }
 
-            if (role === 'restaurant') {
-                dashboardTitle.innerText = 'لوحة تحكم المطعم - إدارة الطلبات';
+        function goToRoles() {
+            const phone = document.getElementById('user-phone').value;
+            const iraqiPhoneRegex = /^07[0-9]{9}$/;
+            if (!iraqiPhoneRegex.test(phone)) return alert("يرجى إدخال رقم عراقي صحيح مكون من 11 رقم");
+            document.getElementById('step-phone').style.display = 'none';
+            document.getElementById('step-roles').style.display = 'flex';
+        }
+
+        function checkRestaurantCode() {
+            const code = prompt("يرجى إدخال رمز التحقق الخاص بالمطاعم:");
+            // الرمز الافتراضي حالياً هو 1234
+            if (code === "1234") { 
+                finishLogin('restaurant');
             } else {
-                dashboardTitle.innerText = 'لوحة المندوب - طلبات بانتظار التوصيل';
+                alert("الرمز غير صحيح، يرجى مراجعة الإدارة");
             }
-
-            orders.forEach(order => {
-                const card = document.createElement('div');
-                card.className = 'order-card';
-
-                let cardHTML = `
-                    <div class="order-header">
-                        <span>طلب #${order.id}</span>
-                        <span>الزبون: ${order.customerName}</span>
-                    </div>
-                    <div class="order-details">
-                        <p><strong>التفاصيل:</strong> ${order.items}</p>
-                        <p><strong>العنوان:</strong> ${order.address}</p>
-                        <div class="order-price">${order.price}</div>
-                    </div>
-                    <div class="action-buttons">
-                `;
-
-                if (role === 'restaurant') {
-                    cardHTML += `
-                        <button class="btn btn-accept" onclick="updateStatus('${order.id}', 'قيد التجهيز')">قبول وتجهيز</button>
-                        <button class="btn btn-reject" onclick="updateStatus('${order.id}', 'مرفوض')">رفض</button>
-                    `;
-                } else if (role === 'driver') {
-                    cardHTML += `
-                        <button class="btn btn-pickup" onclick="updateStatus('${order.id}', 'جاري التوصيل')">استلام الطلب</button>
-                        <button class="btn btn-deliver" onclick="updateStatus('${order.id}', 'تم التوصيل')">تأكيد التسليم</button>
-                    `;
-                }
-
-                cardHTML += `</div>`;
-                card.innerHTML = cardHTML;
-                ordersContainer.appendChild(card);
-            });
         }
 
-        function updateStatus(orderId, newStatus) {
-            alert(`تم تحديث حالة الطلب #${orderId} إلى: ${newStatus}`);
+        function finishLogin(role) {
+            userRole = role;
+            document.getElementById('step-roles').style.display = 'none';
+            document.getElementById('main-app').style.display = 'block';
+            document.getElementById('display-user-role').innerText = role === 'restaurant' ? "صاحب مطعم" : "مندوب";
+            renderOrders();
         }
 
-        roleSelect.addEventListener('change', renderOrders);
-        renderOrders();
+        function renderOrders() {
+            const list = document.getElementById('orders-list');
+            const orders = [
+                { id: "101", customer: "أحمد علي", items: "وجبة برغر عائلية", price: "15,000 د.ع" },
+                { id: "102", customer: "سارة محمود", items: "بيتزا ايطالية عدد 2", price: "22,000 د.ع" }
+            ];
+            
+            list.innerHTML = orders.map(o => `
+                <div class="order-card">
+                    <div style="display:flex; justify-content:space-between; font-weight:bold;">
+                        <span>طلب #${o.id}</span><span>${o.customer}</span>
+                    </div>
+                    <p style="color:var(--text-sub); margin: 10px 0;">${o.items}</p>
+                    <div style="color:var(--success); font-weight:bold;">${o.price}</div>
+                    <div class="btn-group">
+                        ${userRole === 'restaurant' ? 
+                            `<button class="btn" style="background:var(--success)">تجهيز</button><button class="btn" style="background:var(--danger)">رفض</button>` : 
+                            `<button class="btn" style="background:var(--primary)">استلام</button>`
+                        }
+                    </div>
+                </div>
+            `).join('');
+        }
     </script>
 </body>
 </html>
