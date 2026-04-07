@@ -230,12 +230,10 @@
 
                 for (let id in data) {
                     const o = data[id];
-                    // طلبات عامة: الحالة pending_driver ولم يحجزها أحد
                     if (o.status === 'pending_driver' && !o.driverPhone) {
                         foundPublic = true;
                         publicHtml += renderOrderCard(id, o, 'public');
                     }
-                    // طلبات محجوزة: محجوزة من قبل هذا المندوب تحديداً
                     else if (o.driverPhone === userPhone && (o.status === 'accepted_driver' || o.status === 'pending_driver')) {
                         foundPrivate = true;
                         privateHtml += renderOrderCard(id, o, 'private');
@@ -248,29 +246,66 @@
         }
 
         function renderOrderCard(id, o, type) {
-            return `
-                <div class="order-card">
-                    <div style="display:flex; justify-content:space-between; font-weight:bold; margin-bottom:5px;">
-                        <span>طلب #${o.id || id}</span>
-                        <span style="color:var(--primary);">${o.customer || 'زبون'}</span>
+            if (type === 'public') {
+                return `
+                <div class="order-card" style="direction: rtl; text-align: right;">
+                    <div style="color: #10B981; font-weight: bold; margin-bottom: 10px; font-size: 16px;">✅ طلب متاح</div>
+                    <div style="font-weight: bold; margin-bottom: 5px;">📦 التفاصيل:</div>
+                    <div style="font-size: 14px; color: var(--text-main); line-height: 1.8;">
+                        <div>🔵 <b>طلب مسواك</b></div>
+                        <div>👤 <b>الزبون:</b> ${o.customer || 'غير محدد'}</div>
+                        <div>📞 <b>الهاتف:</b> <a href="tel:${o.phone}" dir="ltr" style="color: var(--primary); text-decoration: none; font-weight:bold;">${o.phone || 'غير محدد'}</a></div>
+                        <div>📌 <b>الدالة:</b> ${o.address || 'غير محدد'}</div>
+                        <div>📝 <b>الطلب:</b> ${o.items || 'لا توجد تفاصيل'}</div>
+                        <div>🔢 <b>تسلسل طلب العميل:</b> #${o.id || id}</div>
+                        <div>📍 <b>الموقع:</b> <a href="${o.location || '#'}" style="color: var(--primary); text-decoration: none;">عرض على الخريطة 🗺️</a></div>
                     </div>
-                    <p style="font-size:13px; color:var(--text-sub);">${o.items || 'لا توجد تفاصيل'}</p>
-                    <div style="color:var(--success); font-weight:bold; margin-top:10px;">${o.price || 'الأجرة: 2,000 د.ع'}</div>
+                    <div style="color:var(--success); font-weight:bold; margin-top:10px;">الأجرة: ${o.price || '2,000 د.ع'}</div>
                     <div class="btn-group">
-                        ${type === 'public' ? 
-                            `<button class="btn" style="background:var(--primary)" onclick="lockOrder('${id}')"><i class="fas fa-lock"></i> حجز الطلب لـي</button>` : 
-                            `<button class="btn" style="background:var(--success)" onclick="showScreen('plaza-screen')"><i class="fas fa-check"></i> إنهاء وتسليم</button>`
-                        }
+                        <button class="btn" style="background:var(--primary)" onclick="lockOrder('${id}')">
+                            <i class="fas fa-lock"></i> حجز الطلب لـي
+                        </button>
                     </div>
                 </div>`;
+            } else {
+                return `
+                <div class="order-card" style="direction: rtl; text-align: right; border-right: 5px solid #10B981;">
+                    <div style="color: #10B981; font-weight: bold; margin-bottom: 10px; font-size: 16px;">✅ تم حجز الطلب بنجاح</div>
+                    
+                    <div style="background: #FEF3C7; color: #D97706; padding: 10px; border-radius: 8px; font-weight: bold; margin-bottom: 15px; text-align: center; font-size: 18px; border: 1px dashed #D97706;">
+                        🔑 كود التأكيد: ${o.verifyCode || 'جاري التوليد...'}
+                    </div>
+
+                    <div style="font-weight: bold; margin-bottom: 5px;">📦 التفاصيل:</div>
+                    <div style="font-size: 14px; color: var(--text-main); line-height: 1.8;">
+                        <div>🔵 <b>طلب مسواك</b></div>
+                        <div>👤 <b>الزبون:</b> ${o.customer || 'غير محدد'}</div>
+                        <div>📞 <b>الهاتف:</b> <a href="tel:${o.phone}" dir="ltr" style="color: var(--primary); text-decoration: none; font-weight:bold;">${o.phone || 'غير محدد'}</a></div>
+                        <div>📌 <b>الدالة:</b> ${o.address || 'غير محدد'}</div>
+                        <div>📝 <b>الطلب:</b> ${o.items || 'لا توجد تفاصيل'}</div>
+                        <div>🔢 <b>تسلسل طلب العميل:</b> #${o.id || id}</div>
+                        <div>📍 <b>الموقع:</b> <a href="${o.location || '#'}" style="color: var(--primary); text-decoration: none;">عرض على الخريطة 🗺️</a></div>
+                    </div>
+                    <div style="color:var(--success); font-weight:bold; margin-top:10px;">الأجرة: ${o.price || '2,000 د.ع'}</div>
+                    <div class="btn-group">
+                        <button class="btn" style="background:var(--success)" onclick="showScreen('plaza-screen')">
+                            <i class="fas fa-check"></i> إنهاء وتسليم
+                        </button>
+                    </div>
+                </div>`;
+            }
         }
 
         function lockOrder(id) {
             if(!confirm("هل أنت متأكد من حجز هذا الطلب؟")) return;
+            
+            const randomCode = Math.floor(1000 + Math.random() * 9000); 
+
             db.ref('orders/' + id).update({
                 status: 'accepted_driver',
                 driverName: userName,
-                driverPhone: userPhone
+                driverPhone: userPhone,
+                verifyCode: randomCode
             }).then(() => {
                 alert("تم حجز الطلب! انتقل لخانة طلباتك المحجوزة");
                 switchTab('private');
