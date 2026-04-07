@@ -1,0 +1,17 @@
+{
+  "name": "البندر لخدمات التوصيل",
+  "short_name": "البندر",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#0D47A1",
+  "theme_color": "#0D47A1",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "logo.png.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
