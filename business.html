@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -138,26 +139,7 @@
                 <button id="statusToggleBtn" class="send-btn" style="background: #10B981; font-size: 14px; padding: 12px;" onclick="toggleDriverStatus()">
                     <i class="fas fa-check-circle"></i> متاح للعمل
                 </button>
-                <button class="send-btn" style="background: #8B5CF6; margin-top: 10px; font-size: 14px; padding: 12px;" onclick="showScreen('plaza-screen')">
-                    <i class="fas fa-qrcode"></i> تأكيد تسليم طلب
-                </button>
             </div>
-        </div>
-    </div>
-
-    <div id="plaza-screen" class="screen container">
-        <button class="back-btn" onclick="showScreen('main-app');"><i class="fas fa-arrow-right"></i></button>
-        <h2 class="screen-header-title">تأكيد تسليم الطلب</h2>
-        <div class="form-card">
-            <div class="form-group">
-                <label>رقم هاتف الزبون</label>
-                <input type="tel" id="driverVerifyPhoneInput" placeholder="07XXXXXXXXX" style="text-align:center;">
-            </div>
-            <div class="form-group">
-                <label>كود التأكيد</label>
-                <input type="number" id="driverVerifyInput" placeholder="1234" style="text-align:center; font-size:24px;">
-            </div>
-            <button class="send-btn" style="background: #10B981;" onclick="processVerifyCode()"><i class="fas fa-check-circle"></i> تأكيد وإكمال</button>
         </div>
     </div>
 
@@ -288,7 +270,7 @@
                     </div>
                     <div style="color:var(--success); font-weight:bold; margin-top:10px;">الأجرة: ${o.price || '2,000 د.ع'}</div>
                     <div class="btn-group">
-                        <button class="btn" style="background:var(--success)" onclick="showScreen('plaza-screen')">
+                        <button class="btn" style="background:var(--success)" onclick="finishOrder('${id}')">
                             <i class="fas fa-check"></i> إنهاء وتسليم
                         </button>
                     </div>
@@ -299,16 +281,30 @@
         function lockOrder(id) {
             if(!confirm("هل أنت متأكد من حجز هذا الطلب؟")) return;
             
+            // توليد كود التأكيد تلقائياً وبسرعة
             const randomCode = Math.floor(1000 + Math.random() * 9000); 
 
             db.ref('orders/' + id).update({
                 status: 'accepted_driver',
                 driverName: userName,
                 driverPhone: userPhone,
-                verifyCode: randomCode
+                verifyCode: randomCode // ينحفظ الكود مباشرة ويظهر بالكارت
             }).then(() => {
                 alert("تم حجز الطلب! انتقل لخانة طلباتك المحجوزة");
                 switchTab('private');
+            });
+        }
+
+        // دالة جديدة لإنهاء الطلب مباشرة
+        function finishOrder(id) {
+            if(!confirm("هل أنت متأكد من تسليم وإنهاء هذا الطلب؟")) return;
+            
+            // تحديث حالة الطلب إلى "مكتمل"
+            db.ref('orders/' + id).update({
+                status: 'completed'
+            }).then(() => {
+                confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
+                alert("تم إكمال وتسليم الطلب بنجاح! عاشت ايدك كابتن");
             });
         }
 
@@ -330,14 +326,6 @@
                 badge.style.background = 'var(--gold)';
                 badge.style.color = '#000';
             }
-        }
-
-        function processVerifyCode() {
-            const code = document.getElementById('driverVerifyInput').value;
-            if(!code) return alert("أدخل كود التأكيد");
-            confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
-            alert("تم إكمال الطلب بنجاح! عاشت ايدك كابتن");
-            showScreen('main-app');
         }
 
         function logout() {
