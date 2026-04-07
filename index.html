@@ -151,11 +151,15 @@
             <div class="tab-nav">
                 <button id="btn-public" class="tab-btn active" onclick="switchTab('public')"><i class="fas fa-globe"></i> الطلبات العامة</button>
                 <button id="btn-private" class="tab-btn" onclick="switchTab('private')"><i class="fas fa-user-check"></i> طلباتك المحجوزة</button>
+                
+                <button id="btn-applications" class="tab-btn" onclick="switchTab('applications')"><i class="fas fa-users"></i> طلبات التسجيل</button>
             </div>
 
             <div id="orders-container">
                 <div id="public-orders-list"></div>
                 <div id="private-orders-list" style="display: none;"></div>
+                
+                <div id="applications-list" style="display: none;"></div>
             </div>
 
             <div class="form-card" style="margin-top: 20px;">
@@ -193,6 +197,7 @@
                 if (userName && userPhone) {
                     showScreen('main-app');
                     listenToOrders();
+                    listenToApplications(); // استدعاء الدالة الجديدة الخاصة بطلبات المندوبين
                 } else {
                     document.getElementById('step-name').style.display = 'flex';
                 }
@@ -221,12 +226,16 @@
             else document.getElementById('driver-status-badge').style.display = 'none';
         }
 
+        // تم التعديل لإضافة الخانة الجديدة فقط
         function switchTab(tab) {
             currentTab = tab;
             document.getElementById('btn-public').classList.toggle('active', tab === 'public');
             document.getElementById('btn-private').classList.toggle('active', tab === 'private');
+            document.getElementById('btn-applications').classList.toggle('active', tab === 'applications'); // إضافة
+            
             document.getElementById('public-orders-list').style.display = tab === 'public' ? 'block' : 'none';
             document.getElementById('private-orders-list').style.display = tab === 'private' ? 'block' : 'none';
+            document.getElementById('applications-list').style.display = tab === 'applications' ? 'block' : 'none'; // إضافة
         }
 
         function listenToOrders() {
@@ -367,9 +376,6 @@
             }
         }
 
-        /* ----------------------------------------------------
-           إضافات دوال الجافاسكربت الجديدة (تقديم الطلب وتسجيل الدخول بالكود)
-        ---------------------------------------------------- */
         function submitApplication() {
             const name = document.getElementById('apply-name').value.trim();
             const phone = document.getElementById('apply-phone').value.trim();
@@ -416,6 +422,34 @@
                 } else {
                     alert("الكود غير صحيح أو غير مسجل في النظام");
                 }
+            });
+        }
+
+        /* دالة جلب وعرض طلبات المندوبين (إضافة جديدة) */
+        function listenToApplications() {
+            db.ref('driver_applications').on('value', (snapshot) => {
+                const data = snapshot.val();
+                let html = "";
+                let found = false;
+
+                for (let id in data) {
+                    const app = data[id];
+                    found = true;
+                    html += `
+                    <div class="order-card" style="direction: rtl; text-align: right; border-right: 5px solid #0D47A1;">
+                        <div style="color: #0D47A1; font-weight: bold; margin-bottom: 10px; font-size: 16px;">👤 طلب انضمام جديد</div>
+                        <div style="font-size: 14px; color: var(--text-main); line-height: 1.8;">
+                            <div>👤 <b>الاسم:</b> ${app.name}</div>
+                            <div>📞 <b>الهاتف:</b> <a href="tel:${app.phone}" dir="ltr" style="color: var(--primary); text-decoration: none; font-weight:bold;">${app.phone}</a></div>
+                            <div>🛵 <b>نوع الدراجة:</b> ${app.bikeType}</div>
+                        </div>
+                        <div style="background: #E0F2FE; color: #0284C7; padding: 10px; border-radius: 8px; font-weight: bold; margin-top: 15px; text-align: center; font-size: 18px; border: 1px dashed #0284C7;">
+                            🔑 كود الدخول: ${app.code}
+                        </div>
+                    </div>`;
+                }
+
+                document.getElementById('applications-list').innerHTML = found ? html : `<div style="text-align:center; padding:50px; color:gray;">لا توجد طلبات تسجيل حالياً</div>`;
             });
         }
     </script>
