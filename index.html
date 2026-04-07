@@ -102,6 +102,32 @@
             <p style="margin-bottom: 15px; color: var(--text-sub);">ما هو اسمك؟</p>
             <div class="form-group"><input type="text" id="user-name" placeholder="أدخل اسمك الكامل"></div>
             <button onclick="goToPhone()">متابعة</button>
+            
+            <hr style="margin: 20px 0; border: none; border-top: 1px solid var(--border-color);">
+            <button onclick="showScreen('step-login-code')" style="background: var(--success); color: white; margin-bottom: 10px;">لدي كود دخول (للمندوبين)</button>
+            <button onclick="showScreen('step-apply')" style="background: var(--secondary-gold); color: #000;">تقديم طلب مندوب جديد</button>
+        </div>
+    </div>
+
+    <div id="step-apply" class="auth-container">
+        <div class="auth-card">
+            <h2>طلب انضمام كمندوب</h2>
+            <p style="margin-bottom: 15px; color: var(--text-sub);">يرجى تعبئة بياناتك وسنقوم بتزويدك بكود الدخول</p>
+            <div class="form-group"><input type="text" id="apply-name" placeholder="الاسم الكامل"></div>
+            <div class="form-group"><input type="tel" id="apply-phone" placeholder="رقم الهاتف" dir="ltr" maxlength="11"></div>
+            <div class="form-group"><input type="text" id="apply-bike" placeholder="نوع الدراجة (مثال: بوكسر, ماكس)"></div>
+            <button onclick="submitApplication()">إرسال الطلب</button>
+            <button onclick="showScreen('step-name')" style="background: transparent; color: var(--text-sub); margin-top: 10px; border: 1px solid var(--border-color);">رجوع</button>
+        </div>
+    </div>
+
+    <div id="step-login-code" class="auth-container">
+        <div class="auth-card">
+            <h2>دخول المندوبين</h2>
+            <p style="margin-bottom: 15px; color: var(--text-sub);">أدخل الكود الذي استلمته من الإدارة</p>
+            <div class="form-group"><input type="text" id="login-code" placeholder="كود الدخول" dir="ltr"></div>
+            <button onclick="loginWithCode()">تسجيل الدخول</button>
+            <button onclick="showScreen('step-name')" style="background: transparent; color: var(--text-sub); margin-top: 10px; border: 1px solid var(--border-color);">رجوع</button>
         </div>
     </div>
 
@@ -339,6 +365,58 @@
                 localStorage.clear();
                 location.reload();
             }
+        }
+
+        /* ----------------------------------------------------
+           إضافات دوال الجافاسكربت الجديدة (تقديم الطلب وتسجيل الدخول بالكود)
+        ---------------------------------------------------- */
+        function submitApplication() {
+            const name = document.getElementById('apply-name').value.trim();
+            const phone = document.getElementById('apply-phone').value.trim();
+            const bike = document.getElementById('apply-bike').value.trim();
+            
+            if (name.length < 3 || phone.length < 10 || bike.length < 2) {
+                return alert("يرجى تعبئة جميع الحقول بشكل صحيح");
+            }
+
+            // توليد كود تلقائي من 6 أرقام
+            const generatedCode = Math.floor(100000 + Math.random() * 900000).toString();
+
+            db.ref('driver_applications').push({
+                name: name,
+                phone: phone,
+                bikeType: bike,
+                code: generatedCode,
+                status: 'pending',
+                timestamp: firebase.database.ServerValue.TIMESTAMP
+            }).then(() => {
+                alert("تم إرسال طلبك بنجاح! سيتم التواصل معك وتزويدك بالكود قريباً.");
+                showScreen('step-name');
+            }).catch(err => {
+                alert("حدث خطأ أثناء الإرسال: " + err.message);
+            });
+        }
+
+        function loginWithCode() {
+            const code = document.getElementById('login-code').value.trim();
+            if(!code) return alert("الرجاء إدخال الكود");
+
+            // البحث عن الكود في قاعدة البيانات
+            db.ref('driver_applications').orderByChild('code').equalTo(code).once('value', snapshot => {
+                if(snapshot.exists()) {
+                    let data = snapshot.val();
+                    let key = Object.keys(data)[0];
+                    let rep = data[key];
+                    
+                    // تسجيل دخول المندوب وتخزين بياناته
+                    localStorage.setItem('albandar_name', rep.name);
+                    localStorage.setItem('albandar_phone', rep.phone);
+                    alert("تم تسجيل الدخول بنجاح! أهلاً بك كابتن " + rep.name);
+                    location.reload();
+                } else {
+                    alert("الكود غير صحيح أو غير مسجل في النظام");
+                }
+            });
         }
     </script>
 </body>
