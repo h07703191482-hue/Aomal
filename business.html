@@ -12,12 +12,10 @@
     
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
-    
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 
     <style>
-        /* --- تعريف الألوان --- */
         :root {
             --primary: #0D47A1;
             --primary-hover: #1565C0;
@@ -52,91 +50,39 @@
         body { background-color: var(--bg-color); color: var(--text-main); overflow-x: hidden; transition: 0.3s; }
 
         .screen { display: none; }
-        .container { padding: 20px; max-width: 800px; margin: 0 auto; }
+        .container { padding: 20px; max-width: 800px; margin: 0 auto; padding-bottom: 100px; }
         .form-card { background: var(--card-bg); padding: 20px; border-radius: 15px; margin-bottom: 20px; border: 1px solid var(--border-color); }
         .form-group { margin-bottom: 15px; text-align: right; }
         .form-group label { display: block; margin-bottom: 5px; color: var(--text-sub); font-size: 14px; }
-        
-        .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 16px 20px; border: 1px solid var(--border-color); border-radius: 20px; font-size: 15px; font-weight: 600; background: var(--bg-color); color: var(--text-main); outline: none; }
+        .form-group input { width: 100%; padding: 16px 20px; border: 1px solid var(--border-color); border-radius: 20px; font-size: 15px; font-weight: 600; background: var(--bg-color); color: var(--text-main); outline: none; }
         
         .screen-header-title { margin-bottom: 20px; color: var(--text-main); font-size: 22px; font-weight: bold; }
-        .form-card-title { font-size: 16px; font-weight: bold; margin-bottom: 15px; color: var(--primary); display: flex; align-items: center; gap: 8px; }
-        
         .back-btn { background: none; border: none; color: var(--text-main); font-size: 18px; cursor: pointer; margin-bottom: 15px; width: 45px; height: 45px; border-radius: 14px; display: flex; align-items: center; justify-content: center; }
-        
         .send-btn { width: 100%; padding: 18px; border: none; border-radius: 20px; font-size: 18px; font-weight: 800; cursor: pointer; color: white; display: flex; justify-content: center; align-items: center; gap: 8px; }
         
-        .location-btn { width: 100%; padding: 14px; border-radius: 20px; font-size: 15px; font-weight: 700; text-align: center; cursor: pointer; border: none; }
-        .resign-btn { width: 100%; padding: 12px; background: rgba(239, 68, 68, 0.1); color: var(--danger); border: 1px solid var(--danger); border-radius: 10px; font-weight: bold; cursor: pointer; }
-        
-        .select-card { background: var(--card-bg); border-radius: var(--radius-lg); border: 1px solid var(--border-color); cursor: pointer; transition: 0.3s; }
-        .card-full { padding: 22px 20px; margin: 10px 0; display: flex; align-items: center; gap: 15px; }
-        .card-full:hover { background: var(--bg-color); }
-        
-        .icon-wrapper { width: 45px; height: 45px; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 20px; }
-        .card-full .icon-wrapper { width: 65px; height: 65px; border-radius: 20px; font-size: 28px; }
-        
-        .card-half { padding: 25px 10px; border-radius: var(--radius-lg); background: var(--card-bg); border: 1px solid var(--border-color); display: flex; flex-direction: column; align-items: center; text-align: center; gap: 10px; cursor: pointer; transition: 0.3s; }
-        .card-half:hover { background: var(--bg-color); }
-        .card-half .icon-wrapper { width: 55px; height: 55px; border-radius: 18px; font-size: 24px; display: flex; justify-content: center; align-items: center; }
-
-        .card-text h3 { margin: 0; font-size: 16px; }
-        .card-text small { color: var(--text-sub); font-size: 12px; }
-        .arrow-icon { margin-right: auto; color: var(--text-sub); }
-
-        .driver-status-bar { display: none; background: var(--gold); color: #000; font-weight: 800; letter-spacing: 0.5px; font-size: 12px; padding: 6px 0; position: absolute; top: 0; left: 0; width: 100%; z-index: 10; text-align: center; transition: background 0.3s ease, color 0.3s ease; }
-        
-        .card-join .icon-wrapper { background: rgba(16, 185, 129, 0.1); color: var(--success); }
-        .card-plaza .icon-wrapper { background: rgba(139, 92, 246, 0.1); color: #8B5CF6; }
-
-        .bottom-nav-container { padding: 8px 12px; border-radius: 9999px; background: var(--card-bg); display: flex; justify-content: space-around; align-items: center; border: 1px solid var(--border-color); position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); width: 90%; max-width: 500px; box-shadow: var(--shadow-sm); z-index: 1000; }
-        .bottom-nav-item { padding: 10px 15px; display: flex; flex-direction: column; align-items: center; gap: 4px; color: var(--text-sub); cursor: pointer; text-decoration: none; border-radius: 20px; transition: 0.3s; }
-        .bottom-nav-item:hover, .bottom-nav-item.active { color: var(--primary); background: rgba(13, 71, 161, 0.1); }
-        .bottom-nav-icon { font-size: 20px; }
-        .bottom-nav-text { font-size: 12px; font-weight: 600; }
-
-        #welcome-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100vh; background: var(--card-bg); z-index: 100000; flex-direction: column; justify-content: center; align-items: center; text-align: center; }
-        @keyframes scaleIn { 0% { transform: scale(0); } 100% { transform: scale(1); } }
-
-        /* --- الشاشة الترحيبية (Splash Screen) الأصلية بالدراجة --- */
-        #splash-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #5A228B; z-index: 99999; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: opacity 0.5s ease-in, transform 0.5s ease-in, visibility 0.8s ease-out; overflow: hidden; }
-        #splash-screen.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
-        #app-logo-splash { width: 130px; height: 130px; background: white; border-radius: 35px; display: flex; align-items: center; justify-content: center; margin-top: -100px; box-shadow: 0 20px 50px rgba(0,0,0,0.2); opacity: 0; transform: scale(0.5); transition: 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275); z-index: 20; }
-        #app-logo-splash i { font-size: 65px; color: #5A228B; }
-        .show-logo { opacity: 1 !important; transform: scale(1) !important; }
-        .splash-welcome-text { position: absolute; top: 18%; text-align: center; width: 100%; color: white; animation: fadeInDown 1s ease-out; }
-        .splash-welcome-text h2 { margin: 0; font-size: 32px; font-weight: 800; letter-spacing: 1px; text-shadow: none; color: white;}
-        .splash-welcome-text p { margin: 8px 0 0; opacity: 0.9; font-size: 16px; font-weight: 500; }
-        @keyframes fadeInDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
-        .road-realistic { position: absolute; bottom: 25%; width: 100%; height: 60px; background: rgba(0,0,0,0.2); border-top: 3px solid rgba(255,255,255,0.1); border-bottom: 3px solid rgba(255,255,255,0.1); display: flex; align-items: center; box-shadow: none; border-radius: 0;}
-        .road-lines { width: 100%; height: 4px; background: repeating-linear-gradient(90deg, #FFC107 0, #FFC107 40px, transparent 40px, transparent 80px); animation: road-scroll 0.5s linear infinite; }
-        @keyframes road-scroll { from { transform: translateX(0); } to { transform: translateX(80px); } }
-        .bike-box { position: absolute; bottom: calc(25% + 15px); left: 110%; font-size: 70px; color: white; transform: scaleX(-1); animation: drive-left 2s linear forwards; z-index: 10; animation-delay: 0.5s; display: block; opacity: 1; text-shadow: none;}
-        .bike-box i::after { display: none; }
-        .exhaust { position: absolute; right: -10px; bottom: 10px; display: flex; flex-direction: column; }
-        .smoke { width: 12px; height: 12px; background: rgba(255, 255, 255, 0.6); border-radius: 50%; margin-top: -5px; opacity: 0; animation: smoke-bloom 0.8s infinite; display: block; margin-right: 0;}
-        .smoke:nth-child(2) { animation-delay: 0.2s; }
-        .smoke:nth-child(3) { animation-delay: 0.4s; }
-        @keyframes smoke-bloom { 0% { transform: translate(0, 0) scale(1); opacity: 0; } 20% { opacity: 0.7; } 100% { transform: translate(40px, -40px) scale(3); opacity: 0; filter: blur(5px); } }
-        @keyframes drive-left { 0% { left: 110%; } 100% { left: -30%; } }
-
-        /* --- واجهات تسجيل الدخول --- */
-        .auth-container { display: none; height: 100vh; flex-direction: column; justify-content: center; align-items: center; padding: 20px; }
-        .auth-card { background: var(--card-bg); padding: 30px; border-radius: 20px; width: 100%; max-width: 400px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); text-align: center; border: 1px solid var(--border-color); }
-        .auth-card h2 { margin-bottom: 20px; color: var(--primary); }
-        .auth-card button { width: 100%; padding: 12px; background: var(--primary); color: white; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; transition: 0.3s; }
-        .role-btn { background: var(--card-bg) !important; color: var(--text-main) !important; border: 2px solid var(--primary) !important; margin-bottom: 10px; }
-        .role-btn:hover { background: var(--primary) !important; color: white !important; }
-
-        /* --- التطبيق الرئيسي --- */
-        #main-app { display: none; padding-top: 25px; }
-        .navbar { background: var(--primary); color: white; padding: 15px; display: flex; justify-content: space-between; align-items: center; }
-        .navbar-right { display: flex; align-items: center; gap: 10px; }
-        .logout-btn { background: var(--danger); color: white; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer; font-size: 12px; }
         .order-card { background: var(--card-bg); padding: 15px; border-radius: 12px; margin-bottom: 15px; border: 1px solid var(--border-color); border-right: 5px solid var(--secondary-gold); }
         .btn-group { display: flex; gap: 10px; margin-top: 15px; }
         .btn-group .btn { flex: 1; padding: 10px; border: none; border-radius: 8px; color: white; font-weight: bold; cursor: pointer; transition: 0.3s;}
-        .btn-group .btn:active { transform: scale(0.95); }
+
+        /* Tabs Styling */
+        .tab-nav { display: flex; background: var(--card-bg); margin-bottom: 20px; border-radius: 15px; border: 1px solid var(--border-color); overflow: hidden; }
+        .tab-btn { flex: 1; padding: 15px; border: none; background: none; color: var(--text-sub); font-weight: bold; cursor: pointer; transition: 0.3s; font-size: 14px; }
+        .tab-btn.active { background: var(--primary); color: white; }
+
+        .driver-status-bar { display: none; background: var(--gold); color: #000; font-weight: 800; font-size: 12px; padding: 6px 0; position: sticky; top: 0; z-index: 100; text-align: center; }
+
+        #splash-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #0D47A1; z-index: 99999; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        #splash-screen.hidden { opacity: 0; visibility: hidden; pointer-events: none; transition: 0.5s; }
+        #app-logo-splash { width: 130px; height: 130px; background: white; border-radius: 35px; display: flex; align-items: center; justify-content: center; margin-top: -100px; box-shadow: 0 20px 50px rgba(0,0,0,0.2); }
+        #app-logo-splash i { font-size: 65px; color: #0D47A1; }
+
+        .auth-container { display: none; height: 100vh; flex-direction: column; justify-content: center; align-items: center; padding: 20px; }
+        .auth-card { background: var(--card-bg); padding: 30px; border-radius: 20px; width: 100%; max-width: 400px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); text-align: center; border: 1px solid var(--border-color); }
+        .auth-card h2 { margin-bottom: 20px; color: var(--primary); }
+        .auth-card button { width: 100%; padding: 12px; background: var(--primary); color: white; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; }
+
+        .navbar { background: var(--primary); color: white; padding: 15px; display: flex; justify-content: space-between; align-items: center; }
+        .logout-btn { background: var(--danger); color: white; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer; font-size: 12px; }
     </style>
 </head>
 <body>
@@ -144,18 +90,16 @@
     <div id="driver-status-badge" class="driver-status-bar">أنت الآن في وضع العمل النشط 🟢</div>
 
     <div id="splash-screen">
-      <div id="app-logo-splash"><i class="fas fa-box-open"></i></div>
-      <div class="splash-welcome-text">
-          <h2 id="splash-title">البندر</h2>
-          <p id="splash-subtitle">أسرع تطبيق للتوصيل والتحصيل في أم قصر</p>
+      <div id="app-logo-splash"><i class="fas fa-motorcycle"></i></div>
+      <div style="color: white; margin-top: 20px; text-align: center;">
+          <h2>البندر أعمال</h2>
+          <p>أسرع نظام للمناديب</p>
       </div>
-      <div class="road-realistic"><div class="road-lines"></div></div>
-      <div class="bike-box"><i class="fas fa-motorcycle"></i><div class="exhaust"><div class="smoke"></div><div class="smoke"></div><div class="smoke"></div></div></div>
     </div>
 
     <div id="step-name" class="auth-container">
         <div class="auth-card">
-            <h2>أهلاً بك!</h2>
+            <h2>أهلاً كابتن!</h2>
             <p style="margin-bottom: 15px; color: var(--text-sub);">ما هو اسمك؟</p>
             <div class="form-group"><input type="text" id="user-name" placeholder="أدخل اسمك الكامل"></div>
             <button onclick="goToPhone()">متابعة</button>
@@ -165,114 +109,59 @@
     <div id="step-phone" class="auth-container">
         <div class="auth-card">
             <h2>رقم الهاتف</h2>
-            <p style="margin-bottom: 15px; color: var(--text-sub);">يرجى إدخال رقم هاتف عراقي</p>
+            <p style="margin-bottom: 15px; color: var(--text-sub);">يرجى إدخال رقم هاتفك</p>
             <div class="form-group">
-                <input type="tel" id="user-phone" placeholder="07XXXXXXXXX" dir="ltr" maxlength="11" oninput="this.value = this.value.replace(/[^0-9]/g, '');">
+                <input type="tel" id="user-phone" placeholder="07XXXXXXXXX" dir="ltr" maxlength="11">
             </div>
-            <button onclick="goToRoles()">تأكيد الرقم</button>
+            <button onclick="finishLogin()">دخول للنظام</button>
         </div>
     </div>
 
-    <div id="step-roles" class="auth-container">
-        <div class="auth-card">
-            <h2>كيف تود الانضمام؟</h2>
-            <button class="role-btn" onclick="checkRestaurantCode()">انضمام كـ صاحب مطعم</button>
-            <button class="role-btn" onclick="finishLogin('driver')">انضمام كـ مندوب</button>
-        </div>
-    </div>
-
-    <div id="main-app">
+    <div id="main-app" class="screen">
         <header class="navbar">
-            <h1>أعمال <span>البندر</span></h1>
-            <div class="navbar-right">
-                <span id="display-user-role" style="font-size: 12px; background: rgba(255,255,255,0.2); padding: 5px 10px; border-radius: 20px;"></span>
-                <button class="logout-btn" onclick="logout()">خروج</button>
-            </div>
+            <h1 style="font-size: 18px;">كابتن <span>البندر</span></h1>
+            <button class="logout-btn" onclick="logout()">خروج</button>
         </header>
+
         <div class="container">
-            <h2 id="view-title" style="margin-bottom: 20px; margin-top:10px;">الطلبات المتوفرة</h2>
-            
-            <div id="orders-list"></div>
-            
-            <div id="driver-plaza-card" class="select-card card-full card-plaza" style="display: none; margin-top: 30px;" onclick="showScreen('plaza-screen')">
-                <div class="icon-wrapper"><i class="fas fa-briefcase"></i></div>
-                <div class="card-text"><h3 id="srv-plaza-title">لوحة الكابتن</h3><small id="srv-plaza-sub">تسليم الطلبات والإحصائيات</small></div>
-                <i class="fas fa-chevron-left arrow-icon"></i>
+            <div class="tab-nav">
+                <button id="btn-public" class="tab-btn active" onclick="switchTab('public')"><i class="fas fa-globe"></i> الطلبات العامة</button>
+                <button id="btn-private" class="tab-btn" onclick="switchTab('private')"><i class="fas fa-user-check"></i> طلباتك المحجوزة</button>
+            </div>
+
+            <div id="orders-container">
+                <div id="public-orders-list"></div>
+                <div id="private-orders-list" style="display: none;"></div>
+            </div>
+
+            <div class="form-card" style="margin-top: 20px;">
+                <button id="statusToggleBtn" class="send-btn" style="background: #10B981; font-size: 14px; padding: 12px;" onclick="toggleDriverStatus()">
+                    <i class="fas fa-check-circle"></i> متاح للعمل
+                </button>
+                <button class="send-btn" style="background: #8B5CF6; margin-top: 10px; font-size: 14px; padding: 12px;" onclick="showScreen('plaza-screen')">
+                    <i class="fas fa-qrcode"></i> تأكيد تسليم طلب
+                </button>
             </div>
         </div>
     </div>
 
     <div id="plaza-screen" class="screen container">
         <button class="back-btn" onclick="showScreen('main-app');"><i class="fas fa-arrow-right"></i></button>
-        <h2 class="screen-header-title"><i class="fas fa-briefcase" style="color:#8B5CF6;"></i> لوحة الكابتن</h2>
-
-        <div class="note" style="background: rgba(239, 68, 68, 0.1); border-right: 4px solid var(--danger); padding: 10px; color: var(--danger); font-size: 14px; font-weight: 800; margin-bottom: 20px; border-radius: 8px;">
-            <i class="fas fa-exclamation-circle" style="font-size: 18px;"></i> 
-            <span style="display: block; margin-top: 5px;">قانون صارم: ممنوع تشتري أي مسواك أو تتحرك قبل ما تتصل بالزبون وتتأكد منه! إذا الزبون ما جاوب، الغي الطلب فوراً. المندوب اللي يخالف ويشتري بدون اتصال يتحمل الخسارة.</span>
-        </div>
-
-        <div class="form-card" style="text-align: center; padding: 15px;">
-            <button id="statusToggleBtn" class="send-btn" style="background: #10B981;" onclick="toggleDriverStatus()">
-                <i class="fas fa-check-circle"></i> أنا متاح للعمل
-            </button>
-            <button id="soundToggleBtn" class="send-btn" style="background: var(--text-muted); margin-top: 10px;" onclick="toggleOrderSound()">
-                <i class="fas fa-bell-slash"></i> جرس الطلبات: معطل
-            </button>
-            <button class="send-btn" style="background: var(--bg-color); color: var(--primary); border: 2px solid var(--primary); margin-top: 10px;" onclick="showScreen('log-screen'); renderDriverLog();">
-                <i class="fas fa-list-alt"></i> سجل الطلبات المنجزة
-            </button>
-        </div>
-        
-        <div class="form-card" style="background: linear-gradient(135deg, var(--primary) 0%, #818CF8 100%); color:white; border:none; text-align:center;">
-            <h4 style="color:rgba(255,255,255,0.8); margin:0; font-size:15px;">إجمالي العمليات المنجزة 📦</h4>
-            <p id="stat-count" style="font-size: 45px; font-weight:800; color:white; margin:10px 0 0;">0</p>
-        </div>
-
+        <h2 class="screen-header-title">تأكيد تسليم الطلب</h2>
         <div class="form-card">
-            <div class="form-card-title"><i class="fas fa-qrcode"></i> تأكيد تسليم/تحصيل جديد</div>
             <div class="form-group">
                 <label>رقم هاتف الزبون</label>
-                <input type="tel" id="driverVerifyPhoneInput" placeholder="مثال: 07700000000" style="text-align:center;" dir="ltr" maxlength="11" oninput="this.value = this.value.replace(/[^0-9]/g, ''); checkPhoneLive(this)">
-                <span class="phone-error" style="display:none; color:var(--danger); margin-top:5px; font-size:12px; font-weight:bold;">⚠️ الرقم غير صحيح</span>
+                <input type="tel" id="driverVerifyPhoneInput" placeholder="07XXXXXXXXX" style="text-align:center;">
             </div>
             <div class="form-group">
-                <label>كود التأكيد (من الزبون)</label>
-                <input type="number" id="driverVerifyInput" placeholder="مثال: 1234" style="text-align:center; font-size:22px; letter-spacing:4px; font-weight:bold;">
+                <label>كود التأكيد</label>
+                <input type="number" id="driverVerifyInput" placeholder="1234" style="text-align:center; font-size:24px;">
             </div>
-            <button class="send-btn" style="background: #10B981; margin-top:5px;" onclick="processVerifyCode()"><i class="fas fa-check-circle"></i> تأكيد العملية</button>
-        </div>
-
-        <a href="tg://resolve?domain=uumqaser" class="select-card card-full" style="background: #0088cc; color: white; border:none; text-decoration: none;">
-            <div class="icon-wrapper" style="background: rgba(255,255,255,0.2); color:white;"><i class="fab fa-telegram-plane"></i></div>
-            <div class="card-text" style="margin-right:15px;"><h3 style="color:white;">قناة العمل الرسمية</h3><small style="color:rgba(255,255,255,0.8);">انضم لتلقي الإشعارات والعمليات</small></div>
-        </a>
-
-        <p id="driver-display-name" style="text-align: center; font-weight: 700; color: var(--text-main); margin-top:30px;"></p>
-        <button class="resign-btn" style="margin-top:15px;" onclick="resignDriver()"><i class="fas fa-sign-out-alt"></i> تسجيل خروج / استقالة</button>
-    </div>
-
-    <div id="log-screen" class="screen container">
-        <button class="back-btn" onclick="showScreen('plaza-screen')"><i class="fas fa-arrow-right"></i></button>
-        <h2 class="screen-header-title"><i class="fas fa-clipboard-list" style="color:var(--primary);"></i> سجل الطلبات المنجزة</h2>
-        <div id="driver-log-container"></div>
-    </div>
-
-    <div id="welcome-overlay" onclick="skipWelcome()">
-        <i class="fas fa-check-circle" style="font-size: 80px; color: #10B981; margin-bottom: 20px; animation: scaleIn 0.5s ease;"></i>
-        <h1 id="welcome-title" style="margin:0 0 10px; font-weight:800;">تم التفعيل! 🥳</h1>
-        <div style="background: var(--bg-color); padding: 20px; border-radius: var(--radius-lg); border: 1px solid var(--border-color); width: 80%; max-width:300px;">
-            <p id="wel-p1" style="margin:0; font-weight:700;">أنت الآن كابتن رسمي</p>
-            <p id="wel-p2" style="margin:5px 0 0; font-size: 14px; color:var(--text-sub);">جاري تجهيز لوحة التحكم...</p>
+            <button class="send-btn" style="background: #10B981;" onclick="processVerifyCode()"><i class="fas fa-check-circle"></i> تأكيد وإكمال</button>
         </div>
     </div>
 
     <script>
-        const BOT_TOKEN = "8640123901:AAFfl57lPpounm1y-SM-KmQadiT2fnqjFOM";
-        const ADMIN_CHAT_ID = "7479342799"; 
-        
-        // ==========================================
-        // إعدادات مشروع Firebase الخاصة بك
-        // ==========================================
         const firebaseConfig = {
             apiKey: "AIzaSyBXW3gL4PszJjmgmVVOjkuEqe-WkWHyO60",
             authDomain: "al-bandar-f02f6.firebaseapp.com",
@@ -280,345 +169,147 @@
             projectId: "al-bandar-f02f6",
             storageBucket: "al-bandar-f02f6.firebasestorage.app",
             messagingSenderId: "799678549296",
-            appId: "1:799678549296:web:bd1cc0ff99a680eabfccf5",
-            measurementId: "G-KRRFC79HC3"
+            appId: "1:799678549296:web:bd1cc0ff99a680eabfccf5"
         };
-        if (!firebase.apps.length) {
-            firebase.initializeApp(firebaseConfig);
-        }
+        firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
-        // ==========================================
 
         let userName = localStorage.getItem('albandar_name') || "";
         let userPhone = localStorage.getItem('albandar_phone') || "";
-        let userRole = localStorage.getItem('albandar_role') || "";
-
-        let lastOrderCount = -1;
-        let isSoundEnabled = localStorage.getItem('sound_enabled') === 'true';
-        const newOrderAudio = new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3');
-
-        function validateIraqiPhone(phone) { return /^07[0-9]{9}$/.test(phone); }
-        function checkPhoneLive(input) {
-            const errorSpan = input.nextElementSibling;
-            if(errorSpan && errorSpan.classList.contains('phone-error')) {
-                errorSpan.style.display = validateIraqiPhone(input.value) ? 'none' : 'block';
-            }
-        }
-        function showToast(msg) { alert(msg); }
-        
-        function showScreen(screenId) {
-            document.querySelectorAll('.screen, #main-app, .auth-container').forEach(el => el.style.display = 'none');
-            const target = document.getElementById(screenId);
-            if(target) target.style.display = 'block';
-            if(screenId === 'main-app' && userRole === 'driver') {
-                document.getElementById('driver-status-badge').style.display = 'block';
-            } else {
-                document.getElementById('driver-status-badge').style.display = 'none';
-            }
-        }
-        function skipWelcome() { document.getElementById('welcome-overlay').style.display = 'none'; }
+        let currentTab = 'public';
 
         window.onload = () => {
             setTimeout(() => {
-                const logo = document.getElementById('app-logo-splash');
-                if(logo) logo.classList.add('show-logo');
-            }, 100);
-
-            setTimeout(() => {
                 document.getElementById('splash-screen').classList.add('hidden');
-                document.body.style.overflow = 'auto';
-                if (userName && userPhone && userRole) {
-                    showMainApp(userRole);
-                    initDriverStatus();
+                if (userName && userPhone) {
+                    showScreen('main-app');
+                    listenToOrders();
                 } else {
                     document.getElementById('step-name').style.display = 'flex';
                 }
-            }, 3500);
+            }, 2000);
         };
 
         function goToPhone() {
-            const nameInput = document.getElementById('user-name').value.trim();
-            if (nameInput.length < 3) return showToast("يرجى إدخال اسم حقيقي");
-            userName = nameInput;
+            userName = document.getElementById('user-name').value.trim();
+            if (userName.length < 3) return alert("أدخل اسمك الكامل");
             document.getElementById('step-name').style.display = 'none';
             document.getElementById('step-phone').style.display = 'flex';
         }
 
-        function goToRoles() {
-            const phoneInput = document.getElementById('user-phone').value.trim();
-            if (!validateIraqiPhone(phoneInput)) return showToast("يرجى إدخال رقم عراقي صحيح مكون من 11 رقم (يبدأ بـ 07)");
-            userPhone = phoneInput;
-            document.getElementById('step-phone').style.display = 'none';
-            document.getElementById('step-roles').style.display = 'flex';
-        }
-
-        function checkRestaurantCode() {
-            const code = prompt("يرجى إدخال رمز التحقق الخاص بالمطاعم:");
-            if (code === "1234") { finishLogin('restaurant'); } 
-            else { showToast("الرمز غير صحيح، يرجى مراجعة الإدارة"); }
-        }
-
-        function finishLogin(role) {
-            userRole = role;
+        function finishLogin() {
+            userPhone = document.getElementById('user-phone').value.trim();
+            if (userPhone.length < 10) return alert("أدخل رقم هاتف صحيح");
             localStorage.setItem('albandar_name', userName);
             localStorage.setItem('albandar_phone', userPhone);
-            localStorage.setItem('albandar_role', userRole);
-            sendTelegramNotification(userName, userPhone, userRole);
-            
-            document.getElementById('step-roles').style.display = 'none';
-            document.getElementById('welcome-overlay').style.display = 'flex';
-            
-            if(role === 'restaurant') {
-                document.getElementById('wel-p1').innerText = "أنت الآن مسجل كصاحب مطعم";
-            } else {
-                document.getElementById('wel-p1').innerText = "أنت الآن كابتن رسمي";
-            }
-
-            try { confetti({ particleCount: 200, spread: 90, origin: { y: 0.5 } }); } catch(e){}
-            
-            setTimeout(() => {
-                skipWelcome();
-                showMainApp(userRole);
-                initDriverStatus();
-            }, 2500);
+            location.reload();
         }
 
-        function showMainApp(role) {
-            showScreen('main-app');
-            document.getElementById('display-user-role').innerText = role === 'restaurant' ? "صاحب مطعم" : "مندوب";
-            
-            const plazaCard = document.getElementById('driver-plaza-card');
-            if(role === 'driver') {
-                plazaCard.style.display = 'flex';
-                document.getElementById('driver-display-name').innerText = "المندوب: " + userName;
-                updateStatsUI();
-            } else {
-                plazaCard.style.display = 'none';
-            }
-            
-            // بدء قراءة الطلبات من فايربيس فور الدخول
-            listenToOrders();
+        function showScreen(id) {
+            document.querySelectorAll('.screen, .auth-container').forEach(s => s.style.display = 'none');
+            document.getElementById(id).style.display = 'block';
+            if(id === 'main-app') document.getElementById('driver-status-badge').style.display = 'block';
+            else document.getElementById('driver-status-badge').style.display = 'none';
         }
 
-        function logout() {
-            if(confirm("هل أنت متأكد من تسجيل الخروج؟")) {
-                localStorage.clear();
-                location.reload();
-            }
+        function switchTab(tab) {
+            currentTab = tab;
+            document.getElementById('btn-public').classList.toggle('active', tab === 'public');
+            document.getElementById('btn-private').classList.toggle('active', tab === 'private');
+            document.getElementById('public-orders-list').style.display = tab === 'public' ? 'block' : 'none';
+            document.getElementById('private-orders-list').style.display = tab === 'private' ? 'block' : 'none';
         }
-
-        function sendTelegramNotification(name, phone, role) {
-            if(!ADMIN_CHAT_ID) return;
-            const roleName = role === 'restaurant' ? "صاحب مطعم 🏪" : "مندوب 🛵";
-            const textMsg = `🔔 تسجيل دخول جديد في البندر أعمال!\n\n👤 الاسم: ${name}\n📱 الرقم: ${phone}\nنوع الحساب: ${roleName}`;
-            fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
-                method: 'POST', headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ chat_id: ADMIN_CHAT_ID, text: textMsg })
-            }).catch(e => console.log(e));
-        }
-
-        // ==========================================
-        // قسم استلام وإدارة الطلبات عبر فايربيس اللحظي
-        // ==========================================
 
         function listenToOrders() {
             db.ref('orders').on('value', (snapshot) => {
                 const data = snapshot.val();
-                let ordersArray = [];
-                for(let key in data) {
-                    ordersArray.push(data[key]);
+                let publicHtml = "";
+                let privateHtml = "";
+                let foundPublic = false;
+                let foundPrivate = false;
+
+                for (let id in data) {
+                    const o = data[id];
+                    // طلبات عامة: الحالة pending_driver ولم يحجزها أحد
+                    if (o.status === 'pending_driver' && !o.driverPhone) {
+                        foundPublic = true;
+                        publicHtml += renderOrderCard(id, o, 'public');
+                    }
+                    // طلبات محجوزة: محجوزة من قبل هذا المندوب تحديداً
+                    else if (o.driverPhone === userPhone && (o.status === 'accepted_driver' || o.status === 'pending_driver')) {
+                        foundPrivate = true;
+                        privateHtml += renderOrderCard(id, o, 'private');
+                    }
                 }
-                
-                // ترتيب الطلبات من الأحدث للأقدم
-                ordersArray.sort((a, b) => b.timestamp - a.timestamp);
-                renderRealtimeOrders(ordersArray);
-                
-                // تشغيل جرس التنبيه في حالة وجود طلب جديد
-                if (ordersArray.length > lastOrderCount && lastOrderCount !== -1) {
-                    if(isSoundEnabled) newOrderAudio.play().catch(e=>{});
-                }
-                lastOrderCount = ordersArray.length;
+
+                document.getElementById('public-orders-list').innerHTML = foundPublic ? publicHtml : `<div style="text-align:center; padding:50px; color:gray;">لا توجد طلبات عامة حالياً</div>`;
+                document.getElementById('private-orders-list').innerHTML = foundPrivate ? privateHtml : `<div style="text-align:center; padding:50px; color:gray;">ليس لديك طلبات محجوزة</div>`;
             });
         }
 
-        function renderRealtimeOrders(allOrders) {
-            const list = document.getElementById('orders-list');
-            
-            // المطعم يشوف الطلبات الجديدة، المندوب يشوف الطلبات اللي تجهزت
-            let filteredOrders = [];
-            if (userRole === 'restaurant') {
-                filteredOrders = allOrders.filter(o => o.status === 'pending_restaurant');
-            } else if (userRole === 'driver') {
-                filteredOrders = allOrders.filter(o => o.status === 'pending_driver');
-            }
-
-            if (filteredOrders.length === 0) {
-                list.innerHTML = `
-                    <div class="form-card" style="text-align:center; padding: 40px 20px;">
-                        <i class="fas fa-box-open" style="font-size:50px; color:var(--border-color); margin-bottom:15px;"></i>
-                        <p style="color:var(--text-sub); font-size:18px; font-weight:bold; margin:0;">لا توجد طلبات حالياً</p>
-                    </div>`;
-                return;
-            }
-
-            list.innerHTML = filteredOrders.map(o => `
-                <div class="order-card" id="order-${o.id}">
-                    <div style="display:flex; justify-content:space-between; font-weight:bold; margin-bottom: 10px;">
-                        <span>طلب #${o.id}</span><span>${o.customer}</span>
+        function renderOrderCard(id, o, type) {
+            return `
+                <div class="order-card">
+                    <div style="display:flex; justify-content:space-between; font-weight:bold; margin-bottom:5px;">
+                        <span>طلب #${o.id || id}</span>
+                        <span style="color:var(--primary);">${o.customer || 'زبون'}</span>
                     </div>
-                    <p style="color:var(--primary); font-size: 13px; font-weight:bold; margin-bottom: 5px;"><i class="fas fa-store"></i> ${o.restaurant || 'توصيل عام'}</p>
-                    <p style="color:var(--text-sub); margin-bottom: 15px; font-size: 14px;">${o.items}</p>
-                    <div style="color:var(--success); font-weight:bold; font-size: 18px; margin-bottom: 15px;">${o.price || 'تحدد الفاتورة لاحقاً'}</div>
+                    <p style="font-size:13px; color:var(--text-sub);">${o.items || 'لا توجد تفاصيل'}</p>
+                    <div style="color:var(--success); font-weight:bold; margin-top:10px;">${o.price || 'الأجرة: 2,000 د.ع'}</div>
                     <div class="btn-group">
-                        ${userRole === 'restaurant' ? 
-                            `<button class="btn" style="background:var(--success)" onclick="updateOrderStatus('${o.id}', 'pending_driver')"><i class="fas fa-check"></i> تجهيز وإرسال للمندوب</button>
-                             <button class="btn" style="background:var(--danger)" onclick="updateOrderStatus('${o.id}', 'rejected')"><i class="fas fa-times"></i> رفض</button>` : 
-                            `<button class="btn" style="background:var(--primary)" onclick="updateOrderStatus('${o.id}', 'accepted_driver')"><i class="fas fa-motorcycle"></i> استلام الطلب</button>`
+                        ${type === 'public' ? 
+                            `<button class="btn" style="background:var(--primary)" onclick="lockOrder('${id}')"><i class="fas fa-lock"></i> حجز الطلب لـي</button>` : 
+                            `<button class="btn" style="background:var(--success)" onclick="showScreen('plaza-screen')"><i class="fas fa-check"></i> إنهاء وتسليم</button>`
                         }
                     </div>
-                </div>
-            `).join('');
+                </div>`;
         }
 
-        function updateOrderStatus(orderId, newStatus) {
-            if(newStatus === 'rejected' && !confirm("هل أنت متأكد من رفض الطلب وإلغاءه؟")) return;
-            
-            // تحديث الحالة في قاعدة البيانات، وسيقوم فايربيس بتحديث شاشات الجميع فوراً
-            db.ref('orders/' + orderId).update({
-                status: newStatus,
-                driverName: newStatus === 'accepted_driver' ? userName : null
+        function lockOrder(id) {
+            if(!confirm("هل أنت متأكد من حجز هذا الطلب؟")) return;
+            db.ref('orders/' + id).update({
+                status: 'accepted_driver',
+                driverName: userName,
+                driverPhone: userPhone
             }).then(() => {
-                if(newStatus === 'pending_driver') showToast("تم التجهيز! الطلب تحول الآن إلى المناديب 🛵");
-                if(newStatus === 'accepted_driver') {
-                    showToast("تم حجز الطلب باسمك بنجاح! 🛵 توكل على الله");
-                    let logs = JSON.parse(localStorage.getItem('driver_logs') || '[]');
-                    logs.unshift({ 
-                        date: new Date().toLocaleString('en-US', { hour12: true, month: 'short', day: 'numeric', hour: '2-digit', minute:'2-digit' }), 
-                        phone: "بيانات محفوظة", 
-                        price: "مستلم" 
-                    });
-                    localStorage.setItem('driver_logs', JSON.stringify(logs));
-                }
-                if(newStatus === 'rejected') showToast("تم رفض الطلب ❌");
-            }).catch((error) => {
-                showToast("حدث خطأ في تحديث الطلب.");
+                alert("تم حجز الطلب! انتقل لخانة طلباتك المحجوزة");
+                switchTab('private');
             });
-        }
-
-        // ==========================================
-
-        function toggleOrderSound() {
-            isSoundEnabled = !isSoundEnabled;
-            localStorage.setItem('sound_enabled', isSoundEnabled); 
-            const btn = document.getElementById('soundToggleBtn');
-            if (isSoundEnabled) {
-                btn.innerHTML = '<i class="fas fa-bell"></i> جرس الطلبات: مفعل';
-                btn.style.background = '#F59E0B'; 
-                btn.style.color = 'white';
-                showToast("🔔 تم تفعيل جرس تنبيه الطلبات!");
-            } else {
-                btn.innerHTML = '<i class="fas fa-bell-slash"></i> جرس الطلبات: معطل';
-                btn.style.background = 'var(--text-muted)';
-                btn.style.color = 'white';
-                showToast("تم إيقاف الجرس 🔕");
-            }
         }
 
         function toggleDriverStatus() {
-            const btn = document.getElementById('statusToggleBtn'); 
+            const btn = document.getElementById('statusToggleBtn');
             const badge = document.getElementById('driver-status-badge');
-            let current = localStorage.getItem('driver_status') || 'available';
-            
-            if(current === 'available') {
-                localStorage.setItem('driver_status', 'busy'); 
-                btn.style.background = 'var(--danger)'; 
-                btn.innerHTML = '<i class="fas fa-minus-circle"></i> أنا مشغول حالياً';
-                if(badge) { badge.innerText = 'أنت الآن مشغول 🔴'; badge.style.background = 'var(--danger)'; badge.style.color = 'white'; }
+            let isAvailable = btn.style.background.includes('16, 185, 129'); // Check if green
+
+            if(isAvailable) {
+                btn.style.background = 'var(--danger)';
+                btn.innerHTML = '<i class="fas fa-minus-circle"></i> مشغول حالياً';
+                badge.innerText = 'أنت الآن مشغول 🔴';
+                badge.style.background = 'var(--danger)';
+                badge.style.color = 'white';
             } else {
-                localStorage.setItem('driver_status', 'available'); 
-                btn.style.background = 'var(--success)'; 
-                btn.innerHTML = '<i class="fas fa-check-circle"></i> أنا متاح للعمل';
-                if(badge) { badge.innerText = 'أنت الآن في وضع العمل النشط 🟢'; badge.style.background = 'var(--gold)'; badge.style.color = '#000'; }
+                btn.style.background = '#10B981';
+                btn.innerHTML = '<i class="fas fa-check-circle"></i> متاح للعمل';
+                badge.innerText = 'أنت الآن في وضع العمل النشط 🟢';
+                badge.style.background = 'var(--gold)';
+                badge.style.color = '#000';
             }
         }
 
-        function initDriverStatus() {
-            if(userRole !== 'driver') return;
-            let current = localStorage.getItem('driver_status') || 'available';
-            const btn = document.getElementById('statusToggleBtn'); 
-            const badge = document.getElementById('driver-status-badge');
-            
-            if(current === 'busy') { 
-                if(btn) { btn.style.background = 'var(--danger)'; btn.innerHTML = '<i class="fas fa-minus-circle"></i> أنا مشغول حالياً'; } 
-                if(badge) { badge.innerText = 'أنت الآن مشغول 🔴'; badge.style.background = 'var(--danger)'; badge.style.color = 'white'; } 
-            } else { 
-                if(btn) { btn.style.background = 'var(--success)'; btn.innerHTML = '<i class="fas fa-check-circle"></i> أنا متاح للعمل'; } 
-                if(badge) { badge.innerText = 'أنت الآن في وضع العمل النشط 🟢'; badge.style.background = 'var(--gold)'; badge.style.color = '#000'; } 
-            }
-            
-            const soundBtn = document.getElementById('soundToggleBtn');
-            if(isSoundEnabled && soundBtn) {
-                soundBtn.innerHTML = '<i class="fas fa-bell"></i> جرس الطلبات: مفعل';
-                soundBtn.style.background = '#F59E0B'; 
-                soundBtn.style.color = 'white';
-            }
+        function processVerifyCode() {
+            const code = document.getElementById('driverVerifyInput').value;
+            if(!code) return alert("أدخل كود التأكيد");
+            confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
+            alert("تم إكمال الطلب بنجاح! عاشت ايدك كابتن");
+            showScreen('main-app');
         }
 
-        async function processVerifyCode() {
-            const custPhone = document.getElementById('driverVerifyPhoneInput').value.trim();
-            const code = document.getElementById('driverVerifyInput').value.trim(); 
-            
-            if(!validateIraqiPhone(custPhone) || !code) return showToast("أدخل بيانات صحيحة ⚠️");
-            
-            try { const cashAudio = new Audio('https://assets.mixkit.co/active_storage/sfx/2013/2013-preview.mp3'); cashAudio.play(); confetti({ particleCount: 300, spread: 100, origin: { y: 0.5 } }); } catch(e) {}
-            
-            let logs = JSON.parse(localStorage.getItem('driver_logs') || '[]');
-            logs.unshift({ date: new Date().toLocaleString('en-US', { hour12: true, year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute:'2-digit' }), phone: custPhone, price: "2,000 د.ع" });
-            localStorage.setItem('driver_logs', JSON.stringify(logs));
-            localStorage.setItem('d_count', parseInt(localStorage.getItem('d_count') || 0) + 1);
-            updateStatsUI();
-            
-            showToast(`تم تأكيد العملية بنجاح! عاشت ايدك 👏`); 
-            document.getElementById('driverVerifyInput').value = ""; 
-            document.getElementById('driverVerifyPhoneInput').value = "";
-        }
-
-        function renderDriverLog() {
-            const container = document.getElementById('driver-log-container');
-            if(!container) return;
-            let logs = JSON.parse(localStorage.getItem('driver_logs') || '[]');
-            if(logs.length === 0) {
-                container.innerHTML = '<div class="form-card" style="text-align:center;"><i class="fas fa-box-open" style="font-size:40px; color:var(--border-color); margin-bottom:10px;"></i><p style="color:var(--text-sub); font-weight:bold; margin:0;">السجل فارغ حالياً.</p></div>';
-                return;
+        function logout() {
+            if(confirm("هل تريد الخروج؟")) {
+                localStorage.clear();
+                location.reload();
             }
-            container.innerHTML = logs.map((log, i) => `
-                <div class="form-card" style="border-right: 4px solid var(--primary); padding: 15px;">
-                    <div style="display:flex; justify-content:space-between; border-bottom:1px solid var(--border-color); padding-bottom:8px; margin-bottom:8px;">
-                        <span style="font-weight:800; color:var(--primary);">الطلب #${logs.length - i}</span>
-                        <span style="font-size:12px; color:var(--text-sub);" dir="ltr">${log.date}</span>
-                    </div>
-                    <div style="font-size:14px; margin-bottom:5px;"><i class="fas fa-phone-alt" style="color:var(--text-sub); width:20px;"></i> هاتف الزبون: <strong>${log.phone}</strong></div>
-                    <div style="font-size:14px; margin-bottom:5px;"><i class="fas fa-map-marker-alt" style="color:var(--danger); width:20px;"></i> الموقع: <strong>أم قصر</strong></div>
-                    <div style="font-size:14px;"><i class="fas fa-money-bill-wave" style="color:var(--gold); width:20px;"></i> أجرة التوصيل: <strong>${log.price}</strong></div>
-                </div>
-            `).join('');
-        }
-
-        function updateStatsUI() { 
-            if(document.getElementById('stat-count')) {
-                document.getElementById('stat-count').innerText = localStorage.getItem('d_count') || 0; 
-            }
-        }
-
-        async function resignDriver() { 
-            if (confirm("هل أنت متأكد من تسجيل الخروج والاستقالة؟")) { 
-                try {
-                    const msg = `❌ استقالة / تسجيل خروج كابتن:\n👤 الاسم: ${userName}\n📞 الهاتف: ${userPhone}`;
-                    await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ chat_id: ADMIN_CHAT_ID, text: msg }) });
-                } catch(e) {}
-                localStorage.clear(); 
-                location.reload(); 
-            } 
         }
     </script>
 </body>
