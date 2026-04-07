@@ -6,11 +6,14 @@
     <title>البندر لخدمات التوصيل - أعمال</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 
     <style>
         /* --- تعريف الألوان --- */
         :root {
-            --primary: #0D47A1; /* أزرق داكن للشاشات الداخلية */
+            --primary: #0D47A1;
             --primary-hover: #1565C0;
             --secondary-gold: #FFC107;
             --danger: #EF4444;
@@ -25,11 +28,6 @@
             --radius-lg: 15px;
             --radius-pill: 50px;
             --shadow-sm: 0 4px 6px rgba(0,0,0,0.05);
-
-            /* ألوان شاشة التحميل المستوحاة من الصورة */
-            --splash-bg: radial-gradient(circle, #0D47A1 0%, #002171 100%); /* سماء زرقاء متدرجة */
-            --text-gold: #FFC107; /* ذهبي للشعار */
-            --gold-shine: #FFECB3; /* لمعان ذهبي للدراجة */
         }
 
         @media (prefers-color-scheme: dark) {
@@ -47,42 +45,31 @@
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; }
         body { background-color: var(--bg-color); color: var(--text-main); overflow-x: hidden; transition: 0.3s; }
 
-        /* --- إعدادات الشاشات الجديدة --- */
         .screen { display: none; }
         .container { padding: 20px; max-width: 800px; margin: 0 auto; }
         .form-card { background: var(--card-bg); padding: 20px; border-radius: 15px; margin-bottom: 20px; border: 1px solid var(--border-color); }
         .form-group { margin-bottom: 15px; text-align: right; }
         .form-group label { display: block; margin-bottom: 5px; color: var(--text-sub); font-size: 14px; }
         
-        /* تعديل حقول الإدخال حسب الطلب */
         .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 16px 20px; border: 1px solid var(--border-color); border-radius: 20px; font-size: 15px; font-weight: 600; background: var(--bg-color); color: var(--text-main); outline: none; }
         
         .screen-header-title { margin-bottom: 20px; color: var(--text-main); font-size: 22px; font-weight: bold; }
         .form-card-title { font-size: 16px; font-weight: bold; margin-bottom: 15px; color: var(--primary); display: flex; align-items: center; gap: 8px; }
         
-        /* تعديل زر الرجوع حسب الطلب */
         .back-btn { background: none; border: none; color: var(--text-main); font-size: 18px; cursor: pointer; margin-bottom: 15px; width: 45px; height: 45px; border-radius: 14px; display: flex; align-items: center; justify-content: center; }
         
-        /* تعديل الأزرار الرئيسية حسب الطلب */
         .send-btn { width: 100%; padding: 18px; border: none; border-radius: 20px; font-size: 18px; font-weight: 800; cursor: pointer; color: white; display: flex; justify-content: center; align-items: center; gap: 8px; }
         
-        /* الأزرار الفرعية الجديدة */
         .location-btn { width: 100%; padding: 14px; border-radius: 20px; font-size: 15px; font-weight: 700; text-align: center; cursor: pointer; border: none; }
-        
         .resign-btn { width: 100%; padding: 12px; background: rgba(239, 68, 68, 0.1); color: var(--danger); border: 1px solid var(--danger); border-radius: 10px; font-weight: bold; cursor: pointer; }
         
-        /* تصميم البطاقات المضافة */
         .select-card { background: var(--card-bg); border-radius: var(--radius-lg); border: 1px solid var(--border-color); cursor: pointer; transition: 0.3s; }
-        
-        /* تعديل البطاقة العريضة حسب الطلب */
         .card-full { padding: 22px 20px; margin: 10px 0; display: flex; align-items: center; gap: 15px; }
         .card-full:hover { background: var(--bg-color); }
         
-        /* الأيقونات الأساسية وتعديلها داخل البطاقات */
         .icon-wrapper { width: 45px; height: 45px; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 20px; }
         .card-full .icon-wrapper { width: 65px; height: 65px; border-radius: 20px; font-size: 28px; }
         
-        /* البطاقة النصفية الجديدة (Half Card) */
         .card-half { padding: 25px 10px; border-radius: var(--radius-lg); background: var(--card-bg); border: 1px solid var(--border-color); display: flex; flex-direction: column; align-items: center; text-align: center; gap: 10px; cursor: pointer; transition: 0.3s; }
         .card-half:hover { background: var(--bg-color); }
         .card-half .icon-wrapper { width: 55px; height: 55px; border-radius: 18px; font-size: 24px; display: flex; justify-content: center; align-items: center; }
@@ -91,171 +78,41 @@
         .card-text small { color: var(--text-sub); font-size: 12px; }
         .arrow-icon { margin-right: auto; color: var(--text-sub); }
 
-        /* شريط حالة المندوب أعلى الشاشة */
         .driver-status-bar { display: none; background: var(--gold); color: #000; font-weight: 800; letter-spacing: 0.5px; font-size: 12px; padding: 6px 0; position: absolute; top: 0; left: 0; width: 100%; z-index: 10; text-align: center; transition: background 0.3s ease, color 0.3s ease; }
         
-        /* أزرار الخدمات الخاصة بالمندوب */
         .card-join .icon-wrapper { background: rgba(16, 185, 129, 0.1); color: var(--success); }
         .card-plaza .icon-wrapper { background: rgba(139, 92, 246, 0.1); color: #8B5CF6; }
 
-        /* --- شريط التنقل السفلي (Bottom Navigation) الجديد --- */
         .bottom-nav-container { padding: 8px 12px; border-radius: 9999px; background: var(--card-bg); display: flex; justify-content: space-around; align-items: center; border: 1px solid var(--border-color); position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); width: 90%; max-width: 500px; box-shadow: var(--shadow-sm); z-index: 1000; }
         .bottom-nav-item { padding: 10px 15px; display: flex; flex-direction: column; align-items: center; gap: 4px; color: var(--text-sub); cursor: pointer; text-decoration: none; border-radius: 20px; transition: 0.3s; }
         .bottom-nav-item:hover, .bottom-nav-item.active { color: var(--primary); background: rgba(13, 71, 161, 0.1); }
         .bottom-nav-icon { font-size: 20px; }
         .bottom-nav-text { font-size: 12px; font-weight: 600; }
 
-        /* شاشة الترحيب والتفعيل */
         #welcome-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100vh; background: var(--card-bg); z-index: 100000; flex-direction: column; justify-content: center; align-items: center; text-align: center; }
         @keyframes scaleIn { 0% { transform: scale(0); } 100% { transform: scale(1); } }
-        @keyframes fadeInDown { 0% { opacity: 0; transform: translateY(-20px); } 100% { opacity: 1; transform: translateY(0); } }
 
-        /* --- الشاشة الترحيبية (Splash Screen) المستوحاة من الصورة --- */
-        #splash-screen { 
-            position: fixed; top: 0; left: 0; width: 100%; height: 100vh; 
-            background: var(--splash-bg); 
-            display: flex; flex-direction: column; justify-content: center; align-items: center; 
-            z-index: 99999; transition: opacity 0.8s ease-out, visibility 0.8s ease-out; 
-            color: white; 
-            overflow: hidden;
-        }
-        /* إضافة نجوم صغيرة للخلفية مثل الصورة */
-        #splash-screen::after {
-            content: "";
-            position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background-image: 
-                radial-gradient(white, rgba(255,255,255,.2) 2px, transparent 3px),
-                radial-gradient(white, rgba(255,255,255,.15) 1px, transparent 2px),
-                radial-gradient(white, rgba(255,255,255,.1) 2px, transparent 3px);
-            background-size: 550px 550px, 350px 350px, 250px 250px;
-            background-position: 0 0, 40px 60px, 130px 270px;
-            z-index: 0;
-            opacity: 0.5;
-        }
+        /* --- الشاشة الترحيبية (Splash Screen) الأصلية بالدراجة --- */
+        #splash-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #5A228B; z-index: 99999; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: opacity 0.5s ease-in, transform 0.5s ease-in, visibility 0.8s ease-out; overflow: hidden; }
         #splash-screen.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
-        
-        /* --- مشهد الشارع والدراجات --- */
-        .splash-scene {
-            position: relative;
-            width: 100%;
-            height: 100vh; /* لتغطية الشاشة بالكامل */
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            z-index: 1;
-        }
-
-        /* حاوية الشعار (النص الذهبي) - تم تصعيدها للأعلى */
-        .garage-container {
-            position: absolute;
-            top: 15%; /* نقلها للأعلى بعيداً عن الشارع */
-            left: 50%;
-            transform: translateX(-50%);
-            text-align: center;
-            z-index: 10; 
-            animation: fadeInDown 0.8s ease;
-            width: 100%;
-        }
-
-        /* إزالة الأيقونة من الشعار */
-        .garage-container i { display: none; }
-
-        .garage-container h2 {
-            margin: 0;
-            font-size: 42px; /* تكبير النص ليطابق الصورة */
-            font-weight: 900;
-            color: var(--text-gold); /* ذهبي */
-            letter-spacing: 0.5px;
-            text-shadow: 2px 2px 0 rgba(0,0,0,0.5), -1px -1px 0 rgba(255,255,255,0.2), 0 0 15px rgba(255,193,7,0.8); /* تأثير ثلاثي الأبعاد ذهبي */
-        }
-
-        /* الشارع الواقعي - تم تثبيته بالأسفل */
-        .asphalt-road {
-            width: 100%;
-            height: 60px;
-            background: #2C3E50; 
-            border-top: 5px solid #95A5A6; 
-            border-bottom: 5px solid #95A5A6; 
-            position: absolute;
-            bottom: 0; /* في نفس المكان */
-            left: 0;
-            display: flex;
-            align-items: center;
-            box-shadow: 0 10px 20px rgba(0,0,0,0.3);
-            z-index: 1;
-        }
-
-        .asphalt-lines {
-            width: 100%;
-            height: 4px;
-            background-image: linear-gradient(to right, var(--secondary-gold) 50%, transparent 0%);
-            background-size: 60px 4px;
-            /* عكست الحركة لليسار لتعطي سرعة للدراجة الذاهبة لليسار */
-            animation: moveRoadLinesLeft 0.6s linear infinite; 
-        }
-
-        /* أنيميشن طريق يتحرك من اليمين لليسار */
-        @keyframes moveRoadLinesLeft {
-            from { background-position: 60px 0; }
-            to { background-position: 0 0; }
-        }
-
-        /* الدراجة المتحركة (تأتي من اليمين وتذهب لليسار) */
-        .bike-box {
-            position: absolute;
-            bottom: 10px; /* على الشارع */
-            left: 110%; /* تبدأ من اليمين */
-            color: var(--text-gold); /* ذهبي */
-            z-index: 5; 
-            display: flex;
-            align-items: flex-end;
-            opacity: 0;
-            animation: bikeRightToLeft 3.5s ease-in forwards;
-            animation-delay: 0.5s;
-            /* إضافة لمعان للدراجة مثل الصورة */
-            text-shadow: 0 0 15px rgba(255, 193, 7, 0.9);
-        }
-
-        /* محاكاة الدراجة الذهبية مع المندوب والصندوق من الصورة */
-        .bike-box i {
-            font-size: 55px; /* تكبير الأيقونة */
-            transform: scaleX(-1); /* وجهها لليسار */
-            position: relative;
-        }
-
-        /* إضافة صندوق ذهبي في الخلف باستخدام Pseudo-element */
-        .bike-box i::after {
-            content: "\f46e"; /* FontAwesome package-box icon */
-            font-family: "Font Awesome 6 Free";
-            font-weight: 900;
-            position: absolute;
-            top: -15px; /* موقعه فوق الموتوسيكل */
-            right: -25px; /* موقعه خلف الموتوسيكل (إلى اليمين في المنظر المعكوس) */
-            font-size: 25px;
-            color: var(--text-gold);
-            text-shadow: none;
-        }
-
-        /* أنيميشن الانطلاق من اليمين لليسار */
-        @keyframes bikeRightToLeft {
-            0% { left: 110%; opacity: 0; transform: scale(0.5); }
-            15% { left: 90%; opacity: 1; transform: scale(1); }
-            100% { left: -150px; opacity: 1; transform: scale(1); } /* الخروج من اليسار */
-        }
-
-        /* الدخان (تم نقله للخلف - جهة اليمين - ليتناسب مع الاتجاه الجديد) */
-        .exhaust { position: absolute; right: -25px; bottom: 5px; display: flex; flex-direction: row; }
-        .smoke { display: block; width: 12px; height: 12px; background-color: rgba(255, 193, 7, 0.6); border-radius: 50%; margin-right: -5px; opacity: 0; animation: emitSmokeLeft 0.6s infinite; }
-        .smoke:nth-child(1) { animation-delay: 0s; } .smoke:nth-child(2) { animation-delay: 0.2s; } .smoke:nth-child(3) { animation-delay: 0.4s; }
-        
-        /* انيميشن الدخان يتجه لليسار (خلف الدراجة المعكوسة) */
-        @keyframes emitSmokeLeft { 
-            0% { opacity: 0; transform: translate(0, 0) scale(0.5); } 
-            30% { opacity: 1; transform: translate(-10px, -5px) scale(1); } 
-            100% { opacity: 0; transform: translate(-20px, -15px) scale(1.5); } 
-        }
+        #app-logo-splash { width: 130px; height: 130px; background: white; border-radius: 35px; display: flex; align-items: center; justify-content: center; margin-top: -100px; box-shadow: 0 20px 50px rgba(0,0,0,0.2); opacity: 0; transform: scale(0.5); transition: 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275); z-index: 20; }
+        #app-logo-splash i { font-size: 65px; color: #5A228B; }
+        .show-logo { opacity: 1 !important; transform: scale(1) !important; }
+        .splash-welcome-text { position: absolute; top: 18%; text-align: center; width: 100%; color: white; animation: fadeInDown 1s ease-out; }
+        .splash-welcome-text h2 { margin: 0; font-size: 32px; font-weight: 800; letter-spacing: 1px; text-shadow: none; color: white;}
+        .splash-welcome-text p { margin: 8px 0 0; opacity: 0.9; font-size: 16px; font-weight: 500; }
+        @keyframes fadeInDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
+        .road-realistic { position: absolute; bottom: 25%; width: 100%; height: 60px; background: rgba(0,0,0,0.2); border-top: 3px solid rgba(255,255,255,0.1); border-bottom: 3px solid rgba(255,255,255,0.1); display: flex; align-items: center; box-shadow: none; border-radius: 0;}
+        .road-lines { width: 100%; height: 4px; background: repeating-linear-gradient(90deg, #FFC107 0, #FFC107 40px, transparent 40px, transparent 80px); animation: road-scroll 0.5s linear infinite; }
+        @keyframes road-scroll { from { transform: translateX(0); } to { transform: translateX(80px); } }
+        .bike-box { position: absolute; bottom: calc(25% + 15px); left: 110%; font-size: 70px; color: white; transform: scaleX(-1); animation: drive-left 2s linear forwards; z-index: 10; animation-delay: 0.5s; display: block; opacity: 1; text-shadow: none;}
+        .bike-box i::after { display: none; }
+        .exhaust { position: absolute; right: -10px; bottom: 10px; display: flex; flex-direction: column; }
+        .smoke { width: 12px; height: 12px; background: rgba(255, 255, 255, 0.6); border-radius: 50%; margin-top: -5px; opacity: 0; animation: smoke-bloom 0.8s infinite; display: block; margin-right: 0;}
+        .smoke:nth-child(2) { animation-delay: 0.2s; }
+        .smoke:nth-child(3) { animation-delay: 0.4s; }
+        @keyframes smoke-bloom { 0% { transform: translate(0, 0) scale(1); opacity: 0; } 20% { opacity: 0.7; } 100% { transform: translate(40px, -40px) scale(3); opacity: 0; filter: blur(5px); } }
+        @keyframes drive-left { 0% { left: 110%; } 100% { left: -30%; } }
 
         /* --- واجهات تسجيل الدخول --- */
         .auth-container { display: none; height: 100vh; flex-direction: column; justify-content: center; align-items: center; padding: 20px; }
@@ -272,7 +129,8 @@
         .logout-btn { background: var(--danger); color: white; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer; font-size: 12px; }
         .order-card { background: var(--card-bg); padding: 15px; border-radius: 12px; margin-bottom: 15px; border: 1px solid var(--border-color); border-right: 5px solid var(--secondary-gold); }
         .btn-group { display: flex; gap: 10px; margin-top: 15px; }
-        .btn-group .btn { flex: 1; padding: 10px; border: none; border-radius: 8px; color: white; font-weight: bold; cursor: pointer; }
+        .btn-group .btn { flex: 1; padding: 10px; border: none; border-radius: 8px; color: white; font-weight: bold; cursor: pointer; transition: 0.3s;}
+        .btn-group .btn:active { transform: scale(0.95); }
     </style>
 </head>
 <body>
@@ -280,23 +138,13 @@
     <div id="driver-status-badge" class="driver-status-bar">أنت الآن في وضع العمل النشط 🟢</div>
 
     <div id="splash-screen">
-        <div class="splash-scene">
-            <div class="asphalt-road">
-                <div class="asphalt-lines"></div>
-            </div>
-            
-            <div class="garage-container">
-                <h2>البندر لخدمات التوصيل</h2>
-            </div>
-            
-            <div class="bike-box">
-                <i class="fas fa-motorcycle"></i> <div class="exhaust">
-                    <div class="smoke"></div>
-                    <div class="smoke"></div>
-                    <div class="smoke"></div>
-                </div>
-            </div>
-        </div>
+      <div id="app-logo-splash"><i class="fas fa-box-open"></i></div>
+      <div class="splash-welcome-text">
+          <h2 id="splash-title">البندر</h2>
+          <p id="splash-subtitle">أسرع تطبيق للتوصيل والتحصيل في أم قصر</p>
+      </div>
+      <div class="road-realistic"><div class="road-lines"></div></div>
+      <div class="bike-box"><i class="fas fa-motorcycle"></i><div class="exhaust"><div class="smoke"></div><div class="smoke"></div><div class="smoke"></div></div></div>
     </div>
 
     <div id="step-name" class="auth-container">
@@ -329,7 +177,7 @@
 
     <div id="main-app">
         <header class="navbar">
-            <h1>مندوبين <span>البندر</span></h1>
+            <h1>أعمال <span>البندر</span></h1>
             <div class="navbar-right">
                 <span id="display-user-role" style="font-size: 12px; background: rgba(255,255,255,0.2); padding: 5px 10px; border-radius: 20px;"></span>
                 <button class="logout-btn" onclick="logout()">خروج</button>
@@ -349,7 +197,7 @@
     </div>
 
     <div id="plaza-screen" class="screen container">
-        <button class="back-btn" onclick="showScreen('main-app')"><i class="fas fa-arrow-right"></i></button>
+        <button class="back-btn" onclick="showScreen('main-app');"><i class="fas fa-arrow-right"></i></button>
         <h2 class="screen-header-title"><i class="fas fa-briefcase" style="color:#8B5CF6;"></i> لوحة الكابتن</h2>
 
         <div class="note" style="background: rgba(239, 68, 68, 0.1); border-right: 4px solid var(--danger); padding: 10px; color: var(--danger); font-size: 14px; font-weight: 800; margin-bottom: 20px; border-radius: 8px;">
@@ -413,17 +261,33 @@
     </div>
 
     <script>
-        /* كود الجافا سكريبت لا يتغير */
         const BOT_TOKEN = "8640123901:AAFfl57lPpounm1y-SM-KmQadiT2fnqjFOM";
         const ADMIN_CHAT_ID = "7479342799"; 
-        const GS_URL = ""; 
+        
+        // ==========================================
+        // إعدادات مشروع Firebase الخاصة بك
+        // ==========================================
+        const firebaseConfig = {
+            apiKey: "AIzaSyBXW3gL4PszJjmgmVVOjkuEqe-WkWHyO60",
+            authDomain: "al-bandar-f02f6.firebaseapp.com",
+            databaseURL: "https://al-bandar-f02f6-default-rtdb.firebaseio.com",
+            projectId: "al-bandar-f02f6",
+            storageBucket: "al-bandar-f02f6.firebasestorage.app",
+            messagingSenderId: "799678549296",
+            appId: "1:799678549296:web:bd1cc0ff99a680eabfccf5",
+            measurementId: "G-KRRFC79HC3"
+        };
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
+        const db = firebase.database();
+        // ==========================================
 
         let userName = localStorage.getItem('albandar_name') || "";
         let userPhone = localStorage.getItem('albandar_phone') || "";
         let userRole = localStorage.getItem('albandar_role') || "";
 
         let lastOrderCount = -1;
-        let orderPollInterval = null;
         let isSoundEnabled = localStorage.getItem('sound_enabled') === 'true';
         const newOrderAudio = new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3');
 
@@ -448,8 +312,12 @@
         }
         function skipWelcome() { document.getElementById('welcome-overlay').style.display = 'none'; }
 
-        // بدء التشغيل
         window.onload = () => {
+            setTimeout(() => {
+                const logo = document.getElementById('app-logo-splash');
+                if(logo) logo.classList.add('show-logo');
+            }, 100);
+
             setTimeout(() => {
                 document.getElementById('splash-screen').classList.add('hidden');
                 document.body.style.overflow = 'auto';
@@ -493,6 +361,13 @@
             
             document.getElementById('step-roles').style.display = 'none';
             document.getElementById('welcome-overlay').style.display = 'flex';
+            
+            if(role === 'restaurant') {
+                document.getElementById('wel-p1').innerText = "أنت الآن مسجل كصاحب مطعم";
+            } else {
+                document.getElementById('wel-p1').innerText = "أنت الآن كابتن رسمي";
+            }
+
             try { confetti({ particleCount: 200, spread: 90, origin: { y: 0.5 } }); } catch(e){}
             
             setTimeout(() => {
@@ -514,13 +389,15 @@
             } else {
                 plazaCard.style.display = 'none';
             }
-            renderOrders();
+            
+            // بدء قراءة الطلبات من فايربيس فور الدخول
+            listenToOrders();
         }
 
         function logout() {
             if(confirm("هل أنت متأكد من تسجيل الخروج؟")) {
                 localStorage.clear();
-                showScreen('step-roles');
+                location.reload();
             }
         }
 
@@ -534,35 +411,95 @@
             }).catch(e => console.log(e));
         }
 
-        function renderOrders() {
+        // ==========================================
+        // قسم استلام وإدارة الطلبات عبر فايربيس اللحظي
+        // ==========================================
+
+        function listenToOrders() {
+            db.ref('orders').on('value', (snapshot) => {
+                const data = snapshot.val();
+                let ordersArray = [];
+                for(let key in data) {
+                    ordersArray.push(data[key]);
+                }
+                
+                // ترتيب الطلبات من الأحدث للأقدم
+                ordersArray.sort((a, b) => b.timestamp - a.timestamp);
+                renderRealtimeOrders(ordersArray);
+                
+                // تشغيل جرس التنبيه في حالة وجود طلب جديد
+                if (ordersArray.length > lastOrderCount && lastOrderCount !== -1) {
+                    if(isSoundEnabled) newOrderAudio.play().catch(e=>{});
+                }
+                lastOrderCount = ordersArray.length;
+            });
+        }
+
+        function renderRealtimeOrders(allOrders) {
             const list = document.getElementById('orders-list');
-            const orders = []; 
             
-            if (orders.length === 0) {
+            // المطعم يشوف الطلبات الجديدة، المندوب يشوف الطلبات اللي تجهزت
+            let filteredOrders = [];
+            if (userRole === 'restaurant') {
+                filteredOrders = allOrders.filter(o => o.status === 'pending_restaurant');
+            } else if (userRole === 'driver') {
+                filteredOrders = allOrders.filter(o => o.status === 'pending_driver');
+            }
+
+            if (filteredOrders.length === 0) {
                 list.innerHTML = `
                     <div class="form-card" style="text-align:center; padding: 40px 20px;">
                         <i class="fas fa-box-open" style="font-size:50px; color:var(--border-color); margin-bottom:15px;"></i>
-                        <p style="color:var(--text-sub); font-size:18px; font-weight:bold; margin:0;">لا يوجد طلبات حالياً</p>
+                        <p style="color:var(--text-sub); font-size:18px; font-weight:bold; margin:0;">لا توجد طلبات حالياً</p>
                     </div>`;
                 return;
             }
 
-            list.innerHTML = orders.map(o => `
-                <div class="order-card">
+            list.innerHTML = filteredOrders.map(o => `
+                <div class="order-card" id="order-${o.id}">
                     <div style="display:flex; justify-content:space-between; font-weight:bold; margin-bottom: 10px;">
                         <span>طلب #${o.id}</span><span>${o.customer}</span>
                     </div>
+                    <p style="color:var(--primary); font-size: 13px; font-weight:bold; margin-bottom: 5px;"><i class="fas fa-store"></i> ${o.restaurant || 'توصيل عام'}</p>
                     <p style="color:var(--text-sub); margin-bottom: 15px; font-size: 14px;">${o.items}</p>
-                    <div style="color:var(--success); font-weight:bold; font-size: 18px; margin-bottom: 15px;">${o.price}</div>
+                    <div style="color:var(--success); font-weight:bold; font-size: 18px; margin-bottom: 15px;">${o.price || 'تحدد الفاتورة لاحقاً'}</div>
                     <div class="btn-group">
                         ${userRole === 'restaurant' ? 
-                            `<button class="btn" style="background:var(--success)">تجهيز</button><button class="btn" style="background:var(--danger)">رفض</button>` : 
-                            `<button class="btn" style="background:var(--primary)">استلام الطلب</button>`
+                            `<button class="btn" style="background:var(--success)" onclick="updateOrderStatus('${o.id}', 'pending_driver')"><i class="fas fa-check"></i> تجهيز وإرسال للمندوب</button>
+                             <button class="btn" style="background:var(--danger)" onclick="updateOrderStatus('${o.id}', 'rejected')"><i class="fas fa-times"></i> رفض</button>` : 
+                            `<button class="btn" style="background:var(--primary)" onclick="updateOrderStatus('${o.id}', 'accepted_driver')"><i class="fas fa-motorcycle"></i> استلام الطلب</button>`
                         }
                     </div>
                 </div>
             `).join('');
         }
+
+        function updateOrderStatus(orderId, newStatus) {
+            if(newStatus === 'rejected' && !confirm("هل أنت متأكد من رفض الطلب وإلغاءه؟")) return;
+            
+            // تحديث الحالة في قاعدة البيانات، وسيقوم فايربيس بتحديث شاشات الجميع فوراً
+            db.ref('orders/' + orderId).update({
+                status: newStatus,
+                driverName: newStatus === 'accepted_driver' ? userName : null
+            }).then(() => {
+                if(newStatus === 'pending_driver') showToast("تم التجهيز! الطلب تحول الآن إلى المناديب 🛵");
+                if(newStatus === 'accepted_driver') {
+                    showToast("تم حجز الطلب باسمك بنجاح! 🛵 توكل على الله");
+                    let logs = JSON.parse(localStorage.getItem('driver_logs') || '[]');
+                    logs.unshift({ 
+                        date: new Date().toLocaleString('en-US', { hour12: true, month: 'short', day: 'numeric', hour: '2-digit', minute:'2-digit' }), 
+                        phone: "بيانات محفوظة", 
+                        price: "مستلم" 
+                    });
+                    localStorage.setItem('driver_logs', JSON.stringify(logs));
+                }
+                if(newStatus === 'rejected') showToast("تم رفض الطلب ❌");
+            }).catch((error) => {
+                showToast("حدث خطأ في تحديث الطلب.");
+            });
+        }
+
+        // ==========================================
 
         function toggleOrderSound() {
             isSoundEnabled = !isSoundEnabled;
@@ -572,38 +509,13 @@
                 btn.innerHTML = '<i class="fas fa-bell"></i> جرس الطلبات: مفعل';
                 btn.style.background = '#F59E0B'; 
                 btn.style.color = 'white';
-                newOrderAudio.play().catch(e => {}); 
-                startOrderPolling();
                 showToast("🔔 تم تفعيل جرس تنبيه الطلبات!");
             } else {
                 btn.innerHTML = '<i class="fas fa-bell-slash"></i> جرس الطلبات: معطل';
                 btn.style.background = 'var(--text-muted)';
                 btn.style.color = 'white';
-                clearInterval(orderPollInterval);
                 showToast("تم إيقاف الجرس 🔕");
             }
-        }
-
-        async function checkNewOrdersForSound() {
-            if(!isSoundEnabled || !navigator.onLine || !GS_URL) return;
-            try {
-                const resp = await fetch(`${GS_URL}?action=checkNewOrders&t=${new Date().getTime()}`);
-                const currentCount = parseInt(await resp.text());
-                if(!isNaN(currentCount)) {
-                    if(lastOrderCount !== -1 && currentCount > lastOrderCount) {
-                        newOrderAudio.play().catch(e=>{});
-                        showToast("🔔 طلب جديد نزل بالساحة!");
-                        if(navigator.vibrate) navigator.vibrate([200, 100, 200]);
-                    }
-                    lastOrderCount = currentCount;
-                }
-            } catch(e) {}
-        }
-
-        function startOrderPolling() {
-            if(orderPollInterval) clearInterval(orderPollInterval);
-            checkNewOrdersForSound(); 
-            orderPollInterval = setInterval(checkNewOrdersForSound, 10000); 
         }
 
         function toggleDriverStatus() {
@@ -639,13 +551,10 @@
             }
             
             const soundBtn = document.getElementById('soundToggleBtn');
-            if(isSoundEnabled) {
-                if(soundBtn) {
-                    soundBtn.innerHTML = '<i class="fas fa-bell"></i> جرس الطلبات: مفعل';
-                    soundBtn.style.background = '#F59E0B'; 
-                    soundBtn.style.color = 'white';
-                }
-                startOrderPolling();
+            if(isSoundEnabled && soundBtn) {
+                soundBtn.innerHTML = '<i class="fas fa-bell"></i> جرس الطلبات: مفعل';
+                soundBtn.style.background = '#F59E0B'; 
+                soundBtn.style.color = 'white';
             }
         }
 
@@ -662,11 +571,6 @@
             localStorage.setItem('driver_logs', JSON.stringify(logs));
             localStorage.setItem('d_count', parseInt(localStorage.getItem('d_count') || 0) + 1);
             updateStatsUI();
-            
-            if(GS_URL) {
-                let adminCut = parseInt(localStorage.getItem('d_count')) * 500;
-                fetch(`${GS_URL}?action=updateStats&name=${encodeURIComponent(userName)}&phone=${userPhone}&inCount=${localStorage.getItem('d_count')}&inDriver=0&inAdmin=${adminCut}`);
-            }
             
             showToast(`تم تأكيد العملية بنجاح! عاشت ايدك 👏`); 
             document.getElementById('driverVerifyInput').value = ""; 
@@ -709,20 +613,6 @@
                 localStorage.clear(); 
                 location.reload(); 
             } 
-        }
-
-        async function checkRemoteReset() {
-            if(!GS_URL) return;
-            try {
-                if(!userPhone) return;
-                const response = await fetch(`${GS_URL}?action=checkReset&phone=${userPhone}`);
-                const result = await response.text();
-                if (result === "reset_now") { 
-                    localStorage.setItem('d_count', 0); localStorage.removeItem('driver_logs'); 
-                    updateStatsUI(); 
-                    if(document.getElementById('log-screen').style.display === 'block') { renderDriverLog(); }
-                } 
-            } catch(e) {}
         }
     </script>
 </body>
