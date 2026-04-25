@@ -1,142 +1,171 @@
-using UnityEngine;
-using UnityEngine.UI;
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, orientation=landscape">
+    <title>ظلّ الزمن | TIME SHADOW</title>
+    <style>
+        :root { --time-color: #00f2ff; --health-color: #ff3333; }
+        body { margin: 0; background: #000; color: white; font-family: 'Segoe UI', sans-serif; overflow: hidden; touch-action: none; }
+        
+        /* واجهة المستخدم UI */
+        #game-hud { position: fixed; inset: 0; pointer-events: none; padding: 20px; z-index: 10; display: none; }
+        .bar-container { width: 200px; height: 10px; background: rgba(255,255,255,0.1); border-radius: 5px; margin-bottom: 10px; overflow: hidden; }
+        #health-bar { height: 100%; background: var(--health-color); width: 100%; transition: 0.3s; }
+        #time-bar { height: 100%; background: var(--time-color); width: 100%; }
+        
+        #dialogue-box { position: absolute; bottom: 100px; width: 100%; text-align: center; font-size: 18px; text-shadow: 2px 2px 5px #000; color: var(--time-color); }
+        #mission-text { position: absolute; top: 20px; right: 20px; background: rgba(0,0,0,0.5); padding: 10px; border-right: 3px solid var(--time-color); }
 
-public class GameController : MonoBehaviour
-{
-    [Header("Movement")]
-    public float speed = 5f;
-    public float mouseSensitivity = 200f;
-    public Transform playerBody;
+        /* شاشة البداية */
+        #start-screen { position: fixed; inset: 0; background: #000; z-index: 100; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        .btn-start { background: var(--time-color); color: #000; padding: 15px 50px; border: none; border-radius: 30px; font-weight: bold; cursor: pointer; font-size: 20px; }
 
-    float xRotation = 0f;
+        /* أزرار التحكم بالزمن للموبايل */
+        #time-controls { position: fixed; bottom: 20px; right: 20px; display: flex; gap: 10px; pointer-events: auto; }
+        .time-btn { width: 60px; height: 60px; border-radius: 50%; border: 2px solid var(--time-color); background: rgba(0,0,0,0.5); color: white; display: flex; align-items: center; justify-content: center; font-size: 12px; }
+    </style>
+</head>
+<body>
 
-    [Header("Time Control")]
-    public float timeEnergy = 5f;
-    public float maxEnergy = 5f;
-    public float drainSpeed = 1f;
-    public float rechargeSpeed = 0.5f;
-    private bool isTimeStopped = false;
+    <div id="start-screen">
+        <h1 style="letter-spacing: 10px; color: var(--time-color);">ظلّ الزمن</h1>
+        <p>العالم انكسر.. أنت الوحيد الذي يملك المفتاح</p>
+        <button class="btn-start" onclick="startGame()">اكتشف الحقيقة</button>
+    </div>
 
-    [Header("Health")]
-    public int health = 100;
+    <div id="game-hud">
+        <div class="bar-container"><div id="health-bar"></div></div>
+        <div class="bar-container"><div id="time-bar"></div></div>
+        <div id="mission-text">المهمة: استكشف المختبر المهجور</div>
+        <div id="dialogue-box"></div>
+        
+        <div id="time-controls">
+            <div class="time-btn" id="btn-stop">إيقاف</div>
+            <div class="time-btn" id="btn-rewind">إرجاع</div>
+            <div class="time-btn" id="btn-fast">تسريع</div>
+        </div>
+    </div>
 
-    [Header("Enemy")]
-    public Transform enemy;
-    public float enemySpeed = 3f;
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 
-    [Header("UI")]
-    public Slider energyBar;
-    public Slider healthBar;
+    <script>
+        let scene, camera, renderer, player, enemy;
+        let timeState = "normal"; // normal, stopped, rewinding, fast
+        let health = 100, timeEnergy = 100;
+        let history = []; // لتخزين مواقع اللاعب لإرجاع الزمن
+        const MAX_HISTORY = 300;
 
-    void Start()
-    {
-        Cursor.lockState = CursorLockMode.Locked;
-
-        if (energyBar != null)
-            energyBar.maxValue = maxEnergy;
-
-        if (healthBar != null)
-            healthBar.maxValue = health;
-    }
-
-    void Update()
-    {
-        Move();
-        Look();
-        HandleTime();
-        RechargeEnergy();
-        UpdateUI();
-        EnemyAI();
-    }
-
-    // 🎮 الحركة
-    void Move()
-    {
-        float x = Input.GetAxis("Horizontal");
-        float z = Input.GetAxis("Vertical");
-
-        Vector3 move = playerBody.right * x + playerBody.forward * z;
-        transform.Translate(move * speed * Time.deltaTime, Space.World);
-    }
-
-    // 👀 الكاميرا
-    void Look()
-    {
-        float mouseX = Input.GetAxis("Mouse X") * mouseSensitivity * Time.deltaTime;
-        float mouseY = Input.GetAxis("Mouse Y") * mouseSensitivity * Time.deltaTime;
-
-        xRotation -= mouseY;
-        xRotation = Mathf.Clamp(xRotation, -90f, 90f);
-
-        Camera.main.transform.localRotation = Quaternion.Euler(xRotation, 0f, 0f);
-        playerBody.Rotate(Vector3.up * mouseX);
-    }
-
-    // ⏳ التحكم بالزمن
-    void HandleTime()
-    {
-        if (Input.GetKey(KeyCode.Space) && timeEnergy > 0)
-        {
-            Time.timeScale = 0f;
-            isTimeStopped = true;
-            timeEnergy -= drainSpeed * Time.unscaledDeltaTime;
+        function startGame() {
+            document.getElementById('start-screen').style.display = 'none';
+            document.getElementById('game-hud').style.display = 'block';
+            initGame();
+            showDialogue("ماذا حدث؟ كل شيء يبدو ساكناً...");
         }
-        else
-        {
-            Time.timeScale = 1f;
-            isTimeStopped = false;
+
+        function initGame() {
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(0x050510);
+            scene.fog = new THREE.FogExp2(0x050510, 0.05);
+
+            camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
+            renderer = new THREE.WebGLRenderer({ antialias: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.shadowMap.enabled = true;
+            document.body.appendChild(renderer.domElement);
+
+            // إضاءة غامضة
+            const light = new THREE.PointLight(0x00f2ff, 2, 50);
+            light.position.set(0, 5, 5);
+            scene.add(light);
+
+            // الأرضية
+            const floor = new THREE.Mesh(new THREE.PlaneGeometry(100, 100), new THREE.MeshStandardMaterial({color: 0x111111}));
+            floor.rotation.x = -Math.PI/2;
+            scene.add(floor);
+
+            // اللاعب
+            player = new THREE.Group();
+            player.add(camera);
+            player.position.set(0, 1.7, 10);
+            scene.add(player);
+
+            // العدو (مكعب أحمر مخيف)
+            const enemyGeo = new THREE.BoxGeometry(2, 2, 2);
+            const enemyMat = new THREE.MeshStandardMaterial({color: 0xff3333});
+            enemy = new THREE.Mesh(enemyGeo, enemyMat);
+            enemy.position.set(0, 1, -10);
+            scene.add(enemy);
+
+            setupTimeActions();
+            animate();
         }
-    }
 
-    void RechargeEnergy()
-    {
-        if (!isTimeStopped && timeEnergy < maxEnergy)
-        {
-            timeEnergy += rechargeSpeed * Time.deltaTime;
+        function setupTimeActions() {
+            const setTime = (s) => { timeState = s; };
+            
+            document.getElementById('btn-stop').ontouchstart = () => timeState = "stopped";
+            document.getElementById('btn-rewind').ontouchstart = () => timeState = "rewinding";
+            document.getElementById('btn-fast').ontouchstart = () => timeState = "fast";
+            
+            window.ontouchend = () => timeState = "normal";
         }
-    }
 
-    // 👾 العدو
-    void EnemyAI()
-    {
-        if (enemy == null) return;
+        function showDialogue(text) {
+            const box = document.getElementById('dialogue-box');
+            box.innerText = text;
+            setTimeout(() => box.innerText = "", 4000);
+        }
 
-        if (Time.timeScale > 0f)
-        {
-            enemy.position = Vector3.MoveTowards(
-                enemy.position,
-                transform.position,
-                enemySpeed * Time.deltaTime
-            );
+        function animate() {
+            requestAnimationFrame(animate);
 
-            float distance = Vector3.Distance(enemy.position, transform.position);
-
-            if (distance < 2f)
-            {
-                TakeDamage(1);
+            // 1. نظام الطاقة
+            if(timeState !== "normal") {
+                timeEnergy -= 0.5;
+                if(timeEnergy <= 0) timeState = "normal";
+            } else if(timeEnergy < 100) {
+                timeEnergy += 0.2;
             }
+            document.getElementById('time-bar').style.width = timeEnergy + "%";
+
+            // 2. منطق الزمن
+            if (timeState === "rewinding") {
+                if (history.length > 0) {
+                    let prev = history.pop();
+                    player.position.copy(prev.p);
+                    enemy.position.copy(prev.e);
+                }
+            } else {
+                // حفظ التاريخ للرجوع
+                history.push({ p: player.position.clone(), e: enemy.position.clone() });
+                if (history.length > MAX_HISTORY) history.shift();
+
+                if (timeState !== "stopped") {
+                    let speed = timeState === "fast" ? 0.3 : 0.05;
+                    // تحريك العدو نحو اللاعب
+                    const dir = new THREE.Vector3().subVectors(player.position, enemy.position).normalize();
+                    enemy.position.x += dir.x * speed;
+                    enemy.position.z += dir.z * speed;
+                }
+            }
+
+            // 3. نظام الضرر
+            const dist = player.position.distanceTo(enemy.position);
+            if(dist < 2 && timeState !== "stopped") {
+                health -= 0.5;
+                document.getElementById('health-bar').style.width = health + "%";
+                if(health <= 0) {
+                    alert("لقد ضعت في ثنايا الزمن! حاول مجدداً.");
+                    location.reload();
+                }
+            }
+
+            // حركة اللاعب (تلقائية للأمام للتجربة)
+            if(timeState !== "rewinding") player.translateZ(-0.02);
+
+            renderer.render(scene, camera);
         }
-    }
-
-    // ❤️ الصحة
-    void TakeDamage(int damage)
-    {
-        health -= damage;
-
-        if (health <= 0)
-        {
-            Debug.Log("Game Over");
-            Time.timeScale = 0f;
-        }
-    }
-
-    // 🎨 UI
-    void UpdateUI()
-    {
-        if (energyBar != null)
-            energyBar.value = timeEnergy;
-
-        if (healthBar != null)
-            healthBar.value = health;
-    }
-}
+    </script>
+</body>
+</html>
