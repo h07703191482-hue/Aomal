@@ -3,146 +3,153 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>THE PORT: ULTRA REALISTIC</title>
+    <title>AL-BANDAR: SHADOWS OF THE PORT</title>
     <style>
-        :root { --primary: #ffaa00; --bg: #050505; }
-        body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background: var(--bg); font-family: 'Segoe UI', sans-serif; color: white; }
+        :root { --main: #ffcc00; --dark: #0a0a0a; }
+        body { margin: 0; background: #000; font-family: sans-serif; overflow: hidden; touch-action: none; }
         
-        /* شاشة التحميل والدخول */
-        #auth-screen { position: fixed; inset: 0; background: radial-gradient(circle, #1a1a1a 0%, #000 100%); z-index: 100; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-        .glass-card { background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(15px); padding: 30px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.1); width: 80%; max-width: 350px; text-align: center; }
-        input { width: 100%; padding: 12px; margin: 10px 0; border-radius: 8px; border: none; background: rgba(255,255,255,0.1); color: white; outline: none; }
-        button { width: 100%; padding: 12px; border-radius: 8px; border: none; background: var(--primary); color: black; font-weight: bold; cursor: pointer; transition: 0.3s; }
-        
-        /* الواجهة الرئيسية (Lobby) */
-        #lobby { display: none; position: fixed; inset: 0; background: url('https://images.unsplash.com/photo-1516339901600-2e3a8ad0f1d5?auto=format&fit=crop&q=80&w=1000') center/cover; z-index: 50; }
-        .overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.7); }
-        .menu-content { position: relative; z-index: 51; padding: 40px; }
-        .status-bar { display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.5); padding: 10px 20px; }
-        .friend-list { position: absolute; left: 20px; top: 100px; background: rgba(255,255,255,0.05); padding: 15px; border-radius: 10px; width: 150px; }
-        
-        /* شاشة اللعب */
-        #game-canvas { display: none; width: 100%; height: 100%; }
-        #joystick { position: absolute; bottom: 40px; left: 40px; width: 100px; height: 100px; background: rgba(255,255,255,0.1); border-radius: 50%; z-index: 10; }
+        /* شاشة الدخول الاحترافية */
+        #login-screen { position: fixed; inset: 0; z-index: 100; background: radial-gradient(circle, #222 0%, #000 100%); display: flex; align-items: center; justify-content: center; transition: 0.5s; }
+        .login-box { background: rgba(255,255,255,0.05); backdrop-filter: blur(10px); padding: 40px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.1); text-align: center; width: 85%; }
+        input { width: 100%; padding: 12px; margin: 10px 0; border-radius: 8px; border: none; background: rgba(255,255,255,0.1); color: #fff; text-align: center; }
+        .btn-play { background: var(--main); color: #000; border: none; padding: 15px 40px; border-radius: 10px; font-weight: bold; width: 100%; cursor: pointer; }
+
+        /* واجهة المهام */
+        #game-ui { position: absolute; top: 20px; right: 20px; color: white; display: none; pointer-events: none; }
+        #quest-box { background: rgba(0,0,0,0.6); padding: 10px 20px; border-right: 4px solid var(--main); }
+
+        /* التحكم (الجوستيك) */
+        #joystick-base { position: absolute; bottom: 50px; left: 50px; width: 100px; height: 100px; background: rgba(255,255,255,0.1); border-radius: 50%; display: none; }
+        #joystick-stick { position: absolute; width: 40px; height: 40px; background: rgba(255,255,255,0.3); border-radius: 50%; top: 30px; left: 30px; }
     </style>
 </head>
 <body>
 
-    <div id="auth-screen">
-        <h1 style="letter-spacing: 5px; color: var(--primary);">THE PORT</h1>
-        <div class="glass-card">
-            <h3>تسجيل الدخول</h3>
-            <input type="text" id="username" placeholder="اسم المستخدم">
-            <input type="password" placeholder="كلمة المرور">
-            <button onclick="enterLobby()">دخول السيرفر</button>
+    <div id="login-screen">
+        <div class="login-box">
+            <h1 style="color: var(--main); margin-bottom: 5px;">AL-BANDAR</h1>
+            <p style="color: #888; font-size: 14px; margin-bottom: 25px;">Shadows of the Port</p>
+            <input type="text" id="p-name" placeholder="ادخل اسم اللاعب">
+            <button class="btn-play" onclick="startStory()">ابدأ القصة</button>
+            <p style="font-size: 10px; color: #555; margin-top: 15px;">Version 1.0.2 - Alpha Test</p>
         </div>
     </div>
 
-    <div id="lobby">
-        <div class="overlay"></div>
-        <div class="status-bar">
-            <span id="user-display">اللاعب: </span>
-            <span>اللفل: 99</span>
-        </div>
-        <div class="menu-content">
-            <h1>القائمة الرئيسية</h1>
-            <p>المهمة الحالية: "تسلل إلى الرصيف 7"</p>
-            <button style="width: 200px; margin-bottom: 10px;" onclick="startGame()">بدء طور القصة</button>
-            <button style="width: 200px; background: #444; color: white;">الإعدادات</button>
-        </div>
-        <div class="friend-list">
-            <h4>الأصدقاء</h4>
-            <div style="font-size: 14px; margin-bottom: 5px;">🟢 احمد (في اللعبة)</div>
-            <div style="font-size: 14px; margin-bottom: 5px;">⚪ علي (أوفلاين)</div>
-            <input type="text" placeholder="+ أضف صديق" style="font-size: 12px;">
+    <div id="game-ui">
+        <div id="quest-box">
+            <small>المهمة الحالية:</small>
+            <div id="task-desc">تسلل إلى المستودع الخلفي (0/1)</div>
         </div>
     </div>
 
-    <canvas id="game-canvas"></canvas>
-    <div id="joystick" style="display: none;"></div>
+    <div id="joystick-base"><div id="joystick-stick"></div></div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 
     <script>
-        // --- إدارة الواجهات ---
-        function enterLobby() {
-            const user = document.getElementById('username').value || "Guest";
-            document.getElementById('user-display').innerText = "اللاعب: " + user;
-            document.getElementById('auth-screen').style.display = 'none';
-            document.getElementById('lobby').style.display = 'block';
+        let scene, camera, renderer, player, move = { f: 0, r: 0 };
+        
+        function startStory() {
+            document.getElementById('login-screen').style.opacity = '0';
+            setTimeout(() => {
+                document.getElementById('login-screen').style.display = 'none';
+                document.getElementById('game-ui').style.display = 'block';
+                document.getElementById('joystick-base').style.display = 'block';
+                initGame();
+            }, 500);
         }
 
-        function startGame() {
-            document.getElementById('lobby').style.display = 'none';
-            document.getElementById('game-canvas').style.display = 'block';
-            document.getElementById('joystick').style.display = 'block';
-            initHighGraphicsGame();
-        }
-
-        // --- محرك الجرافيك (Ultra Graphics Core) ---
-        function initHighGraphicsGame() {
-            const scene = new THREE.Scene();
+        function initGame() {
+            scene = new THREE.Scene();
             scene.background = new THREE.Color(0x020205);
-            scene.fog = new THREE.FogExp2(0x020205, 0.05);
+            scene.fog = new THREE.FogExp2(0x020205, 0.1);
 
-            const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-            const renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('game-canvas'), antialias: true });
+            camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
+            renderer = new THREE.WebGLRenderer({ antialias: true });
             renderer.setSize(window.innerWidth, window.innerHeight);
             renderer.shadowMap.enabled = true;
-            renderer.toneMapping = THREE.ReinhardToneMapping; // إعطاء مظهر سينمائي للإضاءة
+            document.body.appendChild(renderer.domElement);
 
-            // إضاءة سينمائية (Cyberpunk Style)
-            const ambient = new THREE.AmbientLight(0x404040, 0.5);
+            // إضاءة سينمائية للميناء
+            const ambient = new THREE.AmbientLight(0x404040, 0.6);
             scene.add(ambient);
 
-            const blueLight = new THREE.PointLight(0x00ffff, 2, 50);
-            blueLight.position.set(5, 5, 5);
-            scene.add(blueLight);
+            const moonLight = new THREE.DirectionalLight(0x2244ff, 0.8);
+            moonLight.position.set(10, 20, 10);
+            scene.add(moonLight);
 
-            const redLight = new THREE.PointLight(0xff0000, 2, 50);
-            redLight.position.set(-5, 5, -5);
-            scene.add(redLight);
-
-            // الأرضية (تفاعل واقعي مع الضوء)
-            const floorGeo = new THREE.PlaneGeometry(100, 100);
-            const floorMat = new THREE.MeshStandardMaterial({ 
-                color: 0x111111, 
-                roughness: 0.1, // لمعان عالي كأن الأرض مبللة
-                metalness: 0.5 
-            });
-            const floor = new THREE.Mesh(floorGeo, floorMat);
-            floor.rotation.x = -Math.PI / 2;
+            // الأرضية (أسفلت الميناء)
+            const floor = new THREE.Mesh(
+                new THREE.PlaneGeometry(200, 200),
+                new THREE.MeshStandardMaterial({ color: 0x111111, roughness: 0.2 })
+            );
+            floor.rotation.x = -Math.PI/2;
             floor.receiveShadow = true;
             scene.add(floor);
 
-            // بناء بيئة الميناء (مباني/صناديق)
-            for(let i=0; i<20; i++) {
-                const h = Math.random() * 10 + 2;
-                const boxGeo = new THREE.BoxGeometry(4, h, 4);
-                const boxMat = new THREE.MeshStandardMaterial({ color: 0x222222 });
-                const box = new THREE.Mesh(boxGeo, boxMat);
-                box.position.set(Math.random()*40-20, h/2, Math.random()*40-20);
+            // إضافة حاويات (Containers) لزيادة الواقعية
+            for(let i=0; i<15; i++) {
+                const colors = [0xaa2222, 0x2222aa, 0x22aa22];
+                const box = new THREE.Mesh(
+                    new THREE.BoxGeometry(4, 4, 10),
+                    new THREE.MeshStandardMaterial({ color: colors[i%3] })
+                );
+                box.position.set(Math.random()*40-20, 2, Math.random()*-60 - 10);
                 box.castShadow = true;
                 scene.add(box);
             }
 
-            camera.position.set(0, 2, 10);
+            player = new THREE.Group();
+            player.add(camera);
+            player.position.set(0, 1.7, 5);
+            scene.add(player);
 
-            // تحريك بسيط (محاكاة المشي)
-            let time = 0;
-            function animate() {
-                requestAnimationFrame(animate);
-                time += 0.01;
-                
-                // تأثير اهتزاز الكاميرا الواقعي عند المشي
-                camera.position.y = 2 + Math.sin(time * 4) * 0.05;
-                
-                // تحريك الأضواء لإعطاء حياة للمشهد
-                blueLight.position.x = Math.sin(time) * 10;
-                
-                renderer.render(scene, camera);
-            }
+            setupControls();
             animate();
+        }
+
+        function setupControls() {
+            const base = document.getElementById('joystick-base');
+            const stick = document.getElementById('joystick-stick');
+            
+            base.addEventListener('touchmove', (e) => {
+                const t = e.touches[0];
+                const rect = base.getBoundingClientRect();
+                const x = t.clientX - rect.left - 50;
+                const y = t.clientY - rect.top - 50;
+                const dist = Math.min(Math.sqrt(x*x + y*y), 40);
+                const angle = Math.atan2(y, x);
+                
+                stick.style.transform = `translate(${Math.cos(angle)*dist}px, ${Math.sin(angle)*dist}px)`;
+                move.f = -Math.sin(angle) * (dist/40);
+                move.r = Math.cos(angle) * (dist/40);
+            });
+
+            base.addEventListener('touchend', () => {
+                stick.style.transform = 'translate(0,0)';
+                move = { f:0, r:0 };
+            });
+
+            // تدوير الكاميرا
+            let lastX = 0;
+            window.addEventListener('touchmove', (e) => {
+                if(e.touches[0].clientX > window.innerWidth/2) {
+                    let dx = e.touches[0].clientX - lastX;
+                    player.rotation.y -= dx * 0.01;
+                    lastX = e.touches[0].clientX;
+                }
+            });
+            window.addEventListener('touchstart', (e) => {
+                if(e.touches[0].clientX > window.innerWidth/2) lastX = e.touches[0].clientX;
+            });
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+            const speed = 0.15;
+            player.translateZ(-move.f * speed);
+            player.translateX(move.r * speed);
+            renderer.render(scene, camera);
         }
     </script>
 </body>
