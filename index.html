@@ -1,457 +1,116 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="ar">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>البندر لخدمات التوصيل - أعمال</title>
-    
-    <link rel="manifest" href="manifest.json">
-    <link rel="icon" type="image/png" href="logo.png.png">
-    <link rel="apple-touch-icon" href="logo.png.png">
-    <meta name="theme-color" content="#0D47A1">
-    
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
-
+    <title>بيئة ثلاثية الأبعاد واقعية</title>
     <style>
-        :root {
-            --primary: #0D47A1;
-            --primary-hover: #1565C0;
-            --secondary-gold: #FFC107;
-            --danger: #EF4444;
-            --success: #10B981;
-            --bg-color: #F4F6F9;
-            --card-bg: #FFFFFF;
-            --text-main: #111827;
-            --text-sub: #6B7280;
-            --border-color: #E5E7EB;
-            --gold: #FFC107;
-            --surface: #FFFFFF;
-            --radius-lg: 15px;
-            --radius-pill: 50px;
-            --shadow-sm: 0 4px 6px rgba(0,0,0,0.05);
+        body { margin: 0; overflow: hidden; background-color: #000; }
+        canvas { display: block; }
+        #ui {
+            position: absolute;
+            top: 20px;
+            width: 100%;
+            text-align: center;
+            color: white;
+            font-family: Arial, sans-serif;
+            pointer-events: none;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
         }
-
-        @media (prefers-color-scheme: dark) {
-            :root {
-                --primary: #1565C0;
-                --bg-color: #121212;
-                --card-bg: #1E1E1E;
-                --text-main: #F9FAFB;
-                --text-sub: #9CA3AF;
-                --border-color: #334155;
-                --surface: #1E1E1E;
-            }
-        }
-
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; }
-        body { background-color: var(--bg-color); color: var(--text-main); overflow-x: hidden; transition: 0.3s; }
-
-        .screen { display: none; }
-        .container { padding: 20px; max-width: 800px; margin: 0 auto; padding-bottom: 100px; }
-        .form-card { background: var(--card-bg); padding: 20px; border-radius: 15px; margin-bottom: 20px; border: 1px solid var(--border-color); }
-        .form-group { margin-bottom: 15px; text-align: right; }
-        .form-group label { display: block; margin-bottom: 5px; color: var(--text-sub); font-size: 14px; }
-        .form-group input { width: 100%; padding: 16px 20px; border: 1px solid var(--border-color); border-radius: 20px; font-size: 15px; font-weight: 600; background: var(--bg-color); color: var(--text-main); outline: none; }
-        
-        .screen-header-title { margin-bottom: 20px; color: var(--text-main); font-size: 22px; font-weight: bold; }
-        .back-btn { background: none; border: none; color: var(--text-main); font-size: 18px; cursor: pointer; margin-bottom: 15px; width: 45px; height: 45px; border-radius: 14px; display: flex; align-items: center; justify-content: center; }
-        .send-btn { width: 100%; padding: 18px; border: none; border-radius: 20px; font-size: 18px; font-weight: 800; cursor: pointer; color: white; display: flex; justify-content: center; align-items: center; gap: 8px; }
-        
-        .order-card { background: var(--card-bg); padding: 15px; border-radius: 12px; margin-bottom: 15px; border: 1px solid var(--border-color); border-right: 5px solid var(--secondary-gold); }
-        .btn-group { display: flex; gap: 10px; margin-top: 15px; }
-        .btn-group .btn { flex: 1; padding: 10px; border: none; border-radius: 8px; color: white; font-weight: bold; cursor: pointer; transition: 0.3s;}
-
-        /* Tabs Styling */
-        .tab-nav { display: flex; background: var(--card-bg); margin-bottom: 20px; border-radius: 15px; border: 1px solid var(--border-color); overflow: hidden; }
-        .tab-btn { flex: 1; padding: 15px; border: none; background: none; color: var(--text-sub); font-weight: bold; cursor: pointer; transition: 0.3s; font-size: 14px; }
-        .tab-btn.active { background: var(--primary); color: white; }
-
-        .driver-status-bar { display: none; background: var(--gold); color: #000; font-weight: 800; font-size: 12px; padding: 6px 0; position: sticky; top: 0; z-index: 100; text-align: center; }
-
-        #splash-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #0D47A1; z-index: 99999; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-        #splash-screen.hidden { opacity: 0; visibility: hidden; pointer-events: none; transition: 0.5s; }
-        #app-logo-splash { width: 130px; height: 130px; background: white; border-radius: 35px; display: flex; align-items: center; justify-content: center; margin-top: -100px; box-shadow: 0 20px 50px rgba(0,0,0,0.2); }
-        #app-logo-splash i { font-size: 65px; color: #0D47A1; }
-
-        .auth-container { display: none; height: 100vh; flex-direction: column; justify-content: center; align-items: center; padding: 20px; }
-        .auth-card { background: var(--card-bg); padding: 30px; border-radius: 20px; width: 100%; max-width: 400px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); text-align: center; border: 1px solid var(--border-color); }
-        .auth-card h2 { margin-bottom: 20px; color: var(--primary); }
-        .auth-card button { width: 100%; padding: 12px; background: var(--primary); color: white; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; }
-
-        .navbar { background: var(--primary); color: white; padding: 15px; display: flex; justify-content: center; align-items: center; }
     </style>
 </head>
 <body>
-
-    <div id="driver-status-badge" class="driver-status-bar">أنت الآن في وضع العمل النشط 🟢</div>
-
-    <div id="splash-screen">
-      <div id="app-logo-splash"><i class="fas fa-motorcycle"></i></div>
-      <div style="color: white; margin-top: 20px; text-align: center;">
-          <h2>البندر أعمال</h2>
-          <p>أسرع نظام للمناديب</p>
-      </div>
+    <div id="ui">
+        <h2>نموذج مبدئي لبيئة واقعية</h2>
+        <p>استخدم الماوس (السحب والتقريب) للتحكم بالكاميرا ورؤية تفاصيل الإضاءة والظلال</p>
     </div>
 
-    <div id="step-name" class="auth-container">
-        <div class="auth-card">
-            <h2>أهلاً كابتن!</h2>
-            <p style="margin-bottom: 15px; color: var(--text-sub);">ما هو اسمك؟</p>
-            <div class="form-group"><input type="text" id="user-name" placeholder="أدخل اسمك الكامل"></div>
-            <button onclick="goToPhone()">متابعة</button>
-            
-            <hr style="margin: 20px 0; border: none; border-top: 1px solid var(--border-color);">
-            <button onclick="showScreen('step-login-code')" style="background: var(--success); color: white; margin-bottom: 10px;">لدي كود دخول (للمندوبين)</button>
-            <button onclick="showScreen('step-apply')" style="background: var(--secondary-gold); color: #000;">تقديم طلب مندوب جديد</button>
-        </div>
-    </div>
-
-    <div id="step-apply" class="auth-container">
-        <div class="auth-card">
-            <h2>طلب انضمام كمندوب</h2>
-            <p style="margin-bottom: 15px; color: var(--text-sub);">يرجى تعبئة بياناتك وسنقوم بتزويدك بكود الدخول</p>
-            <div class="form-group"><input type="text" id="apply-name" placeholder="الاسم الكامل"></div>
-            <div class="form-group"><input type="tel" id="apply-phone" placeholder="رقم الهاتف" dir="ltr" maxlength="11"></div>
-            <div class="form-group"><input type="text" id="apply-bike" placeholder="نوع الدراجة (مثال: بوكسر, ماكس)"></div>
-            <button onclick="submitApplication()">إرسال الطلب</button>
-            <button onclick="showScreen('step-name')" style="background: transparent; color: var(--text-sub); margin-top: 10px; border: 1px solid var(--border-color);">رجوع</button>
-        </div>
-    </div>
-
-    <div id="step-login-code" class="auth-container">
-        <div class="auth-card">
-            <h2>دخول المندوبين</h2>
-            <p style="margin-bottom: 15px; color: var(--text-sub);">أدخل الكود الذي استلمته من الإدارة</p>
-            <div class="form-group"><input type="text" id="login-code" placeholder="كود الدخول" dir="ltr"></div>
-            <button onclick="loginWithCode()">تسجيل الدخول</button>
-            <button onclick="showScreen('step-name')" style="background: transparent; color: var(--text-sub); margin-top: 10px; border: 1px solid var(--border-color);">رجوع</button>
-        </div>
-    </div>
-
-    <div id="step-phone" class="auth-container">
-        <div class="auth-card">
-            <h2>رقم الهاتف</h2>
-            <p style="margin-bottom: 15px; color: var(--text-sub);">يرجى إدخال رقم هاتفك</p>
-            <div class="form-group">
-                <input type="tel" id="user-phone" placeholder="07XXXXXXXXX" dir="ltr" maxlength="11">
-            </div>
-            <button onclick="finishLogin()">دخول للنظام</button>
-        </div>
-    </div>
-
-    <div id="main-app" class="screen">
-        <header class="navbar">
-            <h1 style="font-size: 18px;">كابتن <span>البندر</span></h1>
-        </header>
-
-        <div class="container">
-            <div class="tab-nav">
-                <button id="btn-public" class="tab-btn active" onclick="switchTab('public')"><i class="fas fa-globe"></i> الطلبات العامة</button>
-                <button id="btn-private" class="tab-btn" onclick="switchTab('private')"><i class="fas fa-user-check"></i> طلباتك المحجوزة</button>
-                
-                <button id="btn-applications" class="tab-btn" onclick="switchTab('applications')"><i class="fas fa-users"></i> طلبات التسجيل</button>
-            </div>
-
-            <div id="orders-container">
-                <div id="public-orders-list"></div>
-                <div id="private-orders-list" style="display: none;"></div>
-                
-                <div id="applications-list" style="display: none;"></div>
-            </div>
-
-            <div class="form-card" style="margin-top: 20px;">
-                <button id="statusToggleBtn" class="send-btn" style="background: #10B981; font-size: 14px; padding: 12px;" onclick="toggleDriverStatus()">
-                    <i class="fas fa-check-circle"></i> متاح للعمل
-                </button>
-                
-                <button class="send-btn" style="background: var(--danger); margin-top: 10px; font-size: 14px; padding: 12px;" onclick="logout()">
-                    <i class="fas fa-user-times"></i> استقالة
-                </button>
-            </div>
-        </div>
-    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
 
     <script>
-        const firebaseConfig = {
-            apiKey: "AIzaSyBXW3gL4PszJjmgmVVOjkuEqe-WkWHyO60",
-            authDomain: "al-bandar-f02f6.firebaseapp.com",
-            databaseURL: "https://al-bandar-f02f6-default-rtdb.firebaseio.com",
-            projectId: "al-bandar-f02f6",
-            storageBucket: "al-bandar-f02f6.firebasestorage.app",
-            messagingSenderId: "799678549296",
-            appId: "1:799678549296:web:bd1cc0ff99a680eabfccf5"
-        };
-        firebase.initializeApp(firebaseConfig);
-        const db = firebase.database();
+        // 1. إعداد المشهد
+        const scene = new THREE.Scene();
+        scene.background = new THREE.Color(0x87CEEB); // سماء واقعية
+        scene.fog = new THREE.FogExp2(0x87CEEB, 0.015); // ضباب للعمق
 
-        let userName = localStorage.getItem('albandar_name') || "";
-        let userPhone = localStorage.getItem('albandar_phone') || "";
-        let currentTab = 'public';
+        const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
+        camera.position.set(0, 5, 12);
 
-        window.onload = () => {
-            setTimeout(() => {
-                document.getElementById('splash-screen').classList.add('hidden');
-                if (userName && userPhone) {
-                    showScreen('main-app');
-                    listenToOrders();
-                    listenToApplications(); // استدعاء الدالة الجديدة الخاصة بطلبات المندوبين
-                } else {
-                    document.getElementById('step-name').style.display = 'flex';
-                }
-            }, 2000);
-        };
+        // 2. إعداد محرك الرسم (Renderer) بدقة عالية
+        const renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.shadowMap.enabled = true; // تفعيل الظلال
+        renderer.shadowMap.type = THREE.PCFSoftShadowMap; // ظلال ناعمة جداً
+        document.body.appendChild(renderer.domElement);
 
-        function goToPhone() {
-            userName = document.getElementById('user-name').value.trim();
-            if (userName.length < 3) return alert("أدخل اسمك الكامل");
-            document.getElementById('step-name').style.display = 'none';
-            document.getElementById('step-phone').style.display = 'flex';
+        // 3. الإضاءة (سر الواقعية)
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.4); // ضوء محيطي
+        scene.add(ambientLight);
+
+        const sunLight = new THREE.DirectionalLight(0xffffff, 1.2); // ضوء الشمس
+        sunLight.position.set(10, 20, 10);
+        sunLight.castShadow = true;
+        sunLight.shadow.mapSize.width = 2048; // دقة الظل
+        sunLight.shadow.mapSize.height = 2048;
+        scene.add(sunLight);
+
+        // 4. المواد الفيزيائية (PBR)
+        // الأرضية
+        const floorGeometry = new THREE.PlaneGeometry(200, 200);
+        const floorMaterial = new THREE.MeshStandardMaterial({
+            color: 0x2e8b57, // لون عشبي داكن
+            roughness: 0.9,
+            metalness: 0.0
+        });
+        const floor = new THREE.Mesh(floorGeometry, floorMaterial);
+        floor.rotation.x = -Math.PI / 2;
+        floor.receiveShadow = true;
+        scene.add(floor);
+
+        // الكرة المعدنية الواقعية
+        const sphereGeometry = new THREE.SphereGeometry(2, 64, 64); // دقة هندسية عالية
+        const sphereMaterial = new THREE.MeshPhysicalMaterial({
+            color: 0xff3333,
+            metalness: 0.7,      // انعكاس معدني
+            roughness: 0.2,      // نعومة السطح
+            clearcoat: 1.0,      // طبقة طلاء لامعة
+            clearcoatRoughness: 0.1
+        });
+        const sphere = new THREE.Mesh(sphereGeometry, sphereMaterial);
+        sphere.castShadow = true;
+        scene.add(sphere);
+
+        // 5. التحكم بالكاميرا
+        const controls = new THREE.OrbitControls(camera, renderer.domElement);
+        controls.enableDamping = true; // حركة سلسة للكاميرا
+        controls.dampingFactor = 0.05;
+        controls.maxPolarAngle = Math.PI / 2 - 0.05; // منع الكاميرا من النزول تحت الأرض
+
+        // 6. حلقة التحديث والتحريك (Animation Loop)
+        const clock = new THREE.Clock();
+
+        function animate() {
+            requestAnimationFrame(animate);
+
+            const elapsedTime = clock.getElapsedTime();
+
+            // حركة ارتداد ودوران واقعية للكرة
+            sphere.position.y = Math.abs(Math.sin(elapsedTime * 2)) * 3 + 2;
+            sphere.rotation.x = elapsedTime;
+            sphere.rotation.y = elapsedTime * 0.5;
+
+            controls.update();
+            renderer.render(scene, camera);
         }
 
-        function finishLogin() {
-            userPhone = document.getElementById('user-phone').value.trim();
-            if (userPhone.length < 10) return alert("أدخل رقم هاتف صحيح");
-            localStorage.setItem('albandar_name', userName);
-            localStorage.setItem('albandar_phone', userPhone);
-            location.reload();
-        }
+        animate();
 
-        function showScreen(id) {
-            document.querySelectorAll('.screen, .auth-container').forEach(s => s.style.display = 'none');
-            document.getElementById(id).style.display = 'block';
-            if(id === 'main-app') document.getElementById('driver-status-badge').style.display = 'block';
-            else document.getElementById('driver-status-badge').style.display = 'none';
-        }
-
-        // تم التعديل لإضافة الخانة الجديدة فقط
-        function switchTab(tab) {
-            currentTab = tab;
-            document.getElementById('btn-public').classList.toggle('active', tab === 'public');
-            document.getElementById('btn-private').classList.toggle('active', tab === 'private');
-            document.getElementById('btn-applications').classList.toggle('active', tab === 'applications'); // إضافة
-            
-            document.getElementById('public-orders-list').style.display = tab === 'public' ? 'block' : 'none';
-            document.getElementById('private-orders-list').style.display = tab === 'private' ? 'block' : 'none';
-            document.getElementById('applications-list').style.display = tab === 'applications' ? 'block' : 'none'; // إضافة
-        }
-
-        function listenToOrders() {
-            db.ref('orders').on('value', (snapshot) => {
-                const data = snapshot.val();
-                let publicHtml = "";
-                let privateHtml = "";
-                let foundPublic = false;
-                let foundPrivate = false;
-
-                for (let id in data) {
-                    const o = data[id];
-                    if (o.status === 'pending_driver' && !o.driverPhone) {
-                        foundPublic = true;
-                        publicHtml += renderOrderCard(id, o, 'public');
-                    }
-                    else if (o.driverPhone === userPhone && (o.status === 'accepted_driver' || o.status === 'pending_driver')) {
-                        foundPrivate = true;
-                        privateHtml += renderOrderCard(id, o, 'private');
-                    }
-                }
-
-                document.getElementById('public-orders-list').innerHTML = foundPublic ? publicHtml : `<div style="text-align:center; padding:50px; color:gray;">لا توجد طلبات عامة حالياً</div>`;
-                document.getElementById('private-orders-list').innerHTML = foundPrivate ? privateHtml : `<div style="text-align:center; padding:50px; color:gray;">ليس لديك طلبات محجوزة</div>`;
-            });
-        }
-
-        function renderOrderCard(id, o, type) {
-            if (type === 'public') {
-                return `
-                <div class="order-card" style="direction: rtl; text-align: right;">
-                    <div style="color: #10B981; font-weight: bold; margin-bottom: 10px; font-size: 16px;">✅ طلب متاح</div>
-                    <div style="font-weight: bold; margin-bottom: 5px;">📦 التفاصيل:</div>
-                    <div style="font-size: 14px; color: var(--text-main); line-height: 1.8;">
-                        <div>🔵 <b>طلب مسواك</b></div>
-                        <div>👤 <b>الزبون:</b> ${o.customer || 'غير محدد'}</div>
-                        <div>📞 <b>الهاتف:</b> <a href="tel:${o.phone}" dir="ltr" style="color: var(--primary); text-decoration: none; font-weight:bold;">${o.phone || 'غير محدد'}</a></div>
-                        <div>📌 <b>الدالة:</b> ${o.address || 'غير محدد'}</div>
-                        <div>📝 <b>الطلب:</b> ${o.items || 'لا توجد تفاصيل'}</div>
-                        <div>🔢 <b>تسلسل طلب العميل:</b> #${o.id || id}</div>
-                        <div>📍 <b>الموقع:</b> <a href="${o.location || '#'}" style="color: var(--primary); text-decoration: none;">عرض على الخريطة 🗺️</a></div>
-                    </div>
-                    <div style="color:var(--success); font-weight:bold; margin-top:10px;">الأجرة: ${o.price || '2,000 د.ع'}</div>
-                    <div class="btn-group">
-                        <button class="btn" style="background:var(--primary)" onclick="lockOrder('${id}')">
-                            <i class="fas fa-lock"></i> حجز الطلب لـي
-                        </button>
-                    </div>
-                </div>`;
-            } else {
-                return `
-                <div class="order-card" style="direction: rtl; text-align: right; border-right: 5px solid #10B981;">
-                    <div style="color: #10B981; font-weight: bold; margin-bottom: 10px; font-size: 16px;">✅ تم حجز الطلب بنجاح</div>
-                    
-                    <div style="background: #FEF3C7; color: #D97706; padding: 10px; border-radius: 8px; font-weight: bold; margin-bottom: 15px; text-align: center; font-size: 18px; border: 1px dashed #D97706;">
-                        🔑 كود التأكيد: ${o.verifyCode || 'جاري التوليد...'}
-                    </div>
-
-                    <div style="font-weight: bold; margin-bottom: 5px;">📦 التفاصيل:</div>
-                    <div style="font-size: 14px; color: var(--text-main); line-height: 1.8;">
-                        <div>🔵 <b>طلب مسواك</b></div>
-                        <div>👤 <b>الزبون:</b> ${o.customer || 'غير محدد'}</div>
-                        <div>📞 <b>الهاتف:</b> <a href="tel:${o.phone}" dir="ltr" style="color: var(--primary); text-decoration: none; font-weight:bold;">${o.phone || 'غير محدد'}</a></div>
-                        <div>📌 <b>الدالة:</b> ${o.address || 'غير محدد'}</div>
-                        <div>📝 <b>الطلب:</b> ${o.items || 'لا توجد تفاصيل'}</div>
-                        <div>🔢 <b>تسلسل طلب العميل:</b> #${o.id || id}</div>
-                        <div>📍 <b>الموقع:</b> <a href="${o.location || '#'}" style="color: var(--primary); text-decoration: none;">عرض على الخريطة 🗺️</a></div>
-                    </div>
-                    <div style="color:var(--success); font-weight:bold; margin-top:10px;">الأجرة: ${o.price || '2,000 د.ع'}</div>
-                    <div class="btn-group">
-                        <button class="btn" style="background:var(--success)" onclick="finishOrder('${id}')">
-                            <i class="fas fa-check"></i> إنهاء وتسليم
-                        </button>
-                    </div>
-                </div>`;
-            }
-        }
-
-        function lockOrder(id) {
-            if(!confirm("هل أنت متأكد من حجز هذا الطلب؟")) return;
-            
-            const randomCode = Math.floor(1000 + Math.random() * 9000); 
-
-            db.ref('orders/' + id).update({
-                status: 'accepted_driver',
-                driverName: userName,
-                driverPhone: userPhone,
-                verifyCode: randomCode 
-            }).then(() => {
-                alert("تم حجز الطلب! انتقل لخانة طلباتك المحجوزة");
-                switchTab('private');
-            });
-        }
-
-        function finishOrder(id) {
-            if(!confirm("هل أنت متأكد من تسليم وإنهاء هذا الطلب؟")) return;
-            
-            db.ref('orders/' + id).update({
-                status: 'completed'
-            }).then(() => {
-                
-                // الرابط الجديد الذي قمت بتزويدي به
-                const scriptURL = "https://script.google.com/macros/s/AKfycbxkTDFl3XFV3Md0BRjD0GYRaIlngDigP9B4K5nTkoD8dIqGudFJiE7__kGpLC1FODip/exec"; 
-                
-                fetch(`${scriptURL}?action=incrementDriverCount&phone=${userPhone}&name=${encodeURIComponent(userName)}`)
-                .then(response => console.log("Stats update request sent."))
-                .catch(err => console.log("Error updating stats:", err));
-
-                confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
-                alert("تم إكمال وتسليم الطلب بنجاح! عاشت ايدك كابتن");
-            });
-        }
-
-        function toggleDriverStatus() {
-            const btn = document.getElementById('statusToggleBtn');
-            const badge = document.getElementById('driver-status-badge');
-            let isAvailable = btn.style.background.includes('16, 185, 129'); 
-
-            if(isAvailable) {
-                btn.style.background = 'var(--danger)';
-                btn.innerHTML = '<i class="fas fa-minus-circle"></i> مشغول حالياً';
-                badge.innerText = 'أنت الآن مشغول 🔴';
-                badge.style.background = 'var(--danger)';
-                badge.style.color = 'white';
-            } else {
-                btn.style.background = '#10B981';
-                btn.innerHTML = '<i class="fas fa-check-circle"></i> متاح للعمل';
-                badge.innerText = 'أنت الآن في وضع العمل النشط 🟢';
-                badge.style.background = 'var(--gold)';
-                badge.style.color = '#000';
-            }
-        }
-
-        function logout() {
-            if(confirm("هل أنت متأكد من تقديم استقالتك والخروج من النظام؟")) {
-                localStorage.clear();
-                location.reload();
-            }
-        }
-
-        function submitApplication() {
-            const name = document.getElementById('apply-name').value.trim();
-            const phone = document.getElementById('apply-phone').value.trim();
-            const bike = document.getElementById('apply-bike').value.trim();
-            
-            if (name.length < 3 || phone.length < 10 || bike.length < 2) {
-                return alert("يرجى تعبئة جميع الحقول بشكل صحيح");
-            }
-
-            // توليد كود تلقائي من 6 أرقام
-            const generatedCode = Math.floor(100000 + Math.random() * 900000).toString();
-
-            db.ref('driver_applications').push({
-                name: name,
-                phone: phone,
-                bikeType: bike,
-                code: generatedCode,
-                status: 'pending',
-                timestamp: firebase.database.ServerValue.TIMESTAMP
-            }).then(() => {
-                alert("تم إرسال طلبك بنجاح! سيتم التواصل معك وتزويدك بالكود قريباً.");
-                showScreen('step-name');
-            }).catch(err => {
-                alert("حدث خطأ أثناء الإرسال: " + err.message);
-            });
-        }
-
-        function loginWithCode() {
-            const code = document.getElementById('login-code').value.trim();
-            if(!code) return alert("الرجاء إدخال الكود");
-
-            // البحث عن الكود في قاعدة البيانات
-            db.ref('driver_applications').orderByChild('code').equalTo(code).once('value', snapshot => {
-                if(snapshot.exists()) {
-                    let data = snapshot.val();
-                    let key = Object.keys(data)[0];
-                    let rep = data[key];
-                    
-                    // تسجيل دخول المندوب وتخزين بياناته
-                    localStorage.setItem('albandar_name', rep.name);
-                    localStorage.setItem('albandar_phone', rep.phone);
-                    alert("تم تسجيل الدخول بنجاح! أهلاً بك كابتن " + rep.name);
-                    location.reload();
-                } else {
-                    alert("الكود غير صحيح أو غير مسجل في النظام");
-                }
-            });
-        }
-
-        /* دالة جلب وعرض طلبات المندوبين (إضافة جديدة) */
-        function listenToApplications() {
-            db.ref('driver_applications').on('value', (snapshot) => {
-                const data = snapshot.val();
-                let html = "";
-                let found = false;
-
-                for (let id in data) {
-                    const app = data[id];
-                    found = true;
-                    html += `
-                    <div class="order-card" style="direction: rtl; text-align: right; border-right: 5px solid #0D47A1;">
-                        <div style="color: #0D47A1; font-weight: bold; margin-bottom: 10px; font-size: 16px;">👤 طلب انضمام جديد</div>
-                        <div style="font-size: 14px; color: var(--text-main); line-height: 1.8;">
-                            <div>👤 <b>الاسم:</b> ${app.name}</div>
-                            <div>📞 <b>الهاتف:</b> <a href="tel:${app.phone}" dir="ltr" style="color: var(--primary); text-decoration: none; font-weight:bold;">${app.phone}</a></div>
-                            <div>🛵 <b>نوع الدراجة:</b> ${app.bikeType}</div>
-                        </div>
-                        <div style="background: #E0F2FE; color: #0284C7; padding: 10px; border-radius: 8px; font-weight: bold; margin-top: 15px; text-align: center; font-size: 18px; border: 1px dashed #0284C7;">
-                            🔑 كود الدخول: ${app.code}
-                        </div>
-                    </div>`;
-                }
-
-                document.getElementById('applications-list').innerHTML = found ? html : `<div style="text-align:center; padding:50px; color:gray;">لا توجد طلبات تسجيل حالياً</div>`;
-            });
-        }
+        // توافق الشاشة عند تغيير حجم المتصفح
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
     </script>
 </body>
 </html>
