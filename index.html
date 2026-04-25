@@ -2,170 +2,217 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, orientation=landscape">
-    <title>ظلّ الزمن | TIME SHADOW</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>أبواب الأبدية: إرث الرماد</title>
     <style>
-        :root { --time-color: #00f2ff; --health-color: #ff3333; }
-        body { margin: 0; background: #000; color: white; font-family: 'Segoe UI', sans-serif; overflow: hidden; touch-action: none; }
+        body {
+            background-color: #121212;
+            color: #e0e0e0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        #game-container {
+            background-color: #1e1e1e;
+            border: 2px solid #d35400;
+            border-radius: 10px;
+            padding: 20px;
+            width: 90%;
+            max-width: 600px;
+            box-shadow: 0 0 20px rgba(211, 84, 0, 0.5);
+            text-align: center;
+        }
+        h1 {
+            color: #e67e22;
+            border-bottom: 1px solid #e67e22;
+            padding-bottom: 10px;
+        }
+        #story-text {
+            font-size: 1.2em;
+            line-height: 1.6;
+            margin-bottom: 20px;
+            min-height: 100px;
+        }
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            background-color: #2c3e50;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+        .health { color: #2ecc71; }
+        .ash { color: #e74c3c; }
+        .enemy-health { color: #9b59b6; }
         
-        /* واجهة المستخدم UI */
-        #game-hud { position: fixed; inset: 0; pointer-events: none; padding: 20px; z-index: 10; display: none; }
-        .bar-container { width: 200px; height: 10px; background: rgba(255,255,255,0.1); border-radius: 5px; margin-bottom: 10px; overflow: hidden; }
-        #health-bar { height: 100%; background: var(--health-color); width: 100%; transition: 0.3s; }
-        #time-bar { height: 100%; background: var(--time-color); width: 100%; }
-        
-        #dialogue-box { position: absolute; bottom: 100px; width: 100%; text-align: center; font-size: 18px; text-shadow: 2px 2px 5px #000; color: var(--time-color); }
-        #mission-text { position: absolute; top: 20px; right: 20px; background: rgba(0,0,0,0.5); padding: 10px; border-right: 3px solid var(--time-color); }
-
-        /* شاشة البداية */
-        #start-screen { position: fixed; inset: 0; background: #000; z-index: 100; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-        .btn-start { background: var(--time-color); color: #000; padding: 15px 50px; border: none; border-radius: 30px; font-weight: bold; cursor: pointer; font-size: 20px; }
-
-        /* أزرار التحكم بالزمن للموبايل */
-        #time-controls { position: fixed; bottom: 20px; right: 20px; display: flex; gap: 10px; pointer-events: auto; }
-        .time-btn { width: 60px; height: 60px; border-radius: 50%; border: 2px solid var(--time-color); background: rgba(0,0,0,0.5); color: white; display: flex; align-items: center; justify-content: center; font-size: 12px; }
+        .choices button {
+            background-color: #d35400;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            margin: 5px;
+            border-radius: 5px;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            width: 100%;
+        }
+        .choices button:hover {
+            background-color: #e67e22;
+        }
+        .choices button:disabled {
+            background-color: #555;
+            cursor: not-allowed;
+        }
     </style>
 </head>
 <body>
 
-    <div id="start-screen">
-        <h1 style="letter-spacing: 10px; color: var(--time-color);">ظلّ الزمن</h1>
-        <p>العالم انكسر.. أنت الوحيد الذي يملك المفتاح</p>
-        <button class="btn-start" onclick="startGame()">اكتشف الحقيقة</button>
+<div id="game-container">
+    <h1>أبواب الأبدية: إرث الرماد</h1>
+    
+    <div id="stats-panel" class="stats" style="display: none;">
+        <div class="health">صحتك: <span id="player-hp">100</span></div>
+        <div class="ash">عداد الرماد: <span id="player-ash">0</span>%</div>
+        <div class="enemy-health" id="enemy-stats" style="display: none;">صحة الزعيم: <span id="enemy-hp">150</span></div>
     </div>
 
-    <div id="game-hud">
-        <div class="bar-container"><div id="health-bar"></div></div>
-        <div class="bar-container"><div id="time-bar"></div></div>
-        <div id="mission-text">المهمة: استكشف المختبر المهجور</div>
-        <div id="dialogue-box"></div>
+    <div id="story-text">
+        مرحباً بك في عالم "إليريان". أنت "كايل"، المحارب المنبوذ ذو الذراع الملعونة. العالم يتهاوى، ويجب عليك الوصول إلى برج الأبدية.
+    </div>
+
+    <div id="choices" class="choices">
+        <button onclick="startGame()">ابدأ الرحلة</button>
+    </div>
+</div>
+
+<script>
+    // متغيرات اللعبة
+    let player = { hp: 100, ash: 0 };
+    let boss = { name: "حارس البوابات النحاسي", hp: 150, maxHp: 150 };
+    let inCombat = false;
+
+    // عناصر الواجهة
+    const storyText = document.getElementById("story-text");
+    const choicesDiv = document.getElementById("choices");
+    const statsPanel = document.getElementById("stats-panel");
+    const playerHpSpan = document.getElementById("player-hp");
+    const playerAshSpan = document.getElementById("player-ash");
+    const enemyStatsDiv = document.getElementById("enemy-stats");
+    const enemyHpSpan = document.getElementById("enemy-hp");
+
+    function updateUI() {
+        playerHpSpan.innerText = player.hp;
+        playerAshSpan.innerText = player.ash;
+        enemyHpSpan.innerText = boss.hp;
         
-        <div id="time-controls">
-            <div class="time-btn" id="btn-stop">إيقاف</div>
-            <div class="time-btn" id="btn-rewind">إرجاع</div>
-            <div class="time-btn" id="btn-fast">تسريع</div>
-        </div>
-    </div>
+        // تحديث الألوان بناءً على الحالة
+        if (player.ash >= 100) playerAshSpan.style.color = "red";
+        else playerAshSpan.style.color = "#e74c3c";
+    }
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    function startGame() {
+        statsPanel.style.display = "flex";
+        player.hp = 100;
+        player.ash = 0;
+        boss.hp = boss.maxHp;
+        updateUI();
+        
+        storyText.innerHTML = "أنت تقف الآن أمام بوابات مدينة الغسق المنهارة. فجأة، يظهر أمامك وحش معدني ضخم يسد الطريق.. إنه <b>حارس البوابات النحاسي</b>!";
+        enemyStatsDiv.style.display = "block";
+        inCombat = true;
+        
+        showCombatChoices();
+    }
 
-    <script>
-        let scene, camera, renderer, player, enemy;
-        let timeState = "normal"; // normal, stopped, rewinding, fast
-        let health = 100, timeEnergy = 100;
-        let history = []; // لتخزين مواقع اللاعب لإرجاع الزمن
-        const MAX_HISTORY = 300;
+    function showCombatChoices() {
+        choicesDiv.innerHTML = `
+            <button onclick="attack('sword')">🗡️ ضربة السيف (تزيد الرماد)</button>
+            <button onclick="attack('ash')" ${player.ash < 50 ? 'disabled' : ''}>🔥 ضربة الرماد القاضية (تستهلك 50 رماد)</button>
+            <button onclick="heal()" ${player.ash < 30 ? 'disabled' : ''}>💚 تعافي بالرماد (تستهلك 30 رماد)</button>
+        `;
+    }
 
-        function startGame() {
-            document.getElementById('start-screen').style.display = 'none';
-            document.getElementById('game-hud').style.display = 'block';
-            initGame();
-            showDialogue("ماذا حدث؟ كل شيء يبدو ساكناً...");
+    function attack(type) {
+        let damage = 0;
+        let msg = "";
+
+        if (type === 'sword') {
+            damage = Math.floor(Math.random() * 10) + 10; // من 10 إلى 20 ضرر
+            player.ash += 25; // تزيد الرماد
+            msg = `ضربت الحارس بسيفك وسببت ${damage} ضرر. ذراعك بدأت تشتعل (زاد الرماد).`;
+        } else if (type === 'ash') {
+            damage = Math.floor(Math.random() * 20) + 30; // من 30 إلى 50 ضرر
+            player.ash -= 50;
+            msg = `أطلقت طاقة الرماد السوداء من ذراعك! ضربة مدمرة سببت ${damage} ضرر.`;
         }
 
-        function initGame() {
-            scene = new THREE.Scene();
-            scene.background = new THREE.Color(0x050510);
-            scene.fog = new THREE.FogExp2(0x050510, 0.05);
+        boss.hp -= damage;
+        if (boss.hp < 0) boss.hp = 0;
 
-            camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
-            renderer = new THREE.WebGLRenderer({ antialias: true });
-            renderer.setSize(window.innerWidth, window.innerHeight);
-            renderer.shadowMap.enabled = true;
-            document.body.appendChild(renderer.domElement);
-
-            // إضاءة غامضة
-            const light = new THREE.PointLight(0x00f2ff, 2, 50);
-            light.position.set(0, 5, 5);
-            scene.add(light);
-
-            // الأرضية
-            const floor = new THREE.Mesh(new THREE.PlaneGeometry(100, 100), new THREE.MeshStandardMaterial({color: 0x111111}));
-            floor.rotation.x = -Math.PI/2;
-            scene.add(floor);
-
-            // اللاعب
-            player = new THREE.Group();
-            player.add(camera);
-            player.position.set(0, 1.7, 10);
-            scene.add(player);
-
-            // العدو (مكعب أحمر مخيف)
-            const enemyGeo = new THREE.BoxGeometry(2, 2, 2);
-            const enemyMat = new THREE.MeshStandardMaterial({color: 0xff3333});
-            enemy = new THREE.Mesh(enemyGeo, enemyMat);
-            enemy.position.set(0, 1, -10);
-            scene.add(enemy);
-
-            setupTimeActions();
-            animate();
+        // التحقق من عقوبة الرماد الزائد
+        if (player.ash > 100) {
+            player.ash = 100;
+            player.hp -= 15;
+            msg += "<br><b>⚠️ تحذير: طاقة الرماد فاضت عن الحد! ذراعك تحترق وفقدت 15 من صحتك!</b>";
         }
 
-        function setupTimeActions() {
-            const setTime = (s) => { timeState = s; };
-            
-            document.getElementById('btn-stop').ontouchstart = () => timeState = "stopped";
-            document.getElementById('btn-rewind').ontouchstart = () => timeState = "rewinding";
-            document.getElementById('btn-fast').ontouchstart = () => timeState = "fast";
-            
-            window.ontouchend = () => timeState = "normal";
+        updateUI();
+
+        if (boss.hp === 0) {
+            winGame();
+        } else {
+            storyText.innerHTML = msg;
+            choicesDiv.innerHTML = ""; // إخفاء الأزرار مؤقتاً
+            setTimeout(enemyTurn, 2000); // دور العدو بعد ثانيتين
         }
+    }
 
-        function showDialogue(text) {
-            const box = document.getElementById('dialogue-box');
-            box.innerText = text;
-            setTimeout(() => box.innerText = "", 4000);
+    function heal() {
+        player.ash -= 30;
+        let healAmount = 25;
+        player.hp += healAmount;
+        if (player.hp > 100) player.hp = 100;
+        
+        storyText.innerHTML = `استخدمت طاقة الرماد لعلاج جراحك. استعدت ${healAmount} نقطة صحة.`;
+        updateUI();
+        
+        choicesDiv.innerHTML = "";
+        setTimeout(enemyTurn, 2000);
+    }
+
+    function enemyTurn() {
+        let enemyDamage = Math.floor(Math.random() * 15) + 5; // ضرر من 5 إلى 20
+        player.hp -= enemyDamage;
+        if (player.hp < 0) player.hp = 0;
+        
+        storyText.innerHTML += `<br><br>🛡️ الحارس النحاسي يضربك بفأسه العملاق مسبباً ${enemyDamage} ضرر!`;
+        updateUI();
+
+        if (player.hp === 0) {
+            loseGame();
+        } else {
+            setTimeout(showCombatChoices, 1000); // إظهار أزرار اللاعب بعد ثانية
         }
+    }
 
-        function animate() {
-            requestAnimationFrame(animate);
+    function winGame() {
+        inCombat = false;
+        enemyStatsDiv.style.display = "none";
+        storyText.innerHTML = "🎉 لقد سقط الحارس النحاسي! تفتح بوابات الأبدية ببطء... هذه مجرد البداية لرحلة كايل الطويلة. <br><b>النهاية (النسخة التجريبية).</b>";
+        choicesDiv.innerHTML = `<button onclick="startGame()">إعادة اللعب</button>`;
+    }
 
-            // 1. نظام الطاقة
-            if(timeState !== "normal") {
-                timeEnergy -= 0.5;
-                if(timeEnergy <= 0) timeState = "normal";
-            } else if(timeEnergy < 100) {
-                timeEnergy += 0.2;
-            }
-            document.getElementById('time-bar').style.width = timeEnergy + "%";
+    function loseGame() {
+        inCombat = false;
+        storyText.innerHTML = "💀 لقد سقطت في المعركة... استهلكت لعنة الرماد ما تبقى من روحك. العالم سيغرق في الظلام للأبد.";
+        choicesDiv.innerHTML = `<button onclick="startGame()">المحاولة مرة أخرى</button>`;
+    }
+</script>
 
-            // 2. منطق الزمن
-            if (timeState === "rewinding") {
-                if (history.length > 0) {
-                    let prev = history.pop();
-                    player.position.copy(prev.p);
-                    enemy.position.copy(prev.e);
-                }
-            } else {
-                // حفظ التاريخ للرجوع
-                history.push({ p: player.position.clone(), e: enemy.position.clone() });
-                if (history.length > MAX_HISTORY) history.shift();
-
-                if (timeState !== "stopped") {
-                    let speed = timeState === "fast" ? 0.3 : 0.05;
-                    // تحريك العدو نحو اللاعب
-                    const dir = new THREE.Vector3().subVectors(player.position, enemy.position).normalize();
-                    enemy.position.x += dir.x * speed;
-                    enemy.position.z += dir.z * speed;
-                }
-            }
-
-            // 3. نظام الضرر
-            const dist = player.position.distanceTo(enemy.position);
-            if(dist < 2 && timeState !== "stopped") {
-                health -= 0.5;
-                document.getElementById('health-bar').style.width = health + "%";
-                if(health <= 0) {
-                    alert("لقد ضعت في ثنايا الزمن! حاول مجدداً.");
-                    location.reload();
-                }
-            }
-
-            // حركة اللاعب (تلقائية للأمام للتجربة)
-            if(timeState !== "rewinding") player.translateZ(-0.02);
-
-            renderer.render(scene, camera);
-        }
-    </script>
 </body>
 </html>
