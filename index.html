@@ -1,261 +1,142 @@
-<!DOCTYPE html>
-<html lang="ar" dir="rtl">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, orientation=landscape">
-    <title>SECRETS OF PIER 7 | أسرار الرصيف ٧</title>
-    <style>
-        :root { --accent: #ffaa00; --glass: rgba(255, 255, 255, 0.05); --blur: blur(15px); }
-        body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background: #000; font-family: 'Segoe UI', Tahoma, sans-serif; color: white; }
+using UnityEngine;
+using UnityEngine.UI;
 
-        /* تنبيه تدوير الشاشة */
-        @media screen and (orientation: portrait) {
-            #rotate-warning { display: flex !important; }
+public class GameController : MonoBehaviour
+{
+    [Header("Movement")]
+    public float speed = 5f;
+    public float mouseSensitivity = 200f;
+    public Transform playerBody;
+
+    float xRotation = 0f;
+
+    [Header("Time Control")]
+    public float timeEnergy = 5f;
+    public float maxEnergy = 5f;
+    public float drainSpeed = 1f;
+    public float rechargeSpeed = 0.5f;
+    private bool isTimeStopped = false;
+
+    [Header("Health")]
+    public int health = 100;
+
+    [Header("Enemy")]
+    public Transform enemy;
+    public float enemySpeed = 3f;
+
+    [Header("UI")]
+    public Slider energyBar;
+    public Slider healthBar;
+
+    void Start()
+    {
+        Cursor.lockState = CursorLockMode.Locked;
+
+        if (energyBar != null)
+            energyBar.maxValue = maxEnergy;
+
+        if (healthBar != null)
+            healthBar.maxValue = health;
+    }
+
+    void Update()
+    {
+        Move();
+        Look();
+        HandleTime();
+        RechargeEnergy();
+        UpdateUI();
+        EnemyAI();
+    }
+
+    // 🎮 الحركة
+    void Move()
+    {
+        float x = Input.GetAxis("Horizontal");
+        float z = Input.GetAxis("Vertical");
+
+        Vector3 move = playerBody.right * x + playerBody.forward * z;
+        transform.Translate(move * speed * Time.deltaTime, Space.World);
+    }
+
+    // 👀 الكاميرا
+    void Look()
+    {
+        float mouseX = Input.GetAxis("Mouse X") * mouseSensitivity * Time.deltaTime;
+        float mouseY = Input.GetAxis("Mouse Y") * mouseSensitivity * Time.deltaTime;
+
+        xRotation -= mouseY;
+        xRotation = Mathf.Clamp(xRotation, -90f, 90f);
+
+        Camera.main.transform.localRotation = Quaternion.Euler(xRotation, 0f, 0f);
+        playerBody.Rotate(Vector3.up * mouseX);
+    }
+
+    // ⏳ التحكم بالزمن
+    void HandleTime()
+    {
+        if (Input.GetKey(KeyCode.Space) && timeEnergy > 0)
+        {
+            Time.timeScale = 0f;
+            isTimeStopped = true;
+            timeEnergy -= drainSpeed * Time.unscaledDeltaTime;
         }
-        #rotate-warning { position: fixed; inset: 0; background: #000; z-index: 999; display: none; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
-
-        /* شاشة الدخول - نظام البصمة */
-        #auth-screen { position: fixed; inset: 0; z-index: 500; background: radial-gradient(circle at center, #1a1a2e, #000); display: flex; align-items: center; justify-content: center; transition: 1s ease-in-out; }
-        .auth-card { background: var(--glass); backdrop-filter: var(--blur); padding: 30px; border-radius: 25px; border: 1px solid rgba(255,255,255,0.1); width: 400px; text-align: center; }
-        .fingerprint-btn { width: 80px; height: 80px; border-radius: 50%; border: 2px solid var(--accent); margin: 20px auto; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: 0.3s; box-shadow: 0 0 20px var(--accent); }
-        .fingerprint-btn:active { transform: scale(0.9); box-shadow: 0 0 40px var(--accent); }
-
-        /* اللوبي (Lobby) */
-        #lobby { display: none; position: fixed; inset: 0; z-index: 400; background: url('https://images.unsplash.com/photo-1570535175510-96027df58659?auto=format&fit=crop&q=80&w=1500') center/cover; }
-        .lobby-overlay { position: absolute; inset: 0; background: linear-gradient(90deg, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.3) 100%); }
-        .lobby-ui { position: relative; z-index: 401; padding: 40px; height: 80%; display: flex; flex-direction: column; justify-content: space-between; }
-        .side-menu { width: 250px; }
-        .menu-btn { background: var(--glass); border: 1px solid rgba(255,255,255,0.1); padding: 15px; margin: 10px 0; border-radius: 12px; cursor: pointer; transition: 0.3s; text-align: right; display: block; width: 100%; color: white; font-weight: bold; }
-        .menu-btn:hover { background: var(--accent); color: black; transform: translateX(-10px); }
-        
-        .friends-panel { position: absolute; top: 40px; left: 40px; background: var(--glass); backdrop-filter: var(--blur); padding: 20px; border-radius: 15px; width: 200px; border: 1px solid rgba(255,255,255,0.1); }
-        .friend-item { display: flex; align-items: center; margin-bottom: 10px; font-size: 14px; }
-        .status-dot { width: 8px; height: 8px; border-radius: 50%; margin-left: 10px; }
-
-        /* المحرك والتحكم */
-        #game-canvas { display: none; }
-        .controls { display: none; position: fixed; bottom: 30px; width: 100%; px: 50px; z-index: 1000; pointer-events: none; }
-        #joystick { width: 120px; height: 120px; background: rgba(255,255,255,0.1); border-radius: 50%; margin-right: 50px; pointer-events: auto; position: relative; }
-        #stick { width: 50px; height: 50px; background: var(--accent); border-radius: 50%; position: absolute; top: 35px; left: 35px; opacity: 0.7; }
-        #action-btn { width: 80px; height: 80px; background: var(--accent); border-radius: 50%; position: fixed; bottom: 50px; left: 50px; pointer-events: auto; display: flex; align-items: center; justify-content: center; color: black; font-weight: bold; font-size: 14px; box-shadow: 0 0 20px var(--accent); }
-
-        /* شاشة المهمة (Quest) */
-        #quest-ui { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.8); padding: 10px 30px; border-radius: 30px; border-bottom: 2px solid var(--accent); display: none; z-index: 1100; text-align: center; }
-    </style>
-</head>
-<body>
-
-    <div id="rotate-warning">
-        <h2 style="color: var(--accent);">يرجى تدوير الهاتف</h2>
-        <p>العب بوضعية العرض لتجربة واقعية</p>
-    </div>
-
-    <div id="auth-screen">
-        <div class="auth-card">
-            <h1 style="letter-spacing: 5px;">PIER 7</h1>
-            <p style="color: #888;">نظام التعرف على الهوية</p>
-            <input type="text" id="p-name" placeholder="ادخل كود العميل" style="width: 80%; padding: 10px; background: rgba(255,255,255,0.1); border: none; color: white; text-align: center; border-radius: 5px;">
-            <div class="fingerprint-btn" onclick="validateUser()">
-                <span style="font-size: 30px;">👆</span>
-            </div>
-            <p id="auth-msg" style="font-size: 12px; color: var(--accent);"></p>
-        </div>
-    </div>
-
-    <div id="lobby">
-        <div class="lobby-overlay"></div>
-        <div class="lobby-ui">
-            <div class="side-menu">
-                <h2 id="welcome-txt">مرحباً بالعميل</h2>
-                <button class="menu-btn" onclick="startMission()">📁 بدء المهمة: الرصيف ٧</button>
-                <button class="menu-btn">⚙️ الإعدادات المتقدمة</button>
-                <button class="menu-btn">🏆 لوحة الصدارة</button>
-            </div>
-            <div class="friends-panel">
-                <h4 style="margin: 0 0 15px 0;">الأصدقاء المتصلون</h4>
-                <div class="friend-item"><div class="status-dot" style="background: #00ff00;"></div> المهندس أحمد</div>
-                <div class="friend-item"><div class="status-dot" style="background: #888;"></div> علي "البندر"</div>
-                <div class="friend-item"><div class="status-dot" style="background: #00ff00;"></div> خبير التقنيات</div>
-            </div>
-        </div>
-    </div>
-
-    <canvas id="game-canvas"></canvas>
-    <div id="quest-ui">المهمة: ابحث عن القبو واستخدم الكود السرّي (2006)</div>
-    
-    <div class="controls" id="controls">
-        <div id="joystick"><div id="stick"></div></div>
-        <div id="action-btn" onclick="interact()">تفاعل</div>
-    </div>
-
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-
-    <script>
-        let scene, camera, renderer, player, move = { f: 0, r: 0 };
-        const raycaster = new THREE.Raycaster();
-
-        function validateUser() {
-            const name = document.getElementById('p-name').value;
-            if(name.length < 3) {
-                document.getElementById('auth-msg').innerText = "الاسم قصير جداً";
-                return;
-            }
-            document.getElementById('welcome-txt').innerText = "مرحباً، " + name;
-            document.getElementById('auth-screen').style.transform = "translateY(-100%)";
-            setTimeout(() => {
-                document.getElementById('auth-screen').style.display = "none";
-                document.getElementById('lobby').style.display = "block";
-            }, 1000);
+        else
+        {
+            Time.timeScale = 1f;
+            isTimeStopped = false;
         }
+    }
 
-        function startMission() {
-            document.getElementById('lobby').style.opacity = "0";
-            setTimeout(() => {
-                document.getElementById('lobby').style.display = "none";
-                document.getElementById('game-canvas').style.display = "block";
-                document.getElementById('controls').style.display = "flex";
-                document.getElementById('quest-ui').style.display = "block";
-                initHighGraphics();
-            }, 1000);
+    void RechargeEnergy()
+    {
+        if (!isTimeStopped && timeEnergy < maxEnergy)
+        {
+            timeEnergy += rechargeSpeed * Time.deltaTime;
         }
+    }
 
-        function initHighGraphics() {
-            scene = new THREE.Scene();
-            scene.background = new THREE.Color(0x020205);
-            scene.fog = new THREE.FogExp2(0x020205, 0.08);
+    // 👾 العدو
+    void EnemyAI()
+    {
+        if (enemy == null) return;
 
-            camera = new THREE.PerspectiveCamera(60, window.innerWidth/window.innerHeight, 0.1, 1000);
-            renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('game-canvas'), antialias: true });
-            renderer.setSize(window.innerWidth, window.innerHeight);
-            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-            renderer.shadowMap.enabled = true;
-            renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-
-            // إضاءة واقعية
-            const hemi = new THREE.HemisphereLight(0x443333, 0x111122, 0.5);
-            scene.add(hemi);
-
-            const spot = new THREE.SpotLight(0xffaa00, 2, 50);
-            spot.position.set(0, 15, 0);
-            spot.castShadow = true;
-            spot.shadow.mapSize.width = 1024;
-            spot.shadow.mapSize.height = 1024;
-            scene.add(spot);
-
-            // الأرضية (تفاعل PBR)
-            const floor = new THREE.Mesh(
-                new THREE.PlaneGeometry(200, 200),
-                new THREE.MeshStandardMaterial({ color: 0x111111, roughness: 0.1, metalness: 0.2 })
+        if (Time.timeScale > 0f)
+        {
+            enemy.position = Vector3.MoveTowards(
+                enemy.position,
+                transform.position,
+                enemySpeed * Time.deltaTime
             );
-            floor.rotation.x = -Math.PI/2;
-            floor.receiveShadow = true;
-            scene.add(floor);
 
-            // بناء الميناء (حاويات وكرينات)
-            for(let i=0; i<30; i++) {
-                const box = new THREE.Mesh(
-                    new THREE.BoxGeometry(4, 4, 10),
-                    new THREE.MeshStandardMaterial({ color: i%2==0 ? 0xaa2222 : 0x2222aa })
-                );
-                box.position.set(Math.random()*60-30, 2, Math.random()*-100 - 20);
-                box.castShadow = true;
-                box.receiveShadow = true;
-                scene.add(box);
-            }
+            float distance = Vector3.Distance(enemy.position, transform.position);
 
-            // القبو (The Vault) - الهدف
-            const vault = new THREE.Mesh(
-                new THREE.BoxGeometry(6, 6, 6),
-                new THREE.MeshStandardMaterial({ color: 0xffaa00, metalness: 0.9, roughness: 0.1 })
-            );
-            vault.position.set(0, 3, -110);
-            vault.name = "vault";
-            scene.add(vault);
-
-            player = new THREE.Group();
-            player.add(camera);
-            player.position.set(0, 2, 5);
-            scene.add(player);
-
-            initControls();
-            animate();
-        }
-
-        function initControls() {
-            const joy = document.getElementById('joystick');
-            const stick = document.getElementById('stick');
-            
-            joy.addEventListener('touchmove', (e) => {
-                const t = e.touches[0];
-                const r = joy.getBoundingClientRect();
-                const x = t.clientX - r.left - 60;
-                const y = t.clientY - r.top - 60;
-                const d = Math.min(Math.sqrt(x*x + y*y), 45);
-                const a = Math.atan2(y, x);
-                
-                stick.style.transform = `translate(${Math.cos(a)*d}px, ${Math.sin(a)*d}px)`;
-                move.f = -Math.sin(a) * (d/45);
-                move.r = Math.cos(a) * (d/45);
-            });
-
-            joy.addEventListener('touchend', () => {
-                stick.style.transform = 'translate(0,0)';
-                move = { f:0, r:0 };
-            });
-
-            // تدوير الكاميرا باللمس في الجهة اليسرى
-            let lastX = 0;
-            window.addEventListener('touchmove', (e) => {
-                if(e.touches[0].clientX < window.innerWidth / 2) {
-                    let dx = e.touches[0].clientX - lastX;
-                    player.rotation.y -= dx * 0.005;
-                    lastX = e.touches[0].clientX;
-                }
-            });
-            window.addEventListener('touchstart', (e) => {
-                if(e.touches[0].clientX < window.innerWidth / 2) lastX = e.touches[0].clientX;
-            });
-        }
-
-        function interact() {
-            // كشف الأجسام أمام اللاعب
-            const direction = new THREE.Vector3();
-            camera.getWorldDirection(direction);
-            raycaster.set(player.position, direction);
-            
-            const intersects = raycaster.intersectObjects(scene.children);
-            for(let obj of intersects) {
-                if(obj.object.name === "vault" && obj.distance < 10) {
-                    const code = prompt("ادخل كود الأمان لفتح القبو:");
-                    if(code === "2006") {
-                        alert("تم الاختراق بنجاح! اكتملت المهمة، أنت الآن ملك الميناء.");
-                        obj.object.material.color.set(0x00ff00);
-                        document.getElementById('quest-ui').innerText = "المهمة اكتملت: تم استعادة البيانات!";
-                    } else {
-                        alert("كود خاطئ! الإنذار سيعمل!");
-                    }
-                }
+            if (distance < 2f)
+            {
+                TakeDamage(1);
             }
         }
+    }
 
-        function animate() {
-            requestAnimationFrame(animate);
-            const speed = 0.2;
-            player.translateZ(-move.f * speed);
-            player.translateX(move.r * speed);
-            
-            // حدود العالم
-            player.position.x = Math.max(-40, Math.min(40, player.position.x));
-            player.position.z = Math.max(-150, Math.min(10, player.position.z));
-            
-            renderer.render(scene, camera);
+    // ❤️ الصحة
+    void TakeDamage(int damage)
+    {
+        health -= damage;
+
+        if (health <= 0)
+        {
+            Debug.Log("Game Over");
+            Time.timeScale = 0f;
         }
+    }
 
-        window.addEventListener('resize', () => {
-            camera.aspect = window.innerWidth / window.innerHeight;
-            camera.updateProjectionMatrix();
-            renderer.setSize(window.innerWidth, window.innerHeight);
-        });
-    </script>
-</body>
-</html>
+    // 🎨 UI
+    void UpdateUI()
+    {
+        if (energyBar != null)
+            energyBar.value = timeEnergy;
+
+        if (healthBar != null)
+            healthBar.value = health;
+    }
+}
