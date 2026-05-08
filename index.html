@@ -15,7 +15,7 @@
     height: 100vh;
     width: 100vw;
     position: relative;
-    transition: background 1s ease;
+    transition: background 1s ease; /* إضافة انتقال سلس للألوان */
   }
 
   /* ===== RAIN OF ROSES ===== */
@@ -69,9 +69,13 @@
     font-size: clamp(2.2rem, 6vw, 4rem);
     font-weight: 900;
     color: #fff;
-    text-shadow: 0 0 20px #ff6b9d, 0 0 40px #ff4488, 0 0 80px #cc0055;
+    text-shadow:
+      0 0 20px #ff6b9d,
+      0 0 40px #ff4488,
+      0 0 80px #cc0055;
     margin-bottom: 50px;
     text-align: center;
+    letter-spacing: 2px;
     animation: pulse 2s ease-in-out infinite;
   }
 
@@ -86,29 +90,43 @@
     border: none;
     padding: 22px 60px;
     font-size: 1.5rem;
+    font-family: 'Tajawal', sans-serif;
     font-weight: 700;
     border-radius: 50px;
     cursor: pointer;
-    box-shadow: 0 0 30px #ff2d7a88;
-    transition: transform 0.2s;
+    box-shadow: 0 0 30px #ff2d7a88, 0 8px 32px #00000088;
+    transition: transform 0.2s, box-shadow 0.2s;
+    position: relative;
     z-index: 2;
   }
 
+  .btn-main:hover {
+    transform: translateY(-4px) scale(1.04);
+    box-shadow: 0 0 50px #ff2d7aaa, 0 12px 40px #00000099;
+  }
+
   /* ===== SCREEN 2 ===== */
+  #screen2 {
+    background: radial-gradient(ellipse at center, #1a0020 0%, #0a0010 70%);
+  }
+
   .question-text {
     font-size: clamp(2.5rem, 7vw, 5rem);
     font-weight: 900;
     color: #fff;
     text-align: center;
-    text-shadow: 0 0 30px #ff6b9d;
+    text-shadow: 0 0 30px #ff6b9d, 0 0 60px #ff2d7a;
     margin-bottom: 60px;
+    animation: pulse 2s ease-in-out infinite;
   }
 
   .btn-row {
     display: flex;
     gap: 30px;
+    flex-wrap: wrap;
     justify-content: center;
     width: 100%;
+    position: relative;
   }
 
   .btn-yes {
@@ -117,9 +135,18 @@
     border: none;
     padding: 20px 55px;
     font-size: 1.6rem;
+    font-family: 'Tajawal', sans-serif;
     font-weight: 700;
     border-radius: 50px;
     cursor: pointer;
+    box-shadow: 0 0 30px #ff2d7a88;
+    transition: transform 0.2s, box-shadow 0.2s;
+    z-index: 100;
+  }
+
+  .btn-yes:hover {
+    transform: translateY(-4px) scale(1.06);
+    box-shadow: 0 0 50px #ff2d7acc;
   }
 
   .btn-no {
@@ -128,62 +155,15 @@
     border: 2px solid #ff6b9d;
     padding: 20px 55px;
     font-size: 1.6rem;
+    font-family: 'Tajawal', sans-serif;
     font-weight: 700;
     border-radius: 50px;
     cursor: pointer;
     transition: all 0.2s ease;
-  }
-
-  /* ===== RESULT SCREEN ===== */
-  #screen3 {
-    justify-content: flex-start;
-    padding-top: 18vh;
-  }
-
-  .result-text {
-    font-size: clamp(1.8rem, 5vw, 3.5rem);
-    font-weight: 900;
-    color: #fff;
-    text-align: center;
-    text-shadow: 0 0 20px #ff6b9d;
-    line-height: 1.4;
-    white-space: pre-line;
     z-index: 100;
   }
 
-  /* زر الإعادة الجديد (أعلى يمين) */
-  .btn-restart {
-    position: fixed;
-    top: 20px;
-    right: 20px;
-    background: rgba(255, 107, 157, 0.2);
-    color: #fff;
-    border: 1px solid rgba(255, 107, 157, 0.5);
-    width: 50px;
-    height: 50px;
-    font-size: 1.5rem;
-    border-radius: 50%;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.3s ease;
-    opacity: 0; /* مخفي في البداية */
-    pointer-events: none;
-    z-index: 200;
-  }
-
-  .btn-restart.visible {
-    opacity: 1;
-    pointer-events: auto;
-  }
-
-  .btn-restart:hover {
-    background: rgba(255, 107, 157, 0.4);
-    transform: rotate(180deg);
-  }
-
-  /* ===== BIG ROSE ===== */
+  /* ===== BIG ROSE ANIMATION ===== */
   .big-rose {
     position: fixed;
     bottom: -120px;
@@ -197,14 +177,65 @@
   }
 
   @keyframes riseUp {
-    0%   { bottom: -120px; opacity: 0; transform: translateX(-50%) scale(0.5); }
-    100% { bottom: 2vh; opacity: 1; transform: translateX(-50%) scale(1); }
+    0%   { bottom: -120px; opacity: 0; transform: translateX(-50%) scale(0.5) rotate(-15deg); }
+    30%  { opacity: 1; }
+    70%  { transform: translateX(-50%) scale(1.1) rotate(5deg); }
+    100% { bottom: 2vh; opacity: 1; transform: translateX(-50%) scale(1) rotate(0deg); }
   }
 
+  /* ===== RESULT SCREEN ===== */
+  #screen3 {
+    z-index: 90;
+    justify-content: flex-start;
+    padding-top: 18vh;
+  }
+
+  .result-text {
+    font-size: clamp(1.8rem, 5vw, 3.5rem);
+    font-weight: 900;
+    color: #fff;
+    text-align: center;
+    text-shadow: 0 0 20px #ff6b9d, 0 0 50px #ff2d7a;
+    padding: 0 20px;
+    line-height: 1.4;
+    margin-bottom: 40px;
+    white-space: pre-line;
+    position: relative;
+    z-index: 100;
+    min-height: 150px; /* لحجز مساحة الكتابة */
+  }
+
+  .btn-restart {
+    background: transparent;
+    color: #ff6b9d;
+    border: 2px solid #ff6b9d;
+    padding: 14px 40px;
+    font-size: 1.2rem;
+    font-family: 'Tajawal', sans-serif;
+    font-weight: 700;
+    border-radius: 50px;
+    cursor: pointer;
+    transition: transform 0.2s, background 0.2s, box-shadow 0.2s;
+    opacity: 0;
+    position: relative;
+    z-index: 100;
+  }
+
+  .btn-restart.visible {
+    animation: fadeIn 1s ease forwards;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ===== HEART PARTICLES ===== */
   .heart-burst {
     position: fixed;
     pointer-events: none;
     z-index: 200;
+    font-size: 2rem;
     animation: heartFly 1.5s ease-out forwards;
   }
 
@@ -213,21 +244,35 @@
     100% { opacity: 0; transform: translate(var(--dx), var(--dy)) scale(1.5); }
   }
 
-  .stars { position: fixed; inset: 0; z-index: 0; }
-  .star { position: absolute; border-radius: 50%; background: white; animation: twinkle ease-in-out infinite; }
-  @keyframes twinkle { 0%, 100% { opacity: 0.1; } 50% { opacity: 0.9; } }
+  /* ===== STARS BACKGROUND ===== */
+  .stars {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+  }
+
+  .star {
+    position: absolute;
+    border-radius: 50%;
+    background: white;
+    animation: twinkle ease-in-out infinite;
+  }
+
+  @keyframes twinkle {
+    0%, 100% { opacity: 0.1; transform: scale(1); }
+    50%       { opacity: 0.9; transform: scale(1.4); }
+  }
 </style>
 </head>
 <body>
 
 <audio id="bgMusic" loop>
-  <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" type="audio/mpeg">
+  <source src="https://www.chosic.com/wp-content/uploads/2021/07/Rain-and-Pianos-Relaxing-Piano-Music.mp3" type="audio/mpeg">
 </audio>
 
 <div class="stars" id="stars"></div>
 <div class="rose-rain" id="roseRain"></div>
-
-<button class="btn-restart" id="restartBtn" onclick="restart()">🔄</button>
 
 <div class="screen" id="screen1">
   <div class="glow-text">أنتِ فطومه؟ 🌹</div>
@@ -238,98 +283,147 @@
   <div class="question-text">تحبيني؟</div>
   <div class="btn-row">
     <button class="btn-yes" onclick="answerYes()">آي 💖</button>
-    <button class="btn-no" id="noBtn" onmouseover="moveButton()">لا 😢</button>
+    <button class="btn-no" id="noBtn" onmouseover="moveButton()" onclick="moveButton()" ontouchstart="moveButton()">لا 😢</button>
   </div>
 </div>
 
 <div class="screen hidden" id="screen3">
   <div class="result-text" id="resultText"></div>
+  <button class="btn-restart" id="restartBtn" onclick="restart()">إعادة من جديد 🔄</button>
 </div>
 
 <script>
-  /* ===== STARS & RAIN ===== */
+  /* ===== STARS ===== */
   const starsEl = document.getElementById('stars');
-  for (let i = 0; i < 100; i++) {
+  for (let i = 0; i < 120; i++) {
     const s = document.createElement('div');
     s.className = 'star';
-    const size = Math.random() * 2;
-    s.style.cssText = `width:${size}px; height:${size}px; left:${Math.random()*100}%; top:${Math.random()*100}%; animation-duration:${2+Math.random()*3}s;`;
+    const size = Math.random() * 2.5 + 0.5;
+    s.style.cssText = `
+      width:${size}px; height:${size}px;
+      left:${Math.random()*100}%;
+      top:${Math.random()*100}%;
+      animation-duration:${2+Math.random()*4}s;
+      animation-delay:${Math.random()*4}s;
+    `;
     starsEl.appendChild(s);
   }
 
+  /* ===== FALLING ROSES ===== */
   const roseContainer = document.getElementById('roseRain');
+  const roseEmojis = ['🌹','🌸','🌺','💐','🌷'];
+
   function spawnRose() {
     const r = document.createElement('div');
     r.className = 'falling-rose';
-    r.textContent = '🌹';
+    r.textContent = roseEmojis[Math.floor(Math.random()*roseEmojis.length)];
     r.style.left = Math.random()*100 + 'vw';
+    r.style.fontSize = (1.2 + Math.random()*1.8) + 'rem';
     const dur = 4 + Math.random()*5;
     r.style.animationDuration = dur + 's';
+    r.style.animationDelay = Math.random()*2 + 's';
     roseContainer.appendChild(r);
-    setTimeout(() => r.remove(), dur * 1000);
+    setTimeout(() => r.remove(), (dur + 2) * 1000);
   }
-  setInterval(spawnRose, 400);
 
-  /* ===== LOGIC ===== */
+  setInterval(spawnRose, 300);
+
+  /* ===== APP START ===== */
   function startApp() {
-    document.getElementById('bgMusic').play().catch(() => {});
+    // تشغيل الموسيقى عند أول ضغطة (بسبب قيود المتصفح)
+    const audio = document.getElementById('bgMusic');
+    audio.play().catch(e => console.log("المتصفح منع التشغيل التلقائي"));
     transition('screen1', 'screen2');
   }
 
+  /* ===== RUNAWAY BUTTON ===== */
   function moveButton() {
     const btn = document.getElementById('noBtn');
+    const x = Math.random() * (window.innerWidth - btn.offsetWidth);
+    const y = Math.random() * (window.innerHeight - btn.offsetHeight);
     btn.style.position = 'fixed';
-    btn.style.left = Math.random() * (window.innerWidth - 100) + 'px';
-    btn.style.top = Math.random() * (window.innerHeight - 50) + 'px';
+    btn.style.left = x + 'px';
+    btn.style.top = y + 'px';
   }
 
+  /* ===== TYPEWRITER EFFECT ===== */
+  function typeWriter(text, i, callback) {
+    if (i < text.length) {
+      document.getElementById('resultText').innerHTML += text.charAt(i);
+      setTimeout(() => typeWriter(text, i + 1, callback), 100);
+    } else if (callback) {
+      callback();
+    }
+  }
+
+  /* ===== NAVIGATION ===== */
   function transition(from, to) {
     document.getElementById(from).classList.add('hidden');
     setTimeout(() => document.getElementById(to).classList.remove('hidden'), 300);
   }
 
-  function typeWriter(text, i, callback) {
-    if (i < text.length) {
-      document.getElementById('resultText').innerHTML += text.charAt(i);
-      setTimeout(() => typeWriter(text, i + 1, callback), 100);
-    } else if (callback) callback();
-  }
-
+  /* ===== YES ===== */
   function answerYes() {
-    document.body.style.background = "#2a0010";
+    // تغيير الخلفية للون دافئ
+    document.body.style.background = "radial-gradient(ellipse at center, #4a001a 0%, #0a0010 70%)";
     transition('screen2', 'screen3');
+    
     setTimeout(() => {
       typeWriter('أعرف إنك تحبيني 💖\nوأنا أحبك أكثر 🌹', 0, () => {
         document.getElementById('restartBtn').classList.add('visible');
       });
-      spawnBigRose();
+      spawnBigRose('🌹');
       burstHearts();
     }, 600);
   }
 
-  function spawnBigRose() {
+  /* ===== NO ===== */
+  function answerNo() {
+    // هذه الوظيفة لن تستدعى غالباً بسبب هروب الزر، لكنها للطوارئ
+    document.body.style.background = "radial-gradient(ellipse at center, #1a1a1a 0%, #0a0010 70%)";
+    transition('screen2', 'screen3');
+    setTimeout(() => {
+      typeWriter('لا تحبيني؟!\nوغصباً عليج 😤💕', 0, () => {
+        document.getElementById('restartBtn').classList.add('visible');
+      });
+      spawnBigRose('🌹');
+    }, 600);
+  }
+
+  /* ===== BIG ROSE ===== */
+  function spawnBigRose(emoji) {
     const r = document.createElement('div');
     r.className = 'big-rose';
-    r.textContent = '🌹';
+    r.textContent = emoji;
     document.body.appendChild(r);
   }
 
+  /* ===== HEART BURST ===== */
   function burstHearts() {
-    const cx = window.innerWidth / 2, cy = window.innerHeight / 2;
-    for (let i = 0; i < 15; i++) {
+    const cx = window.innerWidth / 2;
+    const cy = window.innerHeight / 2;
+    const hearts = ['💖','💗','💓','💞','💕','❤️','🌹'];
+    for (let i = 0; i < 18; i++) {
       const h = document.createElement('div');
       h.className = 'heart-burst';
-      h.textContent = '💖';
-      const angle = Math.random() * Math.PI * 2, dist = 100 + Math.random() * 150;
-      h.style.left = cx + 'px'; h.style.top = cy + 'px';
+      h.textContent = hearts[Math.floor(Math.random()*hearts.length)];
+      const angle = Math.random() * Math.PI * 2;
+      const dist = 80 + Math.random() * 180;
+      h.style.left = cx + 'px';
+      h.style.top = cy + 'px';
       h.style.setProperty('--dx', Math.cos(angle)*dist + 'px');
       h.style.setProperty('--dy', Math.sin(angle)*dist + 'px');
+      h.style.animationDelay = Math.random()*0.4 + 's';
+      h.style.fontSize = (1.5 + Math.random()*2) + 'rem';
       document.body.appendChild(h);
-      setTimeout(() => h.remove(), 1500);
+      setTimeout(() => h.remove(), 2000);
     }
   }
 
-  function restart() { window.location.reload(); }
+  /* ===== RESTART ===== */
+  function restart() {
+    window.location.reload();
+  }
 </script>
 </body>
 </html>
