@@ -85,7 +85,6 @@
     animation: pulse 2s ease-in-out infinite;
   }
 
-  /* توضيح كلمة تحبيني */
   .question-text {
     font-size: clamp(3.5rem, 12vw, 6rem) !important;
     font-weight: 900;
@@ -158,7 +157,7 @@
 <body>
 
 <audio id="bgMusic" loop>
-  <source src="https://a.top4top.io/m_2429h5f0k1.mp3" type="audio/mpeg">
+  <source src="https://j.top4top.io/m_3780spdir0.mp3" type="audio/mpeg">
 </audio>
 
 <div class="stars" id="stars"></div>
@@ -221,7 +220,7 @@
 
   function startApp() {
     const audio = document.getElementById('bgMusic');
-    audio.play().catch(() => {});
+    audio.play().catch(e => console.log("تحتاج لرابط mp3 صالح ليعمل الصوت:", e));
     transition('screen1', 'screen2');
   }
 
