@@ -1,201 +1,335 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>أبواب الأبدية 3D</title>
-    <style>
-        body { margin: 0; overflow: hidden; background-color: #000; font-family: sans-serif; }
-        canvas { display: block; }
-        #ui {
-            position: absolute;
-            top: 20px;
-            width: 100%;
-            display: flex;
-            justify-content: space-between;
-            pointer-events: none;
-            padding: 0 40px;
-            box-sizing: border-box;
-            text-shadow: 2px 2px 4px #000;
-        }
-        .panel {
-            background: rgba(0, 0, 0, 0.7);
-            padding: 15px;
-            border: 2px solid #d35400;
-            border-radius: 8px;
-            color: white;
-            font-size: 1.2em;
-            font-weight: bold;
-        }
-        .hp { color: #2ecc71; }
-        .ash { color: #e74c3c; }
-        .boss-hp { color: #9b59b6; }
-        #message {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            color: white;
-            font-size: 3em;
-            font-weight: bold;
-            display: none;
-            text-shadow: 2px 2px 10px red;
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>فطومه 🌹</title>
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;900&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Tajawal', sans-serif;
+    background: #0a0010;
+    overflow: hidden;
+    height: 100vh;
+    width: 100vw;
+    position: relative;
+    transition: background 1s ease;
+  }
+
+  /* ===== RAIN OF ROSES ===== */
+  .rose-rain {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  .falling-rose {
+    position: absolute;
+    top: -80px;
+    font-size: 2rem;
+    animation: fall linear infinite;
+    opacity: 0.85;
+  }
+
+  @keyframes fall {
+    0%   { transform: translateY(-80px) rotate(0deg); opacity: 0; }
+    10%  { opacity: 1; }
+    90%  { opacity: 0.8; }
+    100% { transform: translateY(110vh) rotate(360deg); opacity: 0; }
+  }
+
+  /* ===== SCREENS ===== */
+  .screen {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+    transition: opacity 0.6s ease, transform 0.6s ease;
+  }
+
+  .screen.hidden {
+    opacity: 0;
+    pointer-events: none;
+    transform: scale(0.95);
+  }
+
+  /* ===== SCREEN 1 ===== */
+  #screen1 {
+    background: radial-gradient(ellipse at center, #1a0025 0%, #0a0010 70%);
+  }
+
+  .glow-text {
+    font-size: clamp(2.2rem, 6vw, 4rem);
+    font-weight: 900;
+    color: #fff;
+    text-shadow: 0 0 20px #ff6b9d, 0 0 40px #ff4488, 0 0 80px #cc0055;
+    margin-bottom: 50px;
+    text-align: center;
+    animation: pulse 2s ease-in-out infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { text-shadow: 0 0 20px #ff6b9d, 0 0 40px #ff4488, 0 0 80px #cc0055; }
+    50%       { text-shadow: 0 0 30px #ff9dbe, 0 0 60px #ff6699, 0 0 120px #ff0066; }
+  }
+
+  .btn-main {
+    background: linear-gradient(135deg, #ff2d7a, #c2006a);
+    color: white;
+    border: none;
+    padding: 22px 60px;
+    font-size: 1.5rem;
+    font-weight: 700;
+    border-radius: 50px;
+    cursor: pointer;
+    box-shadow: 0 0 30px #ff2d7a88;
+    transition: transform 0.2s;
+    z-index: 2;
+  }
+
+  /* ===== SCREEN 2 ===== */
+  .question-text {
+    font-size: clamp(2.5rem, 7vw, 5rem);
+    font-weight: 900;
+    color: #fff;
+    text-align: center;
+    text-shadow: 0 0 30px #ff6b9d;
+    margin-bottom: 60px;
+  }
+
+  .btn-row {
+    display: flex;
+    gap: 30px;
+    justify-content: center;
+    width: 100%;
+  }
+
+  .btn-yes {
+    background: linear-gradient(135deg, #ff2d7a, #c2006a);
+    color: white;
+    border: none;
+    padding: 20px 55px;
+    font-size: 1.6rem;
+    font-weight: 700;
+    border-radius: 50px;
+    cursor: pointer;
+  }
+
+  .btn-no {
+    background: transparent;
+    color: #ff6b9d;
+    border: 2px solid #ff6b9d;
+    padding: 20px 55px;
+    font-size: 1.6rem;
+    font-weight: 700;
+    border-radius: 50px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  /* ===== RESULT SCREEN ===== */
+  #screen3 {
+    justify-content: flex-start;
+    padding-top: 18vh;
+  }
+
+  .result-text {
+    font-size: clamp(1.8rem, 5vw, 3.5rem);
+    font-weight: 900;
+    color: #fff;
+    text-align: center;
+    text-shadow: 0 0 20px #ff6b9d;
+    line-height: 1.4;
+    white-space: pre-line;
+    z-index: 100;
+  }
+
+  /* زر الإعادة الجديد (أعلى يمين) */
+  .btn-restart {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: rgba(255, 107, 157, 0.2);
+    color: #fff;
+    border: 1px solid rgba(255, 107, 157, 0.5);
+    width: 50px;
+    height: 50px;
+    font-size: 1.5rem;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    opacity: 0; /* مخفي في البداية */
+    pointer-events: none;
+    z-index: 200;
+  }
+
+  .btn-restart.visible {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .btn-restart:hover {
+    background: rgba(255, 107, 157, 0.4);
+    transform: rotate(180deg);
+  }
+
+  /* ===== BIG ROSE ===== */
+  .big-rose {
+    position: fixed;
+    bottom: -120px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 7rem;
+    z-index: 91; 
+    pointer-events: none;
+    filter: drop-shadow(0 0 40px #ff2d7a);
+    animation: riseUp 2.5s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  }
+
+  @keyframes riseUp {
+    0%   { bottom: -120px; opacity: 0; transform: translateX(-50%) scale(0.5); }
+    100% { bottom: 2vh; opacity: 1; transform: translateX(-50%) scale(1); }
+  }
+
+  .heart-burst {
+    position: fixed;
+    pointer-events: none;
+    z-index: 200;
+    animation: heartFly 1.5s ease-out forwards;
+  }
+
+  @keyframes heartFly {
+    0%   { opacity: 1; transform: translate(0,0) scale(0.5); }
+    100% { opacity: 0; transform: translate(var(--dx), var(--dy)) scale(1.5); }
+  }
+
+  .stars { position: fixed; inset: 0; z-index: 0; }
+  .star { position: absolute; border-radius: 50%; background: white; animation: twinkle ease-in-out infinite; }
+  @keyframes twinkle { 0%, 100% { opacity: 0.1; } 50% { opacity: 0.9; } }
+</style>
 </head>
 <body>
 
-    <div id="ui">
-        <div class="panel">
-            كايل (اللاعب)<br>
-            <span class="hp">صحة: <span id="player-hp">100</span></span><br>
-            <span class="ash">رماد: <span id="player-ash">0</span>%</span>
-        </div>
-        <div class="panel text-left" style="text-align: left;">
-            الحارس النحاسي (الزعيم)<br>
-            <span class="boss-hp">صحة: <span id="boss-hp">200</span></span>
-        </div>
-    </div>
-    <div id="message">لقد انتصرت!</div>
+<audio id="bgMusic" loop>
+  <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" type="audio/mpeg">
+</audio>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<div class="stars" id="stars"></div>
+<div class="rose-rain" id="roseRain"></div>
 
-    <script>
-        // إعدادات اللعبة
-        let playerStats = { hp: 100, ash: 0 };
-        let bossStats = { hp: 200 };
-        let isGameOver = false;
+<button class="btn-restart" id="restartBtn" onclick="restart()">🔄</button>
 
-        // إعداد المشهد 3D (Scene)
-        const scene = new THREE.Scene();
-        scene.background = new THREE.Color(0x1a1a1a);
-        scene.fog = new THREE.Fog(0x1a1a1a, 10, 50);
+<div class="screen" id="screen1">
+  <div class="glow-text">أنتِ فطومه؟ 🌹</div>
+  <button class="btn-main" onclick="startApp()">نعم، أنا فطومه 💕</button>
+</div>
 
-        // الكاميرا
-        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-        camera.position.set(0, 8, 12);
-        camera.lookAt(0, 0, 0);
+<div class="screen hidden" id="screen2">
+  <div class="question-text">تحبيني؟</div>
+  <div class="btn-row">
+    <button class="btn-yes" onclick="answerYes()">آي 💖</button>
+    <button class="btn-no" id="noBtn" onmouseover="moveButton()">لا 😢</button>
+  </div>
+</div>
 
-        // الريندر (Renderer)
-        const renderer = new THREE.WebGLRenderer({ antialias: true });
-        renderer.setSize(window.innerWidth, window.innerHeight);
-        renderer.shadowMap.enabled = true;
-        document.body.appendChild(renderer.domElement);
+<div class="screen hidden" id="screen3">
+  <div class="result-text" id="resultText"></div>
+</div>
 
-        // الإضاءة
-        const ambientLight = new THREE.AmbientLight(0x404040); // نور خافت
-        scene.add(ambientLight);
+<script>
+  /* ===== STARS & RAIN ===== */
+  const starsEl = document.getElementById('stars');
+  for (let i = 0; i < 100; i++) {
+    const s = document.createElement('div');
+    s.className = 'star';
+    const size = Math.random() * 2;
+    s.style.cssText = `width:${size}px; height:${size}px; left:${Math.random()*100}%; top:${Math.random()*100}%; animation-duration:${2+Math.random()*3}s;`;
+    starsEl.appendChild(s);
+  }
 
-        const pointLight = new THREE.PointLight(0xff5500, 1.5, 50);
-        pointLight.position.set(0, 10, 0);
-        pointLight.castShadow = true;
-        scene.add(pointLight);
+  const roseContainer = document.getElementById('roseRain');
+  function spawnRose() {
+    const r = document.createElement('div');
+    r.className = 'falling-rose';
+    r.textContent = '🌹';
+    r.style.left = Math.random()*100 + 'vw';
+    const dur = 4 + Math.random()*5;
+    r.style.animationDuration = dur + 's';
+    roseContainer.appendChild(r);
+    setTimeout(() => r.remove(), dur * 1000);
+  }
+  setInterval(spawnRose, 400);
 
-        // الأرضية
-        const floorGeo = new THREE.PlaneGeometry(50, 50);
-        const floorMat = new THREE.MeshStandardMaterial({ color: 0x333333, roughness: 0.8 });
-        const floor = new THREE.Mesh(floorGeo, floorMat);
-        floor.rotation.x = -Math.PI / 2;
-        floor.receiveShadow = true;
-        scene.add(floor);
+  /* ===== LOGIC ===== */
+  function startApp() {
+    document.getElementById('bgMusic').play().catch(() => {});
+    transition('screen1', 'screen2');
+  }
 
-        // اللاعب (مكعب أزرق)
-        const playerGeo = new THREE.BoxGeometry(1, 2, 1);
-        const playerMat = new THREE.MeshStandardMaterial({ color: 0x2980b9 });
-        const player = new THREE.Mesh(playerGeo, playerMat);
-        player.position.y = 1;
-        player.castShadow = true;
-        scene.add(player);
+  function moveButton() {
+    const btn = document.getElementById('noBtn');
+    btn.style.position = 'fixed';
+    btn.style.left = Math.random() * (window.innerWidth - 100) + 'px';
+    btn.style.top = Math.random() * (window.innerHeight - 50) + 'px';
+  }
 
-        // الزعيم (مكعب أحمر ضخم)
-        const bossGeo = new THREE.BoxGeometry(3, 4, 3);
-        const bossMat = new THREE.MeshStandardMaterial({ color: 0xc0392b });
-        const boss = new THREE.Mesh(bossGeo, bossMat);
-        boss.position.set(0, 2, -5);
-        boss.castShadow = true;
-        scene.add(boss);
+  function transition(from, to) {
+    document.getElementById(from).classList.add('hidden');
+    setTimeout(() => document.getElementById(to).classList.remove('hidden'), 300);
+  }
 
-        // مفاتيح التحكم
-        const keys = { w: false, a: false, s: false, d: false };
-        
-        window.addEventListener('keydown', (e) => {
-            if(e.key.toLowerCase() in keys) keys[e.key.toLowerCase()] = true;
-            
-            // الهجوم (مسافة)
-            if(e.key === ' ' && !isGameOver) {
-                attackBoss();
-            }
-        });
+  function typeWriter(text, i, callback) {
+    if (i < text.length) {
+      document.getElementById('resultText').innerHTML += text.charAt(i);
+      setTimeout(() => typeWriter(text, i + 1, callback), 100);
+    } else if (callback) callback();
+  }
 
-        window.addEventListener('keyup', (e) => {
-            if(e.key.toLowerCase() in keys) keys[e.key.toLowerCase()] = false;
-        });
+  function answerYes() {
+    document.body.style.background = "#2a0010";
+    transition('screen2', 'screen3');
+    setTimeout(() => {
+      typeWriter('أعرف إنك تحبيني 💖\nوأنا أحبك أكثر 🌹', 0, () => {
+        document.getElementById('restartBtn').classList.add('visible');
+      });
+      spawnBigRose();
+      burstHearts();
+    }, 600);
+  }
 
-        // دالة الهجوم
-        function attackBoss() {
-            // حساب المسافة بين اللاعب والزعيم
-            const distance = player.position.distanceTo(boss.position);
-            
-            if(distance < 4) { // إذا كان قريباً بما يكفي
-                bossStats.hp -= 15;
-                playerStats.ash += 10;
-                
-                // تأثير بصري (وميض أبيض للزعيم)
-                boss.material.color.setHex(0xffffff);
-                setTimeout(() => boss.material.color.setHex(0xc0392b), 100);
+  function spawnBigRose() {
+    const r = document.createElement('div');
+    r.className = 'big-rose';
+    r.textContent = '🌹';
+    document.body.appendChild(r);
+  }
 
-                updateUI();
+  function burstHearts() {
+    const cx = window.innerWidth / 2, cy = window.innerHeight / 2;
+    for (let i = 0; i < 15; i++) {
+      const h = document.createElement('div');
+      h.className = 'heart-burst';
+      h.textContent = '💖';
+      const angle = Math.random() * Math.PI * 2, dist = 100 + Math.random() * 150;
+      h.style.left = cx + 'px'; h.style.top = cy + 'px';
+      h.style.setProperty('--dx', Math.cos(angle)*dist + 'px');
+      h.style.setProperty('--dy', Math.sin(angle)*dist + 'px');
+      document.body.appendChild(h);
+      setTimeout(() => h.remove(), 1500);
+    }
+  }
 
-                if(bossStats.hp <= 0) {
-                    bossStats.hp = 0;
-                    isGameOver = true;
-                    scene.remove(boss); // إخفاء الزعيم
-                    document.getElementById('message').style.display = 'block';
-                }
-            }
-        }
-
-        // تحديث الواجهة
-        function updateUI() {
-            document.getElementById('player-hp').innerText = playerStats.hp;
-            document.getElementById('player-ash').innerText = playerStats.ash;
-            document.getElementById('boss-hp').innerText = bossStats.hp;
-        }
-
-        // حركة اللعبة والتحديث المستمر (Game Loop)
-        const speed = 0.15;
-        function animate() {
-            requestAnimationFrame(animate);
-
-            if (!isGameOver) {
-                // حركة اللاعب
-                if (keys.w) player.position.z -= speed;
-                if (keys.s) player.position.z += speed;
-                if (keys.a) player.position.x -= speed;
-                if (keys.d) player.position.x += speed;
-
-                // جعل الكاميرا تتبع اللاعب برفق
-                camera.position.x += (player.position.x - camera.position.x) * 0.05;
-                camera.position.z += (player.position.z + 10 - camera.position.z) * 0.05;
-                camera.lookAt(player.position);
-
-                // حركة بسيطة للزعيم (دوران)
-                boss.rotation.y += 0.01;
-            }
-
-            renderer.render(scene, camera);
-        }
-
-        // ضبط حجم الشاشة عند التكبير/التصغير
-        window.addEventListener('resize', () => {
-            renderer.setSize(window.innerWidth, window.innerHeight);
-            camera.aspect = window.innerWidth / window.innerHeight;
-            camera.updateProjectionMatrix();
-        });
-
-        // بدء اللعبة
-        updateUI();
-        animate();
-    </script>
+  function restart() { window.location.reload(); }
+</script>
 </body>
 </html>
