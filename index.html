@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>شاشة ترحيب</title>
+    <title>نظام الكاشير - البندر</title>
     <style>
         /* إعدادات الصفحة الأساسية */
         body {
@@ -33,7 +33,7 @@
             font-size: 1.2rem;
             font-weight: bold;
             box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            display: none; /* مخفي افتراضياً */
+            display: none;
             z-index: 1000;
         }
         .back-btn-main:hover { background-color: #c82333; }
@@ -56,7 +56,7 @@
 
         /* الشاشات */
         #main-screen { display: none; gap: 30px; }
-        .page-screen { display: none; width: 100%; height: 100%; justify-content: center; align-items: center; overflow-y: auto; }
+        .page-screen { display: none; width: 100%; height: 100%; justify-content: center; align-items: center; overflow-y: auto; flex-direction: column; }
 
         .btn {
             padding: 15px 50px;
@@ -82,7 +82,7 @@
             padding: 30px;
             border-radius: 12px;
             box-shadow: 0 5px 15px rgba(0,0,0,0.05);
-            margin-top: 50px;
+            margin-top: 80px;
         }
         h2 { text-align: center; color: #333; margin-bottom: 30px; border-bottom: 2px solid #28a745; padding-bottom: 10px; }
         .item-row { display: flex; justify-content: space-between; align-items: center; padding: 15px 0; border-bottom: 1px solid #eee; }
@@ -95,6 +95,7 @@
         
         /* تنسيق قائمة الطلبات */
         .order-item-card { border: 1px solid #ddd; padding: 15px; margin-bottom: 10px; border-radius: 8px; background: #f9f9f9; }
+        .receive-btn { background-color: #28a745; color: white; border: none; padding: 10px; border-radius: 6px; cursor: pointer; width: 100%; margin-top: 10px; font-weight: bold; }
     </style>
 </head>
 <body>
@@ -115,7 +116,6 @@
     <div id="send-screen" class="page-screen">
         <div class="order-container">
             <h2>إرسال طلب جديد</h2>
-            <!-- زر الانتقال للطلبات -->
             <button class="btn orders" style="width: 100%; margin-bottom: 20px; font-size: 1rem;" onclick="showPage('orders-screen')">عرض الطلبات المسجلة</button>
             
             <div class="item-row">
@@ -149,11 +149,15 @@
 
     <!-- صفحة الاستلام -->
     <div id="receive-screen" class="page-screen">
-        <h2 style="color: #333;">صفحة الاستلام</h2>
+        <div class="order-container">
+            <h2>قائمة الاستلام</h2>
+            <div id="receive-list"></div>
+        </div>
     </div>
 
     <script>
-        let orders = []; // مصفوفة لحفظ الطلبات
+        let orders = [];
+        let pageHistory = ['main-screen']; // تتبع الصفحات للرجوع خطوة بخطوة
 
         setTimeout(function() {
             document.getElementById('welcome-text').style.display = 'none';
@@ -161,26 +165,37 @@
         }, 4000);
 
         function showPage(pageId) {
-            document.getElementById('main-screen').style.display = 'none';
-            document.getElementById('send-screen').style.display = 'none';
-            document.getElementById('orders-screen').style.display = 'none';
-            document.getElementById('receive-screen').style.display = 'none';
+            // إخفاء كل الشاشات
+            document.querySelectorAll('.page-screen, #main-screen').forEach(s => s.style.display = 'none');
             
+            // إظهار الشاشة المطلوبة
             document.getElementById(pageId).style.display = 'flex';
+            
+            // تحديث زر الرجوع
+            pageHistory.push(pageId);
             document.getElementById('back-btn-main').style.display = 'block';
             document.body.style.background = '#ffffff';
 
-            // إذا فتحنا صفحة الطلبات، نقوم بتحديثها
-            if(pageId === 'orders-screen') renderOrders();
+            if(pageId === 'orders-screen') renderOrders('orders-list', false);
+            if(pageId === 'receive-screen') renderOrders('receive-list', true);
         }
 
         function goBack() {
-            document.getElementById('send-screen').style.display = 'none';
-            document.getElementById('orders-screen').style.display = 'none';
-            document.getElementById('receive-screen').style.display = 'none';
-            document.getElementById('main-screen').style.display = 'flex';
-            document.getElementById('back-btn-main').style.display = 'none';
-            document.body.style.background = 'linear-gradient(45deg, #a8edea 0%, #fed6e3 100%)';
+            if (pageHistory.length > 1) {
+                pageHistory.pop(); // حذف الصفحة الحالية
+                let prevPage = pageHistory[pageHistory.length - 1]; // الصفحة السابقة
+                
+                // إخفاء الكل
+                document.querySelectorAll('.page-screen, #main-screen').forEach(s => s.style.display = 'none');
+                
+                // إظهار السابقة
+                document.getElementById(prevPage).style.display = 'flex';
+                
+                if (prevPage === 'main-screen') {
+                    document.getElementById('back-btn-main').style.display = 'none';
+                    document.body.style.background = 'linear-gradient(45deg, #a8edea 0%, #fed6e3 100%)';
+                }
+            }
         }
 
         function increaseQty(id) { document.getElementById(id).value = parseInt(document.getElementById(id).value) + 1; }
@@ -189,7 +204,6 @@
                 document.getElementById(id).value = parseInt(document.getElementById(id).value) - 1; 
         }
 
-        // حفظ الطلب
         function saveOrder() {
             let q1 = document.getElementById('qty1').value;
             let q2 = document.getElementById('qty2').value;
@@ -200,26 +214,31 @@
             orders.push({q1, q2, notes});
             alert("تم تسجيل الطلب!");
             
-            // تصفير الخانات
             document.getElementById('qty1').value = 0;
             document.getElementById('qty2').value = 0;
             document.getElementById('notes').value = '';
         }
 
-        // عرض الطلبات
-        function renderOrders() {
-            let list = document.getElementById('orders-list');
-            list.innerHTML = orders.length === 0 ? '<p style="text-align:center">لا توجد طلبات بعد.</p>' : '';
+        function renderOrders(elementId, isReceive) {
+            let list = document.getElementById(elementId);
+            list.innerHTML = orders.length === 0 ? '<p style="text-align:center">لا توجد طلبات.</p>' : '';
+            
             orders.forEach((o, index) => {
+                let receiveHtml = isReceive ? `<button class="receive-btn" onclick="receiveOrder(${index})">استلم</button>` : '';
                 list.innerHTML += `
                     <div class="order-item-card">
                         <strong>طلب رقم ${index + 1}</strong><br>
                         طبق عادي: ${o.q1} | طبق فنكر: ${o.q2}<br>
                         <em>الملاحظات: ${o.notes || 'لا توجد'}</em>
+                        ${receiveHtml}
                     </div>`;
             });
         }
-    </script>
 
+        function receiveOrder(index) {
+            orders.splice(index, 1); // حذف الطلب
+            renderOrders('receive-list', true); // إعادة الرسم
+        }
+    </script>
 </body>
 </html>
