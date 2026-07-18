@@ -44,7 +44,7 @@
             color: #ff0000;
             font-weight: bold;
             opacity: 0;
-            animation: appearGrowShrink 4s ease-in-out forwards;
+            animation: appearGrowShrink 3s ease-in-out forwards;
         }
 
         @keyframes appearGrowShrink {
@@ -149,46 +149,51 @@
 
     <!-- صفحة الاستلام -->
     <div id="receive-screen" class="page-screen">
+        <!-- زر السجل -->
+        <button class="btn orders" style="position: absolute; top: 20px; left: 20px; font-size: 1rem; padding: 10px 20px;" onclick="showPage('history-screen')">السجل</button>
+        
         <div class="order-container">
             <h2>قائمة الاستلام</h2>
             <div id="receive-list"></div>
         </div>
     </div>
 
+    <!-- صفحة السجل -->
+    <div id="history-screen" class="page-screen">
+        <div class="order-container">
+            <h2>السجل</h2>
+            <div id="history-list"></div>
+        </div>
+    </div>
+
     <script>
         let orders = [];
-        let pageHistory = ['main-screen']; // تتبع الصفحات للرجوع خطوة بخطوة
+        let historyOrders = []; // مصفوفة للسجل
+        let pageHistory = ['main-screen'];
 
         setTimeout(function() {
             document.getElementById('welcome-text').style.display = 'none';
             document.getElementById('main-screen').style.display = 'flex';
-        }, 4000);
+        }, 3000); // 3 ثوانٍ
 
         function showPage(pageId) {
-            // إخفاء كل الشاشات
             document.querySelectorAll('.page-screen, #main-screen').forEach(s => s.style.display = 'none');
-            
-            // إظهار الشاشة المطلوبة
             document.getElementById(pageId).style.display = 'flex';
             
-            // تحديث زر الرجوع
             pageHistory.push(pageId);
             document.getElementById('back-btn-main').style.display = 'block';
             document.body.style.background = '#ffffff';
 
-            if(pageId === 'orders-screen') renderOrders('orders-list', false);
-            if(pageId === 'receive-screen') renderOrders('receive-list', true);
+            if(pageId === 'orders-screen') renderOrders('orders-list', false, orders);
+            if(pageId === 'receive-screen') renderOrders('receive-list', true, orders);
+            if(pageId === 'history-screen') renderOrders('history-list', false, historyOrders);
         }
 
         function goBack() {
             if (pageHistory.length > 1) {
-                pageHistory.pop(); // حذف الصفحة الحالية
-                let prevPage = pageHistory[pageHistory.length - 1]; // الصفحة السابقة
-                
-                // إخفاء الكل
+                pageHistory.pop();
+                let prevPage = pageHistory[pageHistory.length - 1];
                 document.querySelectorAll('.page-screen, #main-screen').forEach(s => s.style.display = 'none');
-                
-                // إظهار السابقة
                 document.getElementById(prevPage).style.display = 'flex';
                 
                 if (prevPage === 'main-screen') {
@@ -213,17 +218,16 @@
 
             orders.push({q1, q2, notes});
             alert("تم تسجيل الطلب!");
-            
             document.getElementById('qty1').value = 0;
             document.getElementById('qty2').value = 0;
             document.getElementById('notes').value = '';
         }
 
-        function renderOrders(elementId, isReceive) {
+        function renderOrders(elementId, isReceive, listArray) {
             let list = document.getElementById(elementId);
-            list.innerHTML = orders.length === 0 ? '<p style="text-align:center">لا توجد طلبات.</p>' : '';
+            list.innerHTML = listArray.length === 0 ? '<p style="text-align:center">لا توجد طلبات.</p>' : '';
             
-            orders.forEach((o, index) => {
+            listArray.forEach((o, index) => {
                 let receiveHtml = isReceive ? `<button class="receive-btn" onclick="receiveOrder(${index})">استلم</button>` : '';
                 list.innerHTML += `
                     <div class="order-item-card">
@@ -236,8 +240,9 @@
         }
 
         function receiveOrder(index) {
-            orders.splice(index, 1); // حذف الطلب
-            renderOrders('receive-list', true); // إعادة الرسم
+            let completedOrder = orders.splice(index, 1)[0]; // نقل الطلب
+            historyOrders.push(completedOrder);
+            renderOrders('receive-list', true, orders);
         }
     </script>
 </body>
