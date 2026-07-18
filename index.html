@@ -12,15 +12,17 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            background-color: #1a1a1a; /* لون خلفية داكن لإبراز الكلمة */
+            /* تم تغيير الخلفية لألوان جذابة حسب طلبك */
+            background: linear-gradient(45deg, #a8edea 0%, #fed6e3 100%); 
             font-family: Arial, sans-serif;
             overflow: hidden; /* لمنع ظهور أشرطة التمرير */
+            transition: background 0.5s ease; /* انتقال سلس للون الخلفية */
         }
 
         /* تنسيق الكلمة وحركتها */
         .welcome-text {
             font-size: 5rem; /* حجم الخط */
-            color: #ffffff; /* لون الخط */
+            color: #ff0000; /* تم تغيير لون الخط إلى الأحمر */
             font-weight: bold;
             opacity: 0; /* تبدأ مخفية */
             /* استدعاء الحركة: مدتها 4 ثوانٍ وتتوقف عند آخر إطار */
@@ -46,11 +48,65 @@
                 opacity: 0; /* تختفي مجدداً */
             }
         }
+
+        /* تنسيق الشاشة الثانية والأزرار */
+        #main-screen {
+            display: none; /* الأزرار مخفية في البداية */
+            gap: 30px; /* المسافة بين الزرين */
+        }
+
+        .btn {
+            padding: 15px 50px;
+            font-size: 2rem;
+            font-weight: bold;
+            color: #fff;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transition: transform 0.2s, background-color 0.2s;
+        }
+
+        /* ألوان الأزرار */
+        .btn.send {
+            background-color: #28a745; /* لون أخضر للزر إرسال */
+        }
+
+        .btn.receive {
+            background-color: #007bff; /* لون أزرق للزر استلام */
+        }
+
+        /* تأثير عند تمرير الماوس فوق الزر */
+        .btn:hover {
+            transform: scale(1.05); /* يكبر الزر قليلاً */
+        }
     </style>
 </head>
 <body>
 
-    <div class="welcome-text">العافية</div>
+    <div id="welcome-text" class="welcome-text">العافية</div>
+
+    <!-- الشاشة الثانية التي تحتوي على الأزرار -->
+    <div id="main-screen">
+        <!-- عند الضغط يتم فتح صفحة بيضاء فارغة -->
+        <button class="btn send" onclick="window.open('about:blank', '_blank')">إرسال</button>
+        <button class="btn receive" onclick="window.open('about:blank', '_blank')">استلام</button>
+    </div>
+
+    <!-- كود الجافا سكريبت للتحكم بالانتقال -->
+    <script>
+        // ننتظر 4 ثوانٍ (وهي مدة حركة الكلمة) ثم ننفذ الأوامر
+        setTimeout(function() {
+            // 1. إخفاء كلمة العافية
+            document.getElementById('welcome-text').style.display = 'none';
+            
+            // 2. تغيير لون خلفية الصفحة إلى الأبيض
+            document.body.style.background = '#ffffff';
+            
+            // 3. إظهار الأزرار
+            document.getElementById('main-screen').style.display = 'flex';
+        }, 4000); // 4000 جزء من الثانية تعني 4 ثوانٍ
+    </script>
 
 </body>
 </html>
