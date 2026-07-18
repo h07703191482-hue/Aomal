@@ -88,12 +88,12 @@
 
     <!-- الشاشة الثانية التي تحتوي على الأزرار -->
     <div id="main-screen">
-        <!-- عند الضغط يتم فتح صفحة بيضاء فارغة -->
-        <button class="btn send" onclick="window.open('about:blank', '_blank')">إرسال</button>
+        <!-- تم ربط زر الإرسال بالدالة الجديدة لفتح صفحة الطلبات -->
+        <button class="btn send" onclick="openSendPage()">إرسال</button>
         <button class="btn receive" onclick="window.open('about:blank', '_blank')">استلام</button>
     </div>
 
-    <!-- كود الجافا سكريبت للتحكم بالانتقال -->
+    <!-- كود الجافا سكريبت للتحكم بالانتقال وفتح الصفحة الجديدة -->
     <script>
         // ننتظر 4 ثوانٍ (وهي مدة حركة الكلمة) ثم ننفذ الأوامر
         setTimeout(function() {
@@ -106,6 +106,147 @@
             // 3. إظهار الأزرار
             document.getElementById('main-screen').style.display = 'flex';
         }, 4000); // 4000 جزء من الثانية تعني 4 ثوانٍ
+
+        // الميزة الجديدة: دالة لفتح صفحة الإرسال للكاشير
+        function openSendPage() {
+            // فتح نافذة جديدة
+            var sendWindow = window.open('', '_blank');
+            
+            // تصميم محتوى الصفحة الجديدة الخاص بنظام البندر
+            var pageContent = `
+            <!DOCTYPE html>
+            <html lang="ar" dir="rtl">
+            <head>
+                <meta charset="UTF-8">
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                <title>البندر - صفحة الكاشير (إرسال)</title>
+                <style>
+                    body {
+                        font-family: Arial, sans-serif;
+                        background-color: #f4f7f6;
+                        margin: 0;
+                        padding: 20px;
+                        display: flex;
+                        justify-content: center;
+                    }
+                    .order-container {
+                        background-color: #ffffff;
+                        width: 100%;
+                        max-width: 500px;
+                        padding: 30px;
+                        border-radius: 12px;
+                        box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+                    }
+                    h2 {
+                        text-align: center;
+                        color: #333;
+                        margin-bottom: 30px;
+                        border-bottom: 2px solid #28a745;
+                        padding-bottom: 10px;
+                    }
+                    .item-row {
+                        display: flex;
+                        justify-content: space-between;
+                        align-items: center;
+                        padding: 15px 0;
+                        border-bottom: 1px solid #eee;
+                    }
+                    .item-name {
+                        font-size: 1.3rem;
+                        font-weight: bold;
+                        color: #444;
+                    }
+                    .quantity-box {
+                        display: flex;
+                        align-items: center;
+                        gap: 10px;
+                    }
+                    .quantity-box label {
+                        font-size: 1.1rem;
+                        color: #666;
+                    }
+                    .quantity-box input {
+                        width: 60px;
+                        padding: 8px;
+                        font-size: 1.1rem;
+                        text-align: center;
+                        border: 1px solid #ccc;
+                        border-radius: 6px;
+                    }
+                    .notes-section {
+                        margin-top: 25px;
+                    }
+                    .notes-section label {
+                        display: block;
+                        font-size: 1.1rem;
+                        font-weight: bold;
+                        color: #444;
+                        margin-bottom: 10px;
+                    }
+                    .notes-section textarea {
+                        width: 100%;
+                        height: 100px;
+                        padding: 12px;
+                        font-size: 1rem;
+                        border: 1px solid #ccc;
+                        border-radius: 8px;
+                        resize: vertical;
+                        box-sizing: border-box;
+                        font-family: Arial, sans-serif;
+                    }
+                    .submit-btn {
+                        width: 100%;
+                        background-color: #28a745;
+                        color: #fff;
+                        border: none;
+                        padding: 15px;
+                        font-size: 1.3rem;
+                        font-weight: bold;
+                        border-radius: 8px;
+                        margin-top: 25px;
+                        cursor: pointer;
+                        transition: background-color 0.3s;
+                    }
+                    .submit-btn:hover {
+                        background-color: #218838;
+                    }
+                </style>
+            </head>
+            <body>
+                <div class="order-container">
+                    <h2>إرسال طلب جديد</h2>
+                    
+                    <div class="item-row">
+                        <div class="item-name">طبق عادي</div>
+                        <div class="quantity-box">
+                            <label>العدد:</label>
+                            <input type="number" min="0" value="0">
+                        </div>
+                    </div>
+                    
+                    <div class="item-row">
+                        <div class="item-name">طبق فنكر</div>
+                        <div class="quantity-box">
+                            <label>العدد:</label>
+                            <input type="number" min="0" value="0">
+                        </div>
+                    </div>
+
+                    <div class="notes-section">
+                        <label>ملاحظات الطلب:</label>
+                        <textarea placeholder="مثال: بدون طماطة، أو بدون طرشي..."></textarea>
+                    </div>
+
+                    <button class="submit-btn" onclick="alert('تم تسجيل الطلب بنجاح!')">إرسال الطلب</button>
+                </div>
+            </body>
+            </html>
+            `;
+            
+            // كتابة المحتوى في النافذة الجديدة
+            sendWindow.document.write(pageContent);
+            sendWindow.document.close();
+        }
     </script>
 
 </body>
