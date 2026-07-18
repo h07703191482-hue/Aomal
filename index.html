@@ -17,6 +17,28 @@
             font-family: Arial, sans-serif;
             overflow: hidden; /* لمنع ظهور أشرطة التمرير */
             transition: background 0.5s ease; /* انتقال سلس للون الخلفية */
+            position: relative; /* ضروري لتموضع زر الرجوع */
+        }
+
+        /* زر الرجوع للصفحة الرئيسية */
+        .back-btn-main {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            padding: 10px 20px;
+            background-color: #dc3545;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1.2rem;
+            font-weight: bold;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            display: none; /* مخفي أثناء الشاشة الترحيبية */
+            z-index: 1000;
+        }
+        .back-btn-main:hover {
+            background-color: #c82333;
         }
 
         /* تنسيق الكلمة وحركتها */
@@ -84,13 +106,15 @@
 </head>
 <body>
 
+    <!-- زر الرجوع الخاص بالصفحة الرئيسية (يعيد تحميل التطبيق) -->
+    <button id="back-btn-main" class="back-btn-main" onclick="location.reload()">رجوع</button>
+
     <div id="welcome-text" class="welcome-text">العافية</div>
 
     <!-- الشاشة الثانية التي تحتوي على الأزرار -->
     <div id="main-screen">
-        <!-- تم ربط زر الإرسال بالدالة الجديدة لفتح صفحة الطلبات -->
         <button class="btn send" onclick="openSendPage()">إرسال</button>
-        <button class="btn receive" onclick="window.open('about:blank', '_blank')">استلام</button>
+        <button class="btn receive" onclick="openReceivePage()">استلام</button>
     </div>
 
     <!-- كود الجافا سكريبت للتحكم بالانتقال وفتح الصفحة الجديدة -->
@@ -103,16 +127,14 @@
             // 2. تغيير لون خلفية الصفحة إلى الأبيض
             document.body.style.background = '#ffffff';
             
-            // 3. إظهار الأزرار
+            // 3. إظهار الأزرار وزر الرجوع
             document.getElementById('main-screen').style.display = 'flex';
+            document.getElementById('back-btn-main').style.display = 'block';
         }, 4000); // 4000 جزء من الثانية تعني 4 ثوانٍ
 
-        // الميزة الجديدة: دالة لفتح صفحة الإرسال للكاشير
+        // دالة فتح صفحة الإرسال للكاشير
         function openSendPage() {
-            // فتح نافذة جديدة
             var sendWindow = window.open('', '_blank');
-            
-            // تصميم محتوى الصفحة الجديدة الخاص بنظام البندر
             var pageContent = `
             <!DOCTYPE html>
             <html lang="ar" dir="rtl">
@@ -128,7 +150,25 @@
                         padding: 20px;
                         display: flex;
                         justify-content: center;
+                        position: relative;
                     }
+                    /* زر الرجوع للفرعيات */
+                    .back-btn {
+                        position: absolute;
+                        top: 20px;
+                        right: 20px;
+                        padding: 10px 20px;
+                        background-color: #dc3545;
+                        color: white;
+                        border: none;
+                        border-radius: 8px;
+                        cursor: pointer;
+                        font-size: 1.1rem;
+                        font-weight: bold;
+                        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+                    }
+                    .back-btn:hover { background-color: #c82333; }
+
                     .order-container {
                         background-color: #ffffff;
                         width: 100%;
@@ -136,6 +176,7 @@
                         padding: 30px;
                         border-radius: 12px;
                         box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+                        margin-top: 50px; /* لترك مساحة لزر الرجوع */
                     }
                     h2 {
                         text-align: center;
@@ -161,74 +202,78 @@
                         align-items: center;
                         gap: 10px;
                     }
-                    .quantity-box label {
-                        font-size: 1.1rem;
-                        color: #666;
+                    /* أزرار الزائد والناقص */
+                    .qty-btn {
+                        background-color: #007bff;
+                        color: white;
+                        border: none;
+                        border-radius: 6px;
+                        width: 40px;
+                        height: 40px;
+                        font-size: 1.5rem;
+                        font-weight: bold;
+                        cursor: pointer;
+                        display: flex;
+                        justify-content: center;
+                        align-items: center;
                     }
+                    .qty-btn:hover { background-color: #0056b3; }
+                    .qty-btn.minus { background-color: #dc3545; }
+                    .qty-btn.minus:hover { background-color: #c82333; }
+
                     .quantity-box input {
-                        width: 60px;
-                        padding: 8px;
-                        font-size: 1.1rem;
+                        width: 50px;
+                        height: 40px;
+                        font-size: 1.3rem;
                         text-align: center;
                         border: 1px solid #ccc;
                         border-radius: 6px;
+                        pointer-events: none; /* لمنع الكتابة اليدوية والاكتفاء بالأزرار */
                     }
-                    .notes-section {
-                        margin-top: 25px;
+                    /* إخفاء أسهم الإدخال الافتراضية للمتصفح */
+                    input[type=number]::-webkit-inner-spin-button, 
+                    input[type=number]::-webkit-outer-spin-button { 
+                        -webkit-appearance: none; 
+                        margin: 0; 
                     }
+                    
+                    .notes-section { margin-top: 25px; }
                     .notes-section label {
-                        display: block;
-                        font-size: 1.1rem;
-                        font-weight: bold;
-                        color: #444;
-                        margin-bottom: 10px;
+                        display: block; font-size: 1.1rem; font-weight: bold; color: #444; margin-bottom: 10px;
                     }
                     .notes-section textarea {
-                        width: 100%;
-                        height: 100px;
-                        padding: 12px;
-                        font-size: 1rem;
-                        border: 1px solid #ccc;
-                        border-radius: 8px;
-                        resize: vertical;
-                        box-sizing: border-box;
-                        font-family: Arial, sans-serif;
+                        width: 100%; height: 100px; padding: 12px; font-size: 1rem; border: 1px solid #ccc;
+                        border-radius: 8px; resize: vertical; box-sizing: border-box; font-family: Arial;
                     }
                     .submit-btn {
-                        width: 100%;
-                        background-color: #28a745;
-                        color: #fff;
-                        border: none;
-                        padding: 15px;
-                        font-size: 1.3rem;
-                        font-weight: bold;
-                        border-radius: 8px;
-                        margin-top: 25px;
-                        cursor: pointer;
-                        transition: background-color 0.3s;
+                        width: 100%; background-color: #28a745; color: #fff; border: none; padding: 15px;
+                        font-size: 1.3rem; font-weight: bold; border-radius: 8px; margin-top: 25px; cursor: pointer;
                     }
-                    .submit-btn:hover {
-                        background-color: #218838;
-                    }
+                    .submit-btn:hover { background-color: #218838; }
                 </style>
             </head>
             <body>
+                <!-- زر الرجوع (يغلق هذه النافذة ويعود للرئيسية) -->
+                <button class="back-btn" onclick="window.close()">رجوع</button>
+
                 <div class="order-container">
                     <h2>إرسال طلب جديد</h2>
                     
                     <div class="item-row">
                         <div class="item-name">طبق عادي</div>
                         <div class="quantity-box">
-                            <label>العدد:</label>
-                            <input type="number" min="0" value="0">
+                            <button class="qty-btn" onclick="increaseQty('qty1')">+</button>
+                            <input type="number" id="qty1" min="0" value="0">
+                            <button class="qty-btn minus" onclick="decreaseQty('qty1')">-</button>
                         </div>
                     </div>
                     
                     <div class="item-row">
                         <div class="item-name">طبق فنكر</div>
                         <div class="quantity-box">
-                            <label>العدد:</label>
-                            <input type="number" min="0" value="0">
+                            <button class="qty-btn" onclick="increaseQty('qty2')">+</button>
+                            <input type="number" id="qty2" min="0" value="0">
+                            <button class="qty-btn minus" onclick="decreaseQty('qty2')">-</button>
                         </div>
                     </div>
 
@@ -239,13 +284,54 @@
 
                     <button class="submit-btn" onclick="alert('تم تسجيل الطلب بنجاح!')">إرسال الطلب</button>
                 </div>
+
+                <script>
+                    // دوال زيادة ونقصان الكمية
+                    function increaseQty(id) {
+                        var input = document.getElementById(id);
+                        input.value = parseInt(input.value) + 1;
+                    }
+                    function decreaseQty(id) {
+                        var input = document.getElementById(id);
+                        if (parseInt(input.value) > 0) {
+                            input.value = parseInt(input.value) - 1;
+                        }
+                    }
+                <\/script>
             </body>
             </html>
             `;
-            
-            // كتابة المحتوى في النافذة الجديدة
             sendWindow.document.write(pageContent);
             sendWindow.document.close();
+        }
+
+        // دالة فتح صفحة الاستلام (أصبحت صفحة فعلية تحتوي على زر رجوع)
+        function openReceivePage() {
+            var receiveWindow = window.open('', '_blank');
+            var pageContent = `
+            <!DOCTYPE html>
+            <html lang="ar" dir="rtl">
+            <head>
+                <meta charset="UTF-8">
+                <title>البندر - صفحة الكاشير (استلام)</title>
+                <style>
+                    body { font-family: Arial, sans-serif; background-color: #f4f7f6; margin: 0; padding: 20px; position: relative;}
+                    .back-btn {
+                        position: absolute; top: 20px; right: 20px; padding: 10px 20px;
+                        background-color: #dc3545; color: white; border: none; border-radius: 8px;
+                        cursor: pointer; font-size: 1.1rem; font-weight: bold; box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+                    }
+                    .back-btn:hover { background-color: #c82333; }
+                </style>
+            </head>
+            <body>
+                <button class="back-btn" onclick="window.close()">رجوع</button>
+                <h2 style="text-align:center; margin-top:80px; color:#333;">صفحة الاستلام</h2>
+            </body>
+            </html>
+            `;
+            receiveWindow.document.write(pageContent);
+            receiveWindow.document.close();
         }
     </script>
 
