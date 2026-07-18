@@ -56,7 +56,7 @@
 
         /* الشاشات */
         #main-screen { display: none; gap: 30px; }
-        .page-screen { display: none; width: 100%; height: 100%; justify-content: center; align-items: center; }
+        .page-screen { display: none; width: 100%; height: 100%; justify-content: center; align-items: center; overflow-y: auto; }
 
         .btn {
             padding: 15px 50px;
@@ -71,9 +71,10 @@
         }
         .btn.send { background-color: #28a745; }
         .btn.receive { background-color: #007bff; }
+        .btn.orders { background-color: #ffc107; color: #000; }
         .btn:hover { transform: scale(1.05); }
 
-        /* تنسيق صفحة الإرسال */
+        /* تنسيق صفحة الإرسال والطلبات */
         .order-container {
             background-color: #ffffff;
             width: 90%;
@@ -81,6 +82,7 @@
             padding: 30px;
             border-radius: 12px;
             box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            margin-top: 50px;
         }
         h2 { text-align: center; color: #333; margin-bottom: 30px; border-bottom: 2px solid #28a745; padding-bottom: 10px; }
         .item-row { display: flex; justify-content: space-between; align-items: center; padding: 15px 0; border-bottom: 1px solid #eee; }
@@ -90,6 +92,9 @@
         .qty-btn.minus { background-color: #dc3545; }
         .quantity-box input { width: 50px; height: 40px; font-size: 1.3rem; text-align: center; border: 1px solid #ccc; border-radius: 6px; pointer-events: none; }
         .submit-btn { width: 100%; background-color: #28a745; color: #fff; border: none; padding: 15px; font-size: 1.3rem; font-weight: bold; border-radius: 8px; margin-top: 25px; cursor: pointer; }
+        
+        /* تنسيق قائمة الطلبات */
+        .order-item-card { border: 1px solid #ddd; padding: 15px; margin-bottom: 10px; border-radius: 8px; background: #f9f9f9; }
     </style>
 </head>
 <body>
@@ -106,10 +111,13 @@
         <button class="btn receive" onclick="showPage('receive-screen')">استلام</button>
     </div>
 
-    <!-- صفحة الإرسال (مخفية افتراضياً) -->
+    <!-- صفحة الإرسال -->
     <div id="send-screen" class="page-screen">
         <div class="order-container">
             <h2>إرسال طلب جديد</h2>
+            <!-- زر الانتقال للطلبات -->
+            <button class="btn orders" style="width: 100%; margin-bottom: 20px; font-size: 1rem;" onclick="showPage('orders-screen')">عرض الطلبات المسجلة</button>
+            
             <div class="item-row">
                 <div class="item-name">طبق عادي</div>
                 <div class="quantity-box">
@@ -126,47 +134,90 @@
                     <button class="qty-btn minus" onclick="decreaseQty('qty2')">-</button>
                 </div>
             </div>
-            <textarea style="width:100%; height:80px; margin-top:20px; border-radius:8px;" placeholder="ملاحظات الطلب..."></textarea>
-            <button class="submit-btn" onclick="alert('تم تسجيل الطلب بنجاح!')">إرسال الطلب</button>
+            <textarea id="notes" style="width:100%; height:80px; margin-top:20px; border-radius:8px; border: 1px solid #ccc;" placeholder="ملاحظات الطلب..."></textarea>
+            <button class="submit-btn" onclick="saveOrder()">إرسال الطلب</button>
         </div>
     </div>
 
-    <!-- صفحة الاستلام (مخفية افتراضياً) -->
+    <!-- صفحة عرض الطلبات -->
+    <div id="orders-screen" class="page-screen">
+        <div class="order-container">
+            <h2>الطلبات المسجلة</h2>
+            <div id="orders-list"></div>
+        </div>
+    </div>
+
+    <!-- صفحة الاستلام -->
     <div id="receive-screen" class="page-screen">
         <h2 style="color: #333;">صفحة الاستلام</h2>
     </div>
 
     <script>
-        // إظهار القائمة الرئيسية بعد الترحيب
+        let orders = []; // مصفوفة لحفظ الطلبات
+
         setTimeout(function() {
             document.getElementById('welcome-text').style.display = 'none';
             document.getElementById('main-screen').style.display = 'flex';
         }, 4000);
 
-        // وظائف التنقل
         function showPage(pageId) {
             document.getElementById('main-screen').style.display = 'none';
+            document.getElementById('send-screen').style.display = 'none';
+            document.getElementById('orders-screen').style.display = 'none';
+            document.getElementById('receive-screen').style.display = 'none';
+            
             document.getElementById(pageId).style.display = 'flex';
             document.getElementById('back-btn-main').style.display = 'block';
             document.body.style.background = '#ffffff';
+
+            // إذا فتحنا صفحة الطلبات، نقوم بتحديثها
+            if(pageId === 'orders-screen') renderOrders();
         }
 
         function goBack() {
             document.getElementById('send-screen').style.display = 'none';
+            document.getElementById('orders-screen').style.display = 'none';
             document.getElementById('receive-screen').style.display = 'none';
             document.getElementById('main-screen').style.display = 'flex';
             document.getElementById('back-btn-main').style.display = 'none';
             document.body.style.background = 'linear-gradient(45deg, #a8edea 0%, #fed6e3 100%)';
         }
 
-        // دوال الزيادة والنقصان
-        function increaseQty(id) {
-            var input = document.getElementById(id);
-            input.value = parseInt(input.value) + 1;
+        function increaseQty(id) { document.getElementById(id).value = parseInt(document.getElementById(id).value) + 1; }
+        function decreaseQty(id) { 
+            if (parseInt(document.getElementById(id).value) > 0) 
+                document.getElementById(id).value = parseInt(document.getElementById(id).value) - 1; 
         }
-        function decreaseQty(id) {
-            var input = document.getElementById(id);
-            if (parseInt(input.value) > 0) input.value = parseInt(input.value) - 1;
+
+        // حفظ الطلب
+        function saveOrder() {
+            let q1 = document.getElementById('qty1').value;
+            let q2 = document.getElementById('qty2').value;
+            let notes = document.getElementById('notes').value;
+
+            if(q1 == 0 && q2 == 0) { alert("يرجى اختيار طبق واحد على الأقل"); return; }
+
+            orders.push({q1, q2, notes});
+            alert("تم تسجيل الطلب!");
+            
+            // تصفير الخانات
+            document.getElementById('qty1').value = 0;
+            document.getElementById('qty2').value = 0;
+            document.getElementById('notes').value = '';
+        }
+
+        // عرض الطلبات
+        function renderOrders() {
+            let list = document.getElementById('orders-list');
+            list.innerHTML = orders.length === 0 ? '<p style="text-align:center">لا توجد طلبات بعد.</p>' : '';
+            orders.forEach((o, index) => {
+                list.innerHTML += `
+                    <div class="order-item-card">
+                        <strong>طلب رقم ${index + 1}</strong><br>
+                        طبق عادي: ${o.q1} | طبق فنكر: ${o.q2}<br>
+                        <em>الملاحظات: ${o.notes || 'لا توجد'}</em>
+                    </div>`;
+            });
         }
     </script>
 
