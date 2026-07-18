@@ -4,86 +4,24 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>نظام الكاشير - البندر</title>
+    <!-- مكتبة Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-database-compat.js"></script>
     <style>
         /* إعدادات الصفحة الأساسية */
-        body {
-            margin: 0;
-            height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            background: linear-gradient(45deg, #a8edea 0%, #fed6e3 100%); 
-            font-family: Arial, sans-serif;
-            overflow: hidden;
-            transition: background 0.5s ease;
-            position: relative;
-        }
-
-        /* زر الرجوع */
-        .back-btn-main {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            padding: 10px 20px;
-            background-color: #dc3545;
-            color: white;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 1.2rem;
-            font-weight: bold;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            display: none;
-            z-index: 1000;
-        }
+        body { margin: 0; height: 100vh; display: flex; justify-content: center; align-items: center; background: linear-gradient(45deg, #a8edea 0%, #fed6e3 100%); font-family: Arial, sans-serif; overflow: hidden; transition: background 0.5s ease; position: relative; }
+        .back-btn-main { position: absolute; top: 20px; right: 20px; padding: 10px 20px; background-color: #dc3545; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 1.2rem; font-weight: bold; box-shadow: 0 4px 6px rgba(0,0,0,0.1); display: none; z-index: 1000; }
         .back-btn-main:hover { background-color: #c82333; }
-
-        /* حركة كلمة الترحيب */
-        .welcome-text {
-            font-size: 5rem;
-            color: #ff0000;
-            font-weight: bold;
-            opacity: 0;
-            animation: appearGrowShrink 3s ease-in-out forwards;
-        }
-
-        @keyframes appearGrowShrink {
-            0% { transform: scale(0); opacity: 0; }
-            30% { transform: scale(1.2); opacity: 1; }
-            70% { transform: scale(1.2); opacity: 1; }
-            100% { transform: scale(0); opacity: 0; }
-        }
-
-        /* الشاشات */
+        .welcome-text { font-size: 5rem; color: #ff0000; font-weight: bold; opacity: 0; animation: appearGrowShrink 3s ease-in-out forwards; }
+        @keyframes appearGrowShrink { 0% { transform: scale(0); opacity: 0; } 30% { transform: scale(1.2); opacity: 1; } 70% { transform: scale(1.2); opacity: 1; } 100% { transform: scale(0); opacity: 0; } }
         #main-screen { display: none; gap: 30px; }
         .page-screen { display: none; width: 100%; height: 100%; justify-content: center; align-items: center; overflow-y: auto; flex-direction: column; }
-
-        .btn {
-            padding: 15px 50px;
-            font-size: 2rem;
-            font-weight: bold;
-            color: #fff;
-            border: none;
-            border-radius: 12px;
-            cursor: pointer;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            transition: transform 0.2s, background-color 0.2s;
-        }
+        .btn { padding: 15px 50px; font-size: 2rem; font-weight: bold; color: #fff; border: none; border-radius: 12px; cursor: pointer; box-shadow: 0 4px 6px rgba(0,0,0,0.1); transition: transform 0.2s, background-color 0.2s; }
         .btn.send { background-color: #28a745; }
         .btn.receive { background-color: #007bff; }
         .btn.orders { background-color: #ffc107; color: #000; }
         .btn:hover { transform: scale(1.05); }
-
-        /* تنسيق صفحة الإرسال والطلبات */
-        .order-container {
-            background-color: #ffffff;
-            width: 90%;
-            max-width: 500px;
-            padding: 30px;
-            border-radius: 12px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
-            margin-top: 80px;
-        }
+        .order-container { background-color: #ffffff; width: 90%; max-width: 500px; padding: 30px; border-radius: 12px; box-shadow: 0 5px 15px rgba(0,0,0,0.05); margin-top: 80px; }
         h2 { text-align: center; color: #333; margin-bottom: 30px; border-bottom: 2px solid #28a745; padding-bottom: 10px; }
         .item-row { display: flex; justify-content: space-between; align-items: center; padding: 15px 0; border-bottom: 1px solid #eee; }
         .item-name { font-size: 1.3rem; font-weight: bold; color: #444; }
@@ -92,158 +30,64 @@
         .qty-btn.minus { background-color: #dc3545; }
         .quantity-box input { width: 50px; height: 40px; font-size: 1.3rem; text-align: center; border: 1px solid #ccc; border-radius: 6px; pointer-events: none; }
         .submit-btn { width: 100%; background-color: #28a745; color: #fff; border: none; padding: 15px; font-size: 1.3rem; font-weight: bold; border-radius: 8px; margin-top: 25px; cursor: pointer; }
-        
-        /* تنسيق قائمة الطلبات */
         .order-item-card { border: 1px solid #ddd; padding: 15px; margin-bottom: 10px; border-radius: 8px; background: #f9f9f9; }
         .receive-btn { background-color: #28a745; color: white; border: none; padding: 10px; border-radius: 6px; cursor: pointer; width: 100%; margin-top: 10px; font-weight: bold; }
     </style>
 </head>
 <body>
-
-    <!-- زر الرجوع -->
     <button id="back-btn-main" class="back-btn-main" onclick="goBack()">رجوع</button>
-
-    <!-- شاشة الترحيب -->
     <div id="welcome-text" class="welcome-text">العافية</div>
-
-    <!-- الشاشة الرئيسية -->
     <div id="main-screen">
         <button class="btn send" onclick="showPage('send-screen')">إرسال</button>
         <button class="btn receive" onclick="showPage('receive-screen')">استلام</button>
     </div>
-
-    <!-- صفحة الإرسال -->
     <div id="send-screen" class="page-screen">
         <div class="order-container">
             <h2>إرسال طلب جديد</h2>
             <button class="btn orders" style="width: 100%; margin-bottom: 20px; font-size: 1rem;" onclick="showPage('orders-screen')">عرض الطلبات المسجلة</button>
-            
-            <div class="item-row">
-                <div class="item-name">طبق عادي</div>
-                <div class="quantity-box">
-                    <button class="qty-btn" onclick="increaseQty('qty1')">+</button>
-                    <input type="number" id="qty1" min="0" value="0">
-                    <button class="qty-btn minus" onclick="decreaseQty('qty1')">-</button>
-                </div>
-            </div>
-            <div class="item-row">
-                <div class="item-name">طبق فنكر</div>
-                <div class="quantity-box">
-                    <button class="qty-btn" onclick="increaseQty('qty2')">+</button>
-                    <input type="number" id="qty2" min="0" value="0">
-                    <button class="qty-btn minus" onclick="decreaseQty('qty2')">-</button>
-                </div>
-            </div>
+            <div class="item-row"><div class="item-name">طبق عادي</div><div class="quantity-box"><button class="qty-btn" onclick="increaseQty('qty1')">+</button><input type="number" id="qty1" min="0" value="0"><button class="qty-btn minus" onclick="decreaseQty('qty1')">-</button></div></div>
+            <div class="item-row"><div class="item-name">طبق فنكر</div><div class="quantity-box"><button class="qty-btn" onclick="increaseQty('qty2')">+</button><input type="number" id="qty2" min="0" value="0"><button class="qty-btn minus" onclick="decreaseQty('qty2')">-</button></div></div>
             <textarea id="notes" style="width:100%; height:80px; margin-top:20px; border-radius:8px; border: 1px solid #ccc;" placeholder="ملاحظات الطلب..."></textarea>
             <button class="submit-btn" onclick="saveOrder()">إرسال الطلب</button>
         </div>
     </div>
-
-    <!-- صفحة عرض الطلبات -->
-    <div id="orders-screen" class="page-screen">
-        <div class="order-container">
-            <h2>الطلبات المسجلة</h2>
-            <div id="orders-list"></div>
-        </div>
-    </div>
-
-    <!-- صفحة الاستلام -->
+    <div id="orders-screen" class="page-screen"><div class="order-container"><h2>الطلبات المسجلة</h2><div id="orders-list"></div></div></div>
     <div id="receive-screen" class="page-screen">
-        <!-- زر السجل -->
         <button class="btn orders" style="position: absolute; top: 20px; left: 20px; font-size: 1rem; padding: 10px 20px;" onclick="showPage('history-screen')">السجل</button>
-        
-        <div class="order-container">
-            <h2>قائمة الاستلام</h2>
-            <div id="receive-list"></div>
-        </div>
+        <div class="order-container"><h2>قائمة الاستلام</h2><div id="receive-list"></div></div>
     </div>
-
-    <!-- صفحة السجل -->
-    <div id="history-screen" class="page-screen">
-        <div class="order-container">
-            <h2>السجل</h2>
-            <div id="history-list"></div>
-        </div>
-    </div>
+    <div id="history-screen" class="page-screen"><div class="order-container"><h2>السجل</h2><div id="history-list"></div></div></div>
 
     <script>
+        // إعدادات Firebase (ضع بياناتك هنا)
+        const firebaseConfig = {
+            apiKey: "YOUR_API_KEY",
+            authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+            databaseURL: "https://YOUR_PROJECT_ID.firebaseio.com",
+            projectId: "YOUR_PROJECT_ID",
+            storageBucket: "YOUR_PROJECT_ID.appspot.com",
+            messagingSenderId: "YOUR_ID",
+            appId: "YOUR_APP_ID"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+
         let orders = [];
-        let historyOrders = []; // مصفوفة للسجل
+        let historyOrders = [];
         let pageHistory = ['main-screen'];
 
-        setTimeout(function() {
-            document.getElementById('welcome-text').style.display = 'none';
-            document.getElementById('main-screen').style.display = 'flex';
-        }, 3000); // 3 ثوانٍ
+        // المزامنة اللحظية
+        db.ref('orders').on('value', (snapshot) => { orders = snapshot.val() || []; });
+        db.ref('history').on('value', (snapshot) => { historyOrders = snapshot.val() || []; });
 
-        function showPage(pageId) {
-            document.querySelectorAll('.page-screen, #main-screen').forEach(s => s.style.display = 'none');
-            document.getElementById(pageId).style.display = 'flex';
-            
-            pageHistory.push(pageId);
-            document.getElementById('back-btn-main').style.display = 'block';
-            document.body.style.background = '#ffffff';
-
-            if(pageId === 'orders-screen') renderOrders('orders-list', false, orders);
-            if(pageId === 'receive-screen') renderOrders('receive-list', true, orders);
-            if(pageId === 'history-screen') renderOrders('history-list', false, historyOrders);
-        }
-
-        function goBack() {
-            if (pageHistory.length > 1) {
-                pageHistory.pop();
-                let prevPage = pageHistory[pageHistory.length - 1];
-                document.querySelectorAll('.page-screen, #main-screen').forEach(s => s.style.display = 'none');
-                document.getElementById(prevPage).style.display = 'flex';
-                
-                if (prevPage === 'main-screen') {
-                    document.getElementById('back-btn-main').style.display = 'none';
-                    document.body.style.background = 'linear-gradient(45deg, #a8edea 0%, #fed6e3 100%)';
-                }
-            }
-        }
-
+        setTimeout(function() { document.getElementById('welcome-text').style.display = 'none'; document.getElementById('main-screen').style.display = 'flex'; }, 3000);
+        function showPage(pageId) { document.querySelectorAll('.page-screen, #main-screen').forEach(s => s.style.display = 'none'); document.getElementById(pageId).style.display = 'flex'; pageHistory.push(pageId); document.getElementById('back-btn-main').style.display = 'block'; document.body.style.background = '#ffffff'; if(pageId === 'orders-screen') renderOrders('orders-list', false, orders); if(pageId === 'receive-screen') renderOrders('receive-list', true, orders); if(pageId === 'history-screen') renderOrders('history-list', false, historyOrders); }
+        function goBack() { if (pageHistory.length > 1) { pageHistory.pop(); let prevPage = pageHistory[pageHistory.length - 1]; document.querySelectorAll('.page-screen, #main-screen').forEach(s => s.style.display = 'none'); document.getElementById(prevPage).style.display = 'flex'; if (prevPage === 'main-screen') { document.getElementById('back-btn-main').style.display = 'none'; document.body.style.background = 'linear-gradient(45deg, #a8edea 0%, #fed6e3 100%)'; } } }
         function increaseQty(id) { document.getElementById(id).value = parseInt(document.getElementById(id).value) + 1; }
-        function decreaseQty(id) { 
-            if (parseInt(document.getElementById(id).value) > 0) 
-                document.getElementById(id).value = parseInt(document.getElementById(id).value) - 1; 
-        }
-
-        function saveOrder() {
-            let q1 = document.getElementById('qty1').value;
-            let q2 = document.getElementById('qty2').value;
-            let notes = document.getElementById('notes').value;
-
-            if(q1 == 0 && q2 == 0) { alert("يرجى اختيار طبق واحد على الأقل"); return; }
-
-            orders.push({q1, q2, notes});
-            alert("تم تسجيل الطلب!");
-            document.getElementById('qty1').value = 0;
-            document.getElementById('qty2').value = 0;
-            document.getElementById('notes').value = '';
-        }
-
-        function renderOrders(elementId, isReceive, listArray) {
-            let list = document.getElementById(elementId);
-            list.innerHTML = listArray.length === 0 ? '<p style="text-align:center">لا توجد طلبات.</p>' : '';
-            
-            listArray.forEach((o, index) => {
-                let receiveHtml = isReceive ? `<button class="receive-btn" onclick="receiveOrder(${index})">استلم</button>` : '';
-                list.innerHTML += `
-                    <div class="order-item-card">
-                        <strong>طلب رقم ${index + 1}</strong><br>
-                        طبق عادي: ${o.q1} | طبق فنكر: ${o.q2}<br>
-                        <em>الملاحظات: ${o.notes || 'لا توجد'}</em>
-                        ${receiveHtml}
-                    </div>`;
-            });
-        }
-
-        function receiveOrder(index) {
-            let completedOrder = orders.splice(index, 1)[0]; // نقل الطلب
-            historyOrders.push(completedOrder);
-            renderOrders('receive-list', true, orders);
-        }
+        function decreaseQty(id) { if (parseInt(document.getElementById(id).value) > 0) document.getElementById(id).value = parseInt(document.getElementById(id).value) - 1; }
+        function saveOrder() { let q1 = document.getElementById('qty1').value; let q2 = document.getElementById('qty2').value; let notes = document.getElementById('notes').value; if(q1 == 0 && q2 == 0) { alert("يرجى اختيار طبق واحد على الأقل"); return; } orders.push({q1, q2, notes}); db.ref('orders').set(orders); alert("تم تسجيل الطلب!"); document.getElementById('qty1').value = 0; document.getElementById('qty2').value = 0; document.getElementById('notes').value = ''; }
+        function renderOrders(elementId, isReceive, listArray) { let list = document.getElementById(elementId); list.innerHTML = listArray.length === 0 ? '<p style="text-align:center">لا توجد طلبات.</p>' : ''; listArray.forEach((o, index) => { let receiveHtml = isReceive ? `<button class="receive-btn" onclick="receiveOrder(${index})">استلم</button>` : ''; list.innerHTML += `<div class="order-item-card"><strong>طلب رقم ${index + 1}</strong><br>طبق عادي: ${o.q1} | طبق فنكر: ${o.q2}<br><em>الملاحظات: ${o.notes || 'لا توجد'}</em>${receiveHtml}</div>`; }); }
+        function receiveOrder(index) { let completedOrder = orders.splice(index, 1)[0]; historyOrders.push(completedOrder); db.ref('orders').set(orders); db.ref('history').set(historyOrders); renderOrders('receive-list', true, orders); }
     </script>
 </body>
 </html>
