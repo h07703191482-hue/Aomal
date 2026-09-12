@@ -1,252 +1,781 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>لـ فطومه ❤️</title>
-  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@700&display=swap" rel="stylesheet">
-  <style>
-    * {
-      box-sizing: border-box;
-      -webkit-tap-highlight-color: transparent;
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>فطومة ❤️ حسين</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+
+<style>
+*{
+    box-sizing:border-box;
+    margin:0;
+    padding:0;
+}
+
+body{
+    font-family:"Cairo",sans-serif;
+    min-height:100vh;
+    background:linear-gradient(135deg,#ffd6e7,#fff0f6,#f8d9ff);
+    overflow:hidden;
+    color:#333;
+}
+
+.app{
+    width:100%;
+    min-height:100vh;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:20px;
+}
+
+.container{
+    width:min(430px,100%);
+    height:min(760px,94vh);
+    position:relative;
+}
+
+.screen{
+    position:absolute;
+    inset:0;
+    background:rgba(255,255,255,.72);
+    backdrop-filter:blur(15px);
+    -webkit-backdrop-filter:blur(15px);
+    border-radius:30px;
+    box-shadow:0 20px 60px rgba(170,70,120,.18);
+
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    text-align:center;
+
+    padding:28px 22px;
+
+    opacity:0;
+    pointer-events:none;
+    transform:scale(1.05) translateY(20px);
+    filter:blur(8px);
+
+    transition:
+        opacity .6s ease,
+        transform .7s ease,
+        filter .6s ease;
+}
+
+.screen.active{
+    opacity:1;
+    pointer-events:auto;
+    transform:scale(1) translateY(0);
+    filter:blur(0);
+}
+
+/* الصورة */
+.art{
+    width:250px;
+    height:250px;
+    margin-bottom:25px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    overflow:hidden;
+    border-radius:25px;
+}
+
+.art img{
+    width:100%;
+    height:100%;
+    object-fit:contain;
+    display:block;
+}
+
+/* العناوين */
+h1{
+    font-size:26px;
+    line-height:1.6;
+    color:#d63384;
+    min-height:45px;
+    margin-bottom:10px;
+    font-weight:800;
+}
+
+.screen > p{
+    font-size:17px;
+    line-height:1.8;
+    color:#555;
+    min-height:32px;
+}
+
+/* مؤشر الكتابة */
+.typing-cursor::after{
+    content:"|";
+    margin-right:3px;
+    animation:cursorBlink .55s infinite;
+}
+
+@keyframes cursorBlink{
+    0%,100%{opacity:1}
+    50%{opacity:0}
+}
+
+/* الأزرار */
+.screen > button{
+    border:none;
+    outline:none;
+    margin-top:25px;
+    padding:13px 30px;
+    border-radius:50px;
+    background:linear-gradient(135deg,#ec4899,#d63384);
+    color:white;
+    font-family:inherit;
+    font-size:17px;
+    font-weight:700;
+    cursor:pointer;
+
+    opacity:0;
+    transform:translateY(15px) scale(.94);
+
+    transition:
+        opacity .4s ease,
+        transform .4s ease,
+        box-shadow .2s ease;
+}
+
+.screen > button.show-button{
+    opacity:1;
+    transform:translateY(0) scale(1);
+}
+
+.screen > button:active{
+    transform:scale(.93);
+}
+
+/* القلب */
+.big-heart{
+    font-size:100px;
+    margin-top:25px;
+    cursor:pointer;
+    user-select:none;
+
+    opacity:0;
+    transform:scale(.5);
+
+    animation:heartAppear .7s .3s forwards,
+              heartBeat 1s 1s infinite;
+}
+
+@keyframes heartAppear{
+    to{
+        opacity:1;
+        transform:scale(1);
     }
-    body {
-      /* لون الخلفية الوردي الفاتح المطابق للفيديو */
-      background-color: #ffd6e5;
-      background-image: radial-gradient(#ffb3c6 1.5px, transparent 1.5px);
-      background-size: 25px 25px;
-      margin: 0;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 100vh;
-      font-family: 'Cairo', sans-serif;
-      user-select: none;
+}
+
+@keyframes heartBeat{
+    0%,100%{
+        transform:scale(1);
     }
-    
-    .container {
-      text-align: center;
-      width: 100%;
-      max-width: 400px;
-      padding: 20px;
+    50%{
+        transform:scale(1.13);
+    }
+}
+
+.big-heart:active{
+    transform:scale(.8);
+}
+
+/* الرسالة */
+.message-card{
+    width:100%;
+    max-height:70%;
+    overflow:auto;
+
+    padding:25px 20px;
+    border-radius:25px;
+
+    background:rgba(255,255,255,.82);
+    box-shadow:0 10px 35px rgba(180,70,130,.15);
+
+    text-align:center;
+}
+
+.message-card p{
+    font-size:18px;
+    line-height:2;
+    color:#555;
+    white-space:pre-line;
+    min-height:30px;
+}
+
+/* كرت الموسيقى */
+.music-card{
+    width:100%;
+    padding:25px 20px;
+    border-radius:28px;
+    background:rgba(255,255,255,.85);
+    box-shadow:0 12px 35px rgba(150,60,120,.15);
+}
+
+.music-cover{
+    width:190px;
+    height:190px;
+    margin:auto;
+    border-radius:22px;
+    overflow:hidden;
+}
+
+.music-cover img{
+    width:100%;
+    height:100%;
+    object-fit:cover;
+}
+
+.music-title{
+    margin-top:18px;
+    font-size:20px;
+    font-weight:800;
+    color:#d63384;
+}
+
+.music-sub{
+    margin-top:5px;
+    color:#777;
+    font-size:14px;
+}
+
+.music-controls{
+    margin-top:20px;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    gap:25px;
+}
+
+.music-controls span{
+    font-size:27px;
+    cursor:pointer;
+}
+
+.play{
+    width:55px;
+    height:55px;
+    border-radius:50%;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    background:#d63384;
+    color:white;
+}
+
+/* النقاط */
+.dots{
+    position:absolute;
+    bottom:15px;
+    left:50%;
+    transform:translateX(-50%);
+    display:flex;
+    gap:7px;
+    z-index:20;
+}
+
+.dot{
+    width:7px;
+    height:7px;
+    border-radius:50%;
+    background:#ddd;
+    transition:.3s;
+}
+
+.dot.active{
+    width:22px;
+    border-radius:10px;
+    background:#d63384;
+}
+
+/* القلوب الطائرة */
+.floating-heart{
+    position:fixed;
+    bottom:-30px;
+    font-size:20px;
+    pointer-events:none;
+    animation:floatHeart linear forwards;
+    z-index:50;
+}
+
+@keyframes floatHeart{
+    0%{
+        opacity:0;
+        transform:translateY(0) scale(.6) rotate(0);
     }
 
-    /* الدائرة البيضاء الصافية في أول خطوة */
-    .start-circle {
-      background-color: #ffffff;
-      width: 60px;
-      height: 60px;
-      border-radius: 50%;
-      margin: 0 auto 20px auto;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+    15%{
+        opacity:1;
     }
 
-    /* المربع الوردي اللي بداخله شخصية هلو كيتي */
-    .image-box {
-      background-color: #ffb3c6;
-      border-radius: 15px;
-      padding: 15px;
-      width: 260px;
-      height: 260px;
-      margin: 0 auto 20px;
-      display: flex;
-      justify-content: center;
-      align-items: center;
+    100%{
+        opacity:0;
+        transform:translateY(-100vh) scale(1.3) rotate(25deg);
+    }
+}
+
+/* للموبايل */
+@media(max-width:500px){
+    .container{
+        height:92vh;
     }
 
-    .image-box img {
-      max-width: 180px;
-      max-height: 180px;
-      object-fit: contain;
+    .art{
+        width:220px;
+        height:220px;
     }
 
-    /* نص السؤال تحت الصورة */
-    .text-line {
-      font-size: 1.3rem;
-      color: #000000;
-      margin-bottom: 20px;
-      font-weight: 700;
+    h1{
+        font-size:23px;
     }
 
-    /* الأزرار السوداء بحواف وردية مثل الفيديو */
-    .btn {
-      background-color: #1c1c1e;
-      color: #ffffff;
-      border: 1px solid #ff4d8d;
-      border-radius: 25px;
-      padding: 10px 35px;
-      font-size: 1.1rem;
-      font-family: 'Cairo', sans-serif;
-      font-weight: 700;
-      cursor: pointer;
-      transition: transform 0.15s ease;
+    .screen > p{
+        font-size:16px;
     }
-
-    .btn:active {
-      transform: scale(0.95);
-      background-color: #2c2c2e;
-    }
-
-    /* زر القلب الوردي الكبير */
-    .heart-btn {
-      font-size: 5.5rem;
-      background: none;
-      border: none;
-      cursor: pointer;
-      animation: beat 1s infinite alternate;
-      margin-top: 10px;
-    }
-
-    @keyframes beat {
-      0% { transform: scale(1); }
-      100% { transform: scale(1.15); }
-    }
-
-    /* صندوق الشعر (أسود شفاف مع إطار) */
-    .poem-box {
-      background-color: rgba(28, 28, 30, 0.9);
-      border: 1px solid #ff4d8d;
-      border-radius: 15px;
-      color: #ffffff;
-      padding: 25px 20px;
-      font-size: 1.05rem;
-      line-height: 2;
-      margin-bottom: 20px;
-      white-space: pre-line;
-    }
-
-    /* مشغل الأغنية */
-    .music-player {
-      background-color: rgba(28, 28, 30, 0.9);
-      border: 1px solid #ff4d8d;
-      border-radius: 20px;
-      padding: 25px 20px;
-      color: #ffffff;
-    }
-
-    .music-player img {
-      width: 120px;
-      height: 120px;
-      background-color: #ffb3c6;
-      border-radius: 15px;
-      margin-bottom: 15px;
-      padding: 10px;
-      object-fit: contain;
-    }
-
-    audio {
-      width: 100%;
-      height: 40px;
-      outline: none;
-      border-radius: 20px;
-      margin-top: 15px;
-    }
-
-    .hidden { display: none !important; }
-  </style>
+}
+</style>
 </head>
+
 <body>
 
-  <div class="container">
-    
-    <div id="step1">
-      <div class="start-circle"></div>
-      <div class="text-line">انتِ فطومه؟</div>
-      <button class="btn" onclick="goStep(2)">اي</button>
+<div class="app">
+
+<div class="container">
+
+<!-- الشاشة 1 -->
+<section class="screen active">
+
+    <div class="art">
+        <img src="images/01.jpg" alt="">
     </div>
 
-    <div id="step2" class="hidden">
-      <div class="image-box">
-        <img src="https://pngimg.com/uploads/hello_kitty/hello_kitty_PNG19.png" alt="Hello Kitty">
-      </div>
-      <div class="text-line">هلو فطومه</div>
-      <button class="btn" onclick="goStep(3)">هلوو</button>
+    <h1 data-text="شلونج فطومتي؟ 🌚"></h1>
+    <p data-text=""></p>
+
+    <button onclick="next()">هلو حسين</button>
+
+</section>
+
+
+<!-- الشاشة 2 -->
+<section class="screen">
+
+    <div class="art">
+        <img src="images/02.jpg" alt="">
     </div>
 
-    <div id="step3" class="hidden">
-      <div class="image-box">
-        <img src="https://pngimg.com/uploads/hello_kitty/hello_kitty_PNG9.png" alt="Hello Kitty">
-      </div>
-      <div class="text-line">فطومه عندي سؤال الججج</div>
-      <button class="btn" onclick="goStep(4)">شنو هو؟</button>
+    <h1 data-text="راح اسئلج سؤال صغيروني 🤏"></h1>
+    <p data-text=""></p>
+
+    <button onclick="next()">شنو هوه؟</button>
+
+</section>
+
+
+<!-- الشاشة 3 -->
+<section class="screen">
+
+    <div class="art">
+        <img src="images/03.jpg" alt="">
     </div>
 
-    <div id="step4" class="hidden">
-      <div class="image-box">
-        <img src="https://pngimg.com/uploads/hello_kitty/hello_kitty_PNG16.png" alt="Hello Kitty Shy">
-      </div>
-      <div class="text-line">بس مستحي اسئلج 🥲</div>
-      <button class="btn" onclick="goStep(5)">اسئل</button>
+    <h1 data-text="بس مستحي منج شوي 🥲🤏"></h1>
+    <p data-text=""></p>
+
+    <button onclick="next()">اسئل؟</button>
+
+</section>
+
+
+<!-- الشاشة 4 -->
+<section class="screen">
+
+    <div class="art">
+        <img src="images/04.jpg" alt="">
     </div>
 
-    <div id="step5" class="hidden">
-      <div class="image-box">
-        <img src="https://pngimg.com/uploads/hello_kitty/hello_kitty_PNG33.png" alt="Hello Kitty Blushing">
-      </div>
-      <div class="text-line">تحبين حسين</div>
-      <button class="btn" onclick="goStep(6)">ها؟ 😳</button>
+    <h1 data-text="فطومة… تحبين حسين لو لا؟ 🌚❣️"></h1>
+    <p data-text=""></p>
+
+    <button onclick="next()">مدري 🥲</button>
+
+</section>
+
+
+<!-- الشاشة 5 -->
+<section class="screen">
+
+    <div class="art">
+        <img src="images/05.jpg" alt="">
     </div>
 
-    <div id="step6" class="hidden">
-      <div class="image-box">
-        <img src="https://pngimg.com/uploads/hello_kitty/hello_kitty_PNG9.png" alt="Hello Kitty Confused">
-      </div>
-      <div class="text-line">شنو ها؟ 🙄 تحبين حسين لو لا؟</div>
-      <button class="btn" onclick="goStep(7)">مدري</button>
+    <h1 data-text="اذا تحبينه صدك ضغطي ع القلب😉"></h1>
+    <p data-text=""></p>
+
+    <div class="big-heart" onclick="next()">❤️</div>
+
+</section>
+
+
+<!-- الشاشة 6 -->
+<section class="screen">
+
+    <div class="art">
+        <img src="images/06.jpg" alt="">
     </div>
 
-    <div id="step7" class="hidden">
-      <div class="image-box">
-        <img src="https://pngimg.com/uploads/hello_kitty/hello_kitty_PNG19.png" alt="Hello Kitty Hearts">
-      </div>
-      <div class="text-line">اذا تحبين حسين دوسي على القلب 🥲</div>
-      <button class="heart-btn" onclick="goStep(8)">💖</button>
+    <div class="message-card">
+
+        <p data-text="فطومتي، شگد أحاول أوصف لج مكانج بقلبي، بس الكلمات ما تكفيني ❣️
+أحب وجودج، وأحب ضحكتج، وأتمنى دوم تبقين قريبة مني.
+يمكن ما أعرف أگول كلشي بداخلي، بس أكيد أعرف شغلة وحدة…
+إنتِ شخص غالي عليه هواي 🥲🤍"></p>
+
     </div>
 
-    <div id="step8" class="hidden">
-      <div class="poem-box">
-في حبكِ ماذا أقول؟
-القَلْمُ حائِرٌ بَينَ السُّطُور
-ارسمُ ورداً فلديِكِ اطيبُ العطور
-لو قُلتُ أحبُكِ فلن يكفيني
-فأنا مريضُ بحبكِ فَمَن يداويني؟
-وقلبي يهواكِ ويناديكِ
-ولو كان لي ألفُ قلبٍ لأحببتُكِ ولن يكفيني
-      </div>
-      <button class="btn" onclick="goStep(9)">اعشقج واحبج 🥲💖</button>
+    <button onclick="next()">كملي 🥲❣️</button>
+
+</section>
+
+
+<!-- الشاشة 7 -->
+<section class="screen">
+
+    <div class="music-card">
+
+        <div class="music-cover">
+            <img src="images/06.jpg" alt="">
+        </div>
+
+        <div class="music-title">
+            فطومة ❤️
+        </div>
+
+        <div class="music-sub">
+            حسين ❣️
+        </div>
+
+        <div class="music-controls">
+
+            <span>⏮</span>
+
+            <div class="play">
+                ▶
+            </div>
+
+            <span>⏭</span>
+
+        </div>
+
     </div>
 
-    <div id="step9" class="hidden">
-      <div class="music-player">
-        <div style="font-size: 1.2rem; font-weight: bold; margin-bottom: 15px; color: #ffb3c6;">أغنيتنا المفضلة 🎵</div>
-        <img src="https://pngimg.com/uploads/hello_kitty/hello_kitty_PNG19.png" alt="Hello Kitty Album Art">
-        <div style="font-weight: bold; font-size: 1.1rem; margin-bottom: 5px;">ومالو</div>
-        <div style="font-size: 0.9rem; color: #ccc;">عمرو دياب</div>
-        <audio id="audioPlayer" controls loop autoplay>
-          <source src="https://server8.mp3quran.net/media/wamalo.mp3" type="audio/mpeg">
-          <source src="https://files.freemusicarchive.org/storage-freemusicarchive-org/music/no_curator/Trio_Seneca/Trio_Seneca_-_01_-_Wamalo.mp3" type="audio/mpeg">
-        </audio>
-      </div>
-    </div>
+</section>
 
-  </div>
 
-  <script>
-    function goStep(step) {
-      for (let i = 1; i <= 9; i++) {
-        const el = document.getElementById('step' + i);
-        if (el) el.classList.add('hidden');
-      }
-      const target = document.getElementById('step' + step);
-      if (target) {
-        target.classList.remove('hidden');
-      }
+<div class="dots" id="dots"></div>
 
-      if (step === 9) {
-        const player = document.getElementById('audioPlayer');
-        player.play().catch(e => console.log("Autoplay check:", e));
-      }
+</div>
+
+</div>
+
+
+<script>
+
+const screens = [...document.querySelectorAll(".screen")];
+const dots = document.getElementById("dots");
+
+let current = 0;
+let typingRun = 0;
+
+
+/* إنشاء النقاط */
+screens.forEach((screen,index)=>{
+
+    const dot = document.createElement("div");
+
+    dot.className = "dot";
+
+    if(index === 0){
+        dot.classList.add("active");
     }
-  </script>
+
+    dot.onclick = ()=>{
+        show(index);
+    };
+
+    dots.appendChild(dot);
+
+});
+
+
+/* انتظار */
+function wait(ms){
+    return new Promise(resolve => setTimeout(resolve,ms));
+}
+
+
+/* الكتابة حرف حرف */
+function typeText(element,speed,run){
+
+    if(!element){
+        return Promise.resolve(true);
+    }
+
+    const text = element.dataset.text || "";
+
+    element.textContent = "";
+    element.classList.add("typing-cursor");
+
+    return new Promise(resolve=>{
+
+        let i = 0;
+
+        function write(){
+
+            if(run !== typingRun){
+                element.textContent = "";
+                element.classList.remove("typing-cursor");
+                resolve(false);
+                return;
+            }
+
+            if(i < text.length){
+
+                element.textContent += text.charAt(i);
+
+                i++;
+
+                setTimeout(write,speed);
+
+            }else{
+
+                element.classList.remove("typing-cursor");
+
+                resolve(true);
+
+            }
+
+        }
+
+        write();
+
+    });
+}
+
+
+/* تشغيل كتابة الشاشة */
+async function playScreen(screen){
+
+    const run = ++typingRun;
+
+    const title = screen.querySelector("h1[data-text]");
+    const normalText = screen.querySelector(":scope > p[data-text]");
+    const messageText = screen.querySelector(".message-card p[data-text]");
+    const button = screen.querySelector(":scope > button");
+
+    /* إخفاء الزر بالبداية */
+    if(button){
+        button.classList.remove("show-button");
+    }
+
+    /* مسح النصوص قبل البداية */
+    if(title){
+        title.textContent = "";
+    }
+
+    if(normalText){
+        normalText.textContent = "";
+    }
+
+    if(messageText){
+        messageText.textContent = "";
+    }
+
+    await wait(450);
+
+    if(run !== typingRun) return;
+
+    /* العنوان */
+    if(title && title.dataset.text){
+
+        const ok = await typeText(title,40,run);
+
+        if(!ok) return;
+
+        await wait(120);
+    }
+
+
+    if(run !== typingRun) return;
+
+
+    /* النص الصغير */
+    if(normalText && normalText.dataset.text){
+
+        const ok = await typeText(normalText,28,run);
+
+        if(!ok) return;
+
+        await wait(180);
+    }
+
+
+    if(run !== typingRun) return;
+
+
+    /* الرسالة الطويلة */
+    if(messageText && messageText.dataset.text){
+
+        const ok = await typeText(messageText,25,run);
+
+        if(!ok) return;
+
+        await wait(200);
+    }
+
+
+    if(run !== typingRun) return;
+
+
+    /* إظهار الزر */
+    if(button){
+
+        button.classList.add("show-button");
+
+    }
+
+
+    /* قلوب */
+    createHearts();
+
+}
+
+
+/* الانتقال */
+function show(index){
+
+    if(index < 0){
+        index = 0;
+    }
+
+    if(index >= screens.length){
+        index = screens.length - 1;
+    }
+
+    screens[current].classList.remove("active");
+
+    current = index;
+
+    screens[current].classList.add("active");
+
+
+    [...dots.children].forEach((dot,i)=>{
+
+        dot.classList.toggle(
+            "active",
+            i === current
+        );
+
+    });
+
+
+    playScreen(screens[current]);
+
+}
+
+
+/* التالي */
+function next(){
+
+    if(current < screens.length - 1){
+
+        show(current + 1);
+
+    }
+
+}
+
+
+/* السابق */
+function previous(){
+
+    if(current > 0){
+
+        show(current - 1);
+
+    }
+
+}
+
+
+/* إعادة */
+function restart(){
+
+    show(0);
+
+}
+
+
+/* القلوب */
+function createHearts(){
+
+    const hearts = ["❤️","💗","💕","❣️","🤍"];
+
+    for(let i=0;i<5;i++){
+
+        const heart = document.createElement("div");
+
+        heart.className = "floating-heart";
+
+        heart.textContent =
+            hearts[Math.floor(Math.random()*hearts.length)];
+
+        heart.style.left =
+            Math.random()*100 + "vw";
+
+        heart.style.animationDuration =
+            (4 + Math.random()*3) + "s";
+
+        heart.style.fontSize =
+            (15 + Math.random()*15) + "px";
+
+        document.body.appendChild(heart);
+
+        setTimeout(()=>{
+            heart.remove();
+        },7000);
+
+    }
+
+}
+
+
+/* الأسهم من الكيبورد */
+document.addEventListener("keydown",(e)=>{
+
+    if(e.key === "ArrowLeft"){
+        next();
+    }
+
+    if(e.key === "ArrowRight"){
+        previous();
+    }
+
+});
+
+
+/* تشغيل الشاشة الأولى */
+playScreen(screens[0]);
+
+</script>
+
 </body>
 </html>
