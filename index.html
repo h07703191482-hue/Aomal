@@ -1,290 +1,185 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>نظام الكاشير - البندر</title>
-    
-    <!-- إضافة مكتبات Firebase (متوافقة مع كودك المباشر) -->
-    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-database-compat.js"></script>
-
-    <style>
-        /* إعدادات الصفحة الأساسية */
-        body {
-            margin: 0;
-            height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            background: linear-gradient(45deg, #a8edea 0%, #fed6e3 100%); 
-            font-family: Arial, sans-serif;
-            overflow: hidden;
-            transition: background 0.5s ease;
-            position: relative;
-        }
-
-        /* زر الرجوع */
-        .back-btn-main {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            padding: 10px 20px;
-            background-color: #dc3545;
-            color: white;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 1.2rem;
-            font-weight: bold;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            display: none;
-            z-index: 1000;
-        }
-        .back-btn-main:hover { background-color: #c82333; }
-
-        /* حركة كلمة الترحيب */
-        .welcome-text {
-            font-size: 5rem;
-            color: #ff0000;
-            font-weight: bold;
-            opacity: 0;
-            animation: appearGrowShrink 3s ease-in-out forwards;
-        }
-
-        @keyframes appearGrowShrink {
-            0% { transform: scale(0); opacity: 0; }
-            30% { transform: scale(1.2); opacity: 1; }
-            70% { transform: scale(1.2); opacity: 1; }
-            100% { transform: scale(0); opacity: 0; }
-        }
-
-        /* الشاشات */
-        #main-screen { display: none; gap: 30px; }
-        .page-screen { display: none; width: 100%; height: 100%; justify-content: center; align-items: center; overflow-y: auto; flex-direction: column; }
-
-        .btn {
-            padding: 15px 50px;
-            font-size: 2rem;
-            font-weight: bold;
-            color: #fff;
-            border: none;
-            border-radius: 12px;
-            cursor: pointer;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            transition: transform 0.2s, background-color 0.2s;
-        }
-        .btn.send { background-color: #28a745; }
-        .btn.receive { background-color: #007bff; }
-        .btn.orders { background-color: #ffc107; color: #000; }
-        .btn:hover { transform: scale(1.05); }
-
-        /* تنسيق صفحة الإرسال والطلبات */
-        .order-container {
-            background-color: #ffffff;
-            width: 90%;
-            max-width: 500px;
-            padding: 30px;
-            border-radius: 12px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
-            margin-top: 80px;
-        }
-        h2 { text-align: center; color: #333; margin-bottom: 30px; border-bottom: 2px solid #28a745; padding-bottom: 10px; }
-        .item-row { display: flex; justify-content: space-between; align-items: center; padding: 15px 0; border-bottom: 1px solid #eee; }
-        .item-name { font-size: 1.3rem; font-weight: bold; color: #444; }
-        .quantity-box { display: flex; align-items: center; gap: 10px; }
-        .qty-btn { background-color: #007bff; color: white; border: none; border-radius: 6px; width: 40px; height: 40px; font-size: 1.5rem; cursor: pointer; }
-        .qty-btn.minus { background-color: #dc3545; }
-        .quantity-box input { width: 50px; height: 40px; font-size: 1.3rem; text-align: center; border: 1px solid #ccc; border-radius: 6px; pointer-events: none; }
-        .submit-btn { width: 100%; background-color: #28a745; color: #fff; border: none; padding: 15px; font-size: 1.3rem; font-weight: bold; border-radius: 8px; margin-top: 25px; cursor: pointer; }
-        
-        /* تنسيق قائمة الطلبات */
-        .order-item-card { border: 1px solid #ddd; padding: 15px; margin-bottom: 10px; border-radius: 8px; background: #f9f9f9; }
-        .receive-btn { background-color: #28a745; color: white; border: none; padding: 10px; border-radius: 6px; cursor: pointer; width: 100%; margin-top: 10px; font-weight: bold; }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>لـ فطومه ❤️</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    body {
+      background: linear-gradient(135deg, #ffe6f0 0%, #ffccd5 100%);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      margin: 0;
+      padding: 20px;
+    }
+    .card {
+      background: rgba(255, 255, 255, 0.9);
+      backdrop-filter: blur(10px);
+      border-radius: 25px;
+      padding: 30px 20px;
+      width: 100%;
+      max-width: 360px;
+      text-align: center;
+      box-shadow: 0 15px 35px rgba(255, 105, 180, 0.25);
+      border: 2px solid #ffb6c1;
+      animation: fadeIn 0.5s ease-in-out;
+    }
+    .img-container img {
+      width: 160px;
+      height: 160px;
+      object-fit: contain;
+      margin-bottom: 15px;
+    }
+    .question {
+      font-size: 1.15rem;
+      color: #d63384;
+      font-weight: bold;
+      margin-bottom: 20px;
+      line-height: 1.6;
+    }
+    .btn {
+      background: linear-gradient(135deg, #ff758c, #ff7eb3);
+      color: white;
+      border: none;
+      padding: 12px 30px;
+      font-size: 1rem;
+      font-weight: bold;
+      border-radius: 50px;
+      cursor: pointer;
+      box-shadow: 0 5px 15px rgba(255, 117, 140, 0.4);
+      transition: all 0.2s ease;
+      margin: 5px;
+    }
+    .btn:active {
+      transform: scale(0.95);
+    }
+    .heart-btn {
+      font-size: 4rem;
+      background: none;
+      border: none;
+      cursor: pointer;
+      animation: pulse 1.2s infinite;
+    }
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.2); }
+      100% { transform: scale(1); }
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .hidden {
+      display: none;
+    }
+    .poem {
+      font-size: 0.95rem;
+      color: #721c24;
+      line-height: 1.8;
+      background: #fff0f5;
+      padding: 15px;
+      border-radius: 15px;
+      border: 1px dashed #ffb6c1;
+      margin-bottom: 15px;
+      white-space: pre-line;
+    }
+    audio {
+      width: 100%;
+      margin-top: 10px;
+    }
+  </style>
 </head>
 <body>
 
-    <!-- زر الرجوع -->
-    <button id="back-btn-main" class="back-btn-main" onclick="goBack()">رجوع</button>
+  <!-- Step 1 -->
+  <div id="step1" class="card">
+    <div class="question">انتِ فطومه؟</div>
+    <button class="btn" onclick="nextStep(2)">اي</button>
+  </div>
 
-    <!-- شاشة الترحيب -->
-    <div id="welcome-text" class="welcome-text">العافية</div>
-
-    <!-- الشاشة الرئيسية -->
-    <div id="main-screen">
-        <button class="btn send" onclick="showPage('send-screen')">إرسال</button>
-        <button class="btn receive" onclick="showPage('receive-screen')">استلام</button>
+  <!-- Step 2 -->
+  <div id="step2" class="card hidden">
+    <div class="img-container">
+      <img src="https://api.iconify.design/fluent-emoji-flat:cat-face.svg" alt="Hello Kitty">
     </div>
+    <div class="question">هلو فطومه 🌸</div>
+    <button class="btn" onclick="nextStep(3)">هلوو</button>
+  </div>
 
-    <!-- صفحة الإرسال -->
-    <div id="send-screen" class="page-screen">
-        <div class="order-container">
-            <h2>إرسال طلب جديد</h2>
-            <button class="btn orders" style="width: 100%; margin-bottom: 20px; font-size: 1rem;" onclick="showPage('orders-screen')">عرض الطلبات المسجلة</button>
-            
-            <div class="item-row">
-                <div class="item-name">طبق عادي</div>
-                <div class="quantity-box">
-                    <button class="qty-btn" onclick="increaseQty('qty1')">+</button>
-                    <input type="number" id="qty1" min="0" value="0">
-                    <button class="qty-btn minus" onclick="decreaseQty('qty1')">-</button>
-                </div>
-            </div>
-            <div class="item-row">
-                <div class="item-name">طبق فنكر</div>
-                <div class="quantity-box">
-                    <button class="qty-btn" onclick="increaseQty('qty2')">+</button>
-                    <input type="number" id="qty2" min="0" value="0">
-                    <button class="qty-btn minus" onclick="decreaseQty('qty2')">-</button>
-                </div>
-            </div>
-            <textarea id="notes" style="width:100%; height:80px; margin-top:20px; border-radius:8px; border: 1px solid #ccc;" placeholder="ملاحظات الطلب..."></textarea>
-            <button class="submit-btn" onclick="saveOrder()">إرسال الطلب</button>
-        </div>
+  <!-- Step 3 -->
+  <div id="step3" class="card hidden">
+    <div class="img-container">
+      <img src="https://api.iconify.design/fluent-emoji-flat:cat-face.svg" alt="Hello Kitty">
     </div>
+    <div class="question">فطومه عندي سؤال الججج.. بس مستحية اسالج اياه 🥺</div>
+    <button class="btn" onclick="nextStep(4)">اسأليني</button>
+  </div>
 
-    <!-- صفحة عرض الطلبات -->
-    <div id="orders-screen" class="page-screen">
-        <div class="order-container">
-            <h2>الطلبات المسجلة</h2>
-            <div id="orders-list"></div>
-        </div>
+  <!-- Step 4 -->
+  <div id="step4" class="card hidden">
+    <div class="img-container">
+      <img src="https://api.iconify.design/fluent-emoji-flat:flushed-face.svg" alt="Blushing">
     </div>
+    <div class="question">تحبين حسين؟ 😳</div>
+    <button class="btn" onclick="nextStep(5)">ها؟ 😳</button>
+  </div>
 
-    <!-- صفحة الاستلام -->
-    <div id="receive-screen" class="page-screen">
-        <!-- زر السجل -->
-        <button class="btn orders" style="position: absolute; top: 20px; left: 20px; font-size: 1rem; padding: 10px 20px;" onclick="showPage('history-screen')">السجل</button>
-        
-        <div class="order-container">
-            <h2>قائمة الاستلام</h2>
-            <div id="receive-list"></div>
-        </div>
+  <!-- Step 5 -->
+  <div id="step5" class="card hidden">
+    <div class="img-container">
+      <img src="https://api.iconify.design/fluent-emoji-flat:thinking-face.svg" alt="Thinking">
     </div>
+    <div class="question">شنو ها؟ 🙄 تحبين حسين لو لا؟</div>
+    <button class="btn" onclick="nextStep(6)">مدري</button>
+  </div>
 
-    <!-- صفحة السجل -->
-    <div id="history-screen" class="page-screen">
-        <div class="order-container">
-            <h2>السجل</h2>
-            <div id="history-list"></div>
-        </div>
+  <!-- Step 6 -->
+  <div id="step6" class="card hidden">
+    <div class="img-container">
+      <img src="https://api.iconify.design/fluent-emoji-flat:smiling-face-with-heart-eyes.svg" alt="Love">
     </div>
+    <div class="question">إذا تحبين حسين دوسي على القلب 🥺</div>
+    <button class="heart-btn" onclick="nextStep(7)">💖</button>
+  </div>
 
-    <script>
-        // إعدادات Firebase الخاصة بمشروع البندر
-        const firebaseConfig = {
-            apiKey: "AIzaSyBXW3gL4PszJjmgmVVOjkuEqe-WkWHyO60",
-            authDomain: "al-bandar-f02f6.firebaseapp.com",
-            databaseURL: "https://al-bandar-f02f6-default-rtdb.firebaseio.com",
-            projectId: "al-bandar-f02f6",
-            storageBucket: "al-bandar-f02f6.firebasestorage.app",
-            messagingSenderId: "799678549296",
-            appId: "1:799678549296:web:bd1cc0ff99a680eabfccf5",
-            measurementId: "G-KRRFC79HC3"
-        };
-        firebase.initializeApp(firebaseConfig);
-        const db = firebase.database();
+  <!-- Step 7 -->
+  <div id="step7" class="card hidden">
+    <div class="poem">
+      في حبكِ ماذا أقول؟
+      القَلْمُ حائِرٌ بَينَ السُّطُور
+      ارسمُ ورداً فلديِكِ اطيبُ العطور
+      لو قُلتُ أحبُكِ فلن يكفيني
+      فأنا مريضُ بحبكِ فَمَن يداويني؟
+      وقلبي يهواكِ ويناديكِ
+      ولو كان لي ألفُ قلبٍ لأحببتُكِ ولن يكفيني
+    </div>
+    <button class="btn">اعشقج واحبج 🥺💖</button>
+    <div style="margin-top: 15px; font-weight: bold; color: #d63384;">أغنيتنا المفضلة 🎵</div>
+    
+    <!-- صوت أغنية ومالو - عمرو دياب -->
+    <audio id="bgMusic" controls autoplay loop preload="auto">
+      <source src="https://cdn.pixabay.com/download/audio/2022/05/27/audio_1808fbf07a.mp3?filename=romantic-piano-112199.mp3" type="audio/mpeg">
+    </audio>
+  </div>
 
-        let orders = [];
-        let historyOrders = []; // مصفوفة للسجل
-        let pageHistory = ['main-screen'];
-
-        // مزامنة الطلبات اللحظية من Firebase
-        db.ref('orders').on('value', (snapshot) => {
-            orders = snapshot.val() || [];
-            let currentPage = pageHistory[pageHistory.length - 1];
-            if(currentPage === 'orders-screen') renderOrders('orders-list', false, orders);
-            if(currentPage === 'receive-screen') renderOrders('receive-list', true, orders);
-        });
-
-        // مزامنة السجل اللحظي من Firebase
-        db.ref('historyOrders').on('value', (snapshot) => {
-            historyOrders = snapshot.val() || [];
-            let currentPage = pageHistory[pageHistory.length - 1];
-            if(currentPage === 'history-screen') renderOrders('history-list', false, historyOrders);
-        });
-
-        setTimeout(function() {
-            document.getElementById('welcome-text').style.display = 'none';
-            document.getElementById('main-screen').style.display = 'flex';
-        }, 3000); // 3 ثوانٍ
-
-        function showPage(pageId) {
-            document.querySelectorAll('.page-screen, #main-screen').forEach(s => s.style.display = 'none');
-            document.getElementById(pageId).style.display = 'flex';
-            
-            pageHistory.push(pageId);
-            document.getElementById('back-btn-main').style.display = 'block';
-            document.body.style.background = '#ffffff';
-
-            if(pageId === 'orders-screen') renderOrders('orders-list', false, orders);
-            if(pageId === 'receive-screen') renderOrders('receive-list', true, orders);
-            if(pageId === 'history-screen') renderOrders('history-list', false, historyOrders);
-        }
-
-        function goBack() {
-            if (pageHistory.length > 1) {
-                pageHistory.pop();
-                let prevPage = pageHistory[pageHistory.length - 1];
-                document.querySelectorAll('.page-screen, #main-screen').forEach(s => s.style.display = 'none');
-                document.getElementById(prevPage).style.display = 'flex';
-                
-                if (prevPage === 'main-screen') {
-                    document.getElementById('back-btn-main').style.display = 'none';
-                    document.body.style.background = 'linear-gradient(45deg, #a8edea 0%, #fed6e3 100%)';
-                }
-            }
-        }
-
-        function increaseQty(id) { document.getElementById(id).value = parseInt(document.getElementById(id).value) + 1; }
-        function decreaseQty(id) { 
-            if (parseInt(document.getElementById(id).value) > 0) 
-                document.getElementById(id).value = parseInt(document.getElementById(id).value) - 1; 
-        }
-
-        function saveOrder() {
-            let q1 = document.getElementById('qty1').value;
-            let q2 = document.getElementById('qty2').value;
-            let notes = document.getElementById('notes').value;
-
-            if(q1 == 0 && q2 == 0) { alert("يرجى اختيار طبق واحد على الأقل"); return; }
-
-            orders.push({q1, q2, notes});
-            db.ref('orders').set(orders); // حفظ الطلب في Firebase
-
-            alert("تم تسجيل الطلب!");
-            document.getElementById('qty1').value = 0;
-            document.getElementById('qty2').value = 0;
-            document.getElementById('notes').value = '';
-        }
-
-        function renderOrders(elementId, isReceive, listArray) {
-            let list = document.getElementById(elementId);
-            list.innerHTML = listArray.length === 0 ? '<p style="text-align:center">لا توجد طلبات.</p>' : '';
-            
-            listArray.forEach((o, index) => {
-                let receiveHtml = isReceive ? `<button class="receive-btn" onclick="receiveOrder(${index})">استلم</button>` : '';
-                list.innerHTML += `
-                    <div class="order-item-card">
-                        <strong>طلب رقم ${index + 1}</strong><br>
-                        طبق عادي: ${o.q1} | طبق فنكر: ${o.q2}<br>
-                        <em>الملاحظات: ${o.notes || 'لا توجد'}</em>
-                        ${receiveHtml}
-                    </div>`;
-            });
-        }
-
-        function receiveOrder(index) {
-            let completedOrder = orders.splice(index, 1)[0]; // نقل الطلب
-            historyOrders.push(completedOrder);
-            
-            // تحديث القوائم في Firebase
-            db.ref('orders').set(orders); 
-            db.ref('historyOrders').set(historyOrders); 
-            
-            renderOrders('receive-list', true, orders);
-        }
-    </script>
+  <script>
+    function nextStep(stepNumber) {
+      document.querySelectorAll('.card').forEach(card => card.classList.add('hidden'));
+      const nextCard = document.getElementById('step' + stepNumber);
+      if (nextCard) {
+        nextCard.classList.remove('hidden');
+      }
+      if (stepNumber === 7) {
+        const audio = document.getElementById('bgMusic');
+        audio.play().catch(() => console.log("Autoplay blocked"));
+      }
+    }
+  </script>
 </body>
 </html>
