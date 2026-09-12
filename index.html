@@ -211,66 +211,6 @@ h1{
     min-height:30px;
 }
 
-/* كرت الموسيقى */
-.music-card{
-    width:100%;
-    padding:25px 20px;
-    border-radius:28px;
-    background:rgba(255,255,255,.85);
-    box-shadow:0 12px 35px rgba(150,60,120,.15);
-}
-
-.music-cover{
-    width:190px;
-    height:190px;
-    margin:auto;
-    border-radius:22px;
-    overflow:hidden;
-}
-
-.music-cover img{
-    width:100%;
-    height:100%;
-    object-fit:cover;
-}
-
-.music-title{
-    margin-top:18px;
-    font-size:20px;
-    font-weight:800;
-    color:#d63384;
-}
-
-.music-sub{
-    margin-top:5px;
-    color:#777;
-    font-size:14px;
-}
-
-.music-controls{
-    margin-top:20px;
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    gap:25px;
-}
-
-.music-controls span{
-    font-size:27px;
-    cursor:pointer;
-}
-
-.play{
-    width:55px;
-    height:55px;
-    border-radius:50%;
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    background:#d63384;
-    color:white;
-}
-
 /* النقاط */
 .dots{
     position:absolute;
@@ -345,6 +285,9 @@ h1{
 </head>
 
 <body>
+
+<!-- ملف الصوت الخلفي -->
+<audio id="bgSong" src="song.mp3" loop></audio>
 
 <div class="app">
 
@@ -441,41 +384,7 @@ h1{
 
     </div>
 
-    <button onclick="next()">كملي 🥲❣️</button>
-
-</section>
-
-
-<!-- الشاشة 7 -->
-<section class="screen">
-
-    <div class="music-card">
-
-        <div class="music-cover">
-            <img src="images/06.jpg" alt="">
-        </div>
-
-        <div class="music-title">
-            فطومة ❤️
-        </div>
-
-        <div class="music-sub">
-            حسين ❣️
-        </div>
-
-        <div class="music-controls">
-
-            <span>⏮</span>
-
-            <div class="play">
-                ▶
-            </div>
-
-            <span>⏭</span>
-
-        </div>
-
-    </div>
+    <button onclick="next()">أحبك 🥲❣️</button>
 
 </section>
 
@@ -494,6 +403,18 @@ const dots = document.getElementById("dots");
 
 let current = 0;
 let typingRun = 0;
+
+/* تشغيل الأغنية من أول كليك على الصفحة */
+const audio = document.getElementById("bgSong");
+
+function playAudio() {
+    if (audio) {
+        audio.play().catch(() => {});
+    }
+}
+
+document.addEventListener("click", playAudio, { once: true });
+document.addEventListener("touchstart", playAudio, { once: true });
 
 
 /* إنشاء النقاط */
