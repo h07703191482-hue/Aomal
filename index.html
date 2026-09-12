@@ -4,180 +4,284 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>لـ فطومه ❤️</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
   <style>
     * {
       box-sizing: border-box;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      font-family: 'Cairo', sans-serif;
+      user-select: none;
     }
     body {
-      background: linear-gradient(135deg, #ffe6f0 0%, #ffccd5 100%);
+      background-color: #12020a;
+      background-image: radial-gradient(#2b0818 1px, transparent 0);
+      background-size: 20px 20px;
       display: flex;
       justify-content: center;
       align-items: center;
       min-height: 100vh;
       margin: 0;
-      padding: 20px;
+      padding: 15px;
     }
-    .card {
-      background: rgba(255, 255, 255, 0.9);
-      backdrop-filter: blur(10px);
-      border-radius: 25px;
-      padding: 30px 20px;
+    .card-frame {
+      background: linear-gradient(180deg, #ffc2d1 0%, #ff9ebb 100%);
+      border: 4px solid #ff4d8d;
+      border-radius: 35px;
+      padding: 25px 20px;
       width: 100%;
       max-width: 360px;
-      text-align: center;
-      box-shadow: 0 15px 35px rgba(255, 105, 180, 0.25);
-      border: 2px solid #ffb6c1;
-      animation: fadeIn 0.5s ease-in-out;
+      min-height: 520px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: 0 0 35px rgba(255, 77, 141, 0.5);
+      position: relative;
+      overflow: hidden;
     }
-    .img-container img {
-      width: 160px;
-      height: 160px;
+
+    .kitty-img {
+      width: 180px;
+      height: 180px;
       object-fit: contain;
-      margin-bottom: 15px;
+      margin-top: 20px;
+      filter: drop-shadow(0 5px 10px rgba(0,0,0,0.15));
+      animation: float 3s ease-in-out infinite;
     }
-    .question {
-      font-size: 1.15rem;
-      color: #d63384;
-      font-weight: bold;
-      margin-bottom: 20px;
-      line-height: 1.6;
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-8px); }
     }
-    .btn {
-      background: linear-gradient(135deg, #ff758c, #ff7eb3);
-      color: white;
-      border: none;
-      padding: 12px 30px;
-      font-size: 1rem;
-      font-weight: bold;
-      border-radius: 50px;
+
+    .dialog-container {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-bottom: 10px;
+    }
+
+    .msg-box {
+      background: #1c1319;
+      color: #ffffff;
+      border: 2px solid #ff69b4;
+      border-radius: 20px;
+      padding: 12px 20px;
+      font-size: 1.1rem;
+      font-weight: 700;
+      text-align: center;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    }
+
+    .btn-action {
+      background: #231821;
+      color: #ff80bf;
+      border: 2px solid #ff69b4;
+      border-radius: 20px;
+      padding: 12px 20px;
+      font-size: 1.05rem;
+      font-weight: 700;
       cursor: pointer;
-      box-shadow: 0 5px 15px rgba(255, 117, 140, 0.4);
       transition: all 0.2s ease;
-      margin: 5px;
+      width: 100%;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
     }
-    .btn:active {
+
+    .btn-action:active {
       transform: scale(0.95);
+      background: #ff69b4;
+      color: #ffffff;
     }
-    .heart-btn {
-      font-size: 4rem;
+
+    .big-heart {
+      font-size: 4.5rem;
       background: none;
       border: none;
       cursor: pointer;
-      animation: pulse 1.2s infinite;
+      animation: heartBeat 1s infinite alternate;
+      margin: 20px 0;
+      filter: drop-shadow(0 0 15px #ff1493);
     }
-    @keyframes pulse {
+
+    @keyframes heartBeat {
       0% { transform: scale(1); }
-      50% { transform: scale(1.2); }
-      100% { transform: scale(1); }
+      100% { transform: scale(1.25); }
     }
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(10px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-    .hidden {
-      display: none;
-    }
-    .poem {
+
+    .poem-box {
+      background: #1c1319;
+      color: #ffffff;
+      border: 2px solid #ff69b4;
+      border-radius: 22px;
+      padding: 18px;
       font-size: 0.95rem;
-      color: #721c24;
-      line-height: 1.8;
-      background: #fff0f5;
-      padding: 15px;
-      border-radius: 15px;
-      border: 1px dashed #ffb6c1;
-      margin-bottom: 15px;
+      line-height: 1.9;
+      text-align: center;
+      font-weight: 600;
       white-space: pre-line;
+      box-shadow: 0 5px 20px rgba(0,0,0,0.4);
     }
+
+    /* Music Player Theme (Neon Glow) */
+    .player-card {
+      background: #180914;
+      border: 3px solid #ff2a8d;
+      border-radius: 30px;
+      padding: 25px 20px;
+      width: 100%;
+      box-shadow: 0 0 30px #ff2a8d;
+      text-align: center;
+    }
+
+    .player-title {
+      color: #ffffff;
+      font-size: 1.2rem;
+      font-weight: 800;
+      margin-bottom: 15px;
+    }
+
+    .album-art {
+      width: 140px;
+      height: 140px;
+      border-radius: 20px;
+      border: 2px solid #ff69b4;
+      margin: 0 auto 15px auto;
+      overflow: hidden;
+      box-shadow: 0 0 15px rgba(255, 105, 180, 0.5);
+    }
+
+    .album-art img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .song-title {
+      color: #ff99cc;
+      font-size: 1.1rem;
+      font-weight: 700;
+      margin-bottom: 15px;
+    }
+
     audio {
       width: 100%;
-      margin-top: 10px;
+      height: 40px;
+      border-radius: 20px;
+      outline: none;
     }
+
+    .hidden { display: none !important; }
   </style>
 </head>
 <body>
 
-  <!-- Step 1 -->
-  <div id="step1" class="card">
-    <div class="question">انتِ فطومه؟</div>
-    <button class="btn" onclick="nextStep(2)">اي</button>
-  </div>
-
-  <!-- Step 2 -->
-  <div id="step2" class="card hidden">
-    <div class="img-container">
-      <img src="https://api.iconify.design/fluent-emoji-flat:cat-face.svg" alt="Hello Kitty">
-    </div>
-    <div class="question">هلو فطومه 🌸</div>
-    <button class="btn" onclick="nextStep(3)">هلوو</button>
-  </div>
-
-  <!-- Step 3 -->
-  <div id="step3" class="card hidden">
-    <div class="img-container">
-      <img src="https://api.iconify.design/fluent-emoji-flat:cat-face.svg" alt="Hello Kitty">
-    </div>
-    <div class="question">فطومه عندي سؤال الججج.. بس مستحية اسالج اياه 🥺</div>
-    <button class="btn" onclick="nextStep(4)">اسأليني</button>
-  </div>
-
-  <!-- Step 4 -->
-  <div id="step4" class="card hidden">
-    <div class="img-container">
-      <img src="https://api.iconify.design/fluent-emoji-flat:flushed-face.svg" alt="Blushing">
-    </div>
-    <div class="question">تحبين حسين؟ 😳</div>
-    <button class="btn" onclick="nextStep(5)">ها؟ 😳</button>
-  </div>
-
-  <!-- Step 5 -->
-  <div id="step5" class="card hidden">
-    <div class="img-container">
-      <img src="https://api.iconify.design/fluent-emoji-flat:thinking-face.svg" alt="Thinking">
-    </div>
-    <div class="question">شنو ها؟ 🙄 تحبين حسين لو لا؟</div>
-    <button class="btn" onclick="nextStep(6)">مدري</button>
-  </div>
-
-  <!-- Step 6 -->
-  <div id="step6" class="card hidden">
-    <div class="img-container">
-      <img src="https://api.iconify.design/fluent-emoji-flat:smiling-face-with-heart-eyes.svg" alt="Love">
-    </div>
-    <div class="question">إذا تحبين حسين دوسي على القلب 🥺</div>
-    <button class="heart-btn" onclick="nextStep(7)">💖</button>
-  </div>
-
-  <!-- Step 7 -->
-  <div id="step7" class="card hidden">
-    <div class="poem">
-      في حبكِ ماذا أقول؟
-      القَلْمُ حائِرٌ بَينَ السُّطُور
-      ارسمُ ورداً فلديِكِ اطيبُ العطور
-      لو قُلتُ أحبُكِ فلن يكفيني
-      فأنا مريضُ بحبكِ فَمَن يداويني؟
-      وقلبي يهواكِ ويناديكِ
-      ولو كان لي ألفُ قلبٍ لأحببتُكِ ولن يكفيني
-    </div>
-    <button class="btn">اعشقج واحبج 🥺💖</button>
-    <div style="margin-top: 15px; font-weight: bold; color: #d63384;">أغنيتنا المفضلة 🎵</div>
+  <div class="card-frame" id="mainFrame">
     
-    <!-- صوت أغنية ومالو - عمرو دياب -->
-    <audio id="bgMusic" controls autoplay loop preload="auto">
-      <source src="https://cdn.pixabay.com/download/audio/2022/05/27/audio_1808fbf07a.mp3?filename=romantic-piano-112199.mp3" type="audio/mpeg">
-    </audio>
+    <!-- Step 1 -->
+    <div id="step1" style="margin: auto; width: 100%;">
+      <div class="msg-box" style="margin-bottom: 20px;">انتِ فطومه؟</div>
+      <button class="btn-action" onclick="goStep(2)">اي 💖</button>
+    </div>
+
+    <!-- Step 2 -->
+    <div id="step2" class="hidden" style="width: 100%; text-align: center;">
+      <img class="kitty-img" src="https://pngimg.com/uploads/hello_kitty/hello_kitty_PNG19.png" alt="Hello Kitty">
+      <div class="dialog-container">
+        <div class="msg-box">هلو فطومه</div>
+        <button class="btn-action" onclick="goStep(3)">هلوو</button>
+      </div>
+    </div>
+
+    <!-- Step 3 -->
+    <div id="step3" class="hidden" style="width: 100%; text-align: center;">
+      <img class="kitty-img" src="https://pngimg.com/uploads/hello_kitty/hello_kitty_PNG9.png" alt="Hello Kitty">
+      <div class="dialog-container">
+        <div class="msg-box">فطومه عندي سؤال الججج</div>
+        <button class="btn-action" onclick="goStep(4)">شنو هو؟</button>
+      </div>
+    </div>
+
+    <!-- Step 4 -->
+    <div id="step4" class="hidden" style="width: 100%; text-align: center;">
+      <img class="kitty-img" src="https://pngimg.com/uploads/hello_kitty/hello_kitty_PNG16.png" alt="Hello Kitty">
+      <div class="dialog-container">
+        <div class="msg-box">بس مستحية اسالك اياه 🥺</div>
+        <button class="btn-action" onclick="goStep(5)">اساليني</button>
+      </div>
+    </div>
+
+    <!-- Step 5 -->
+    <div id="step5" class="hidden" style="width: 100%; text-align: center;">
+      <img class="kitty-img" src="https://pngimg.com/uploads/hello_kitty/hello_kitty_PNG33.png" alt="Hello Kitty">
+      <div class="dialog-container">
+        <div class="msg-box">تحبين حسين</div>
+        <button class="btn-action" onclick="goStep(6)">ها؟ 😳</button>
+      </div>
+    </div>
+
+    <!-- Step 6 -->
+    <div id="step6" class="hidden" style="width: 100%; text-align: center;">
+      <img class="kitty-img" src="https://pngimg.com/uploads/hello_kitty/hello_kitty_PNG9.png" alt="Hello Kitty">
+      <div class="dialog-container">
+        <div class="msg-box">شنو ها؟ 🙄 تحبين حسين لو لا؟</div>
+        <button class="btn-action" onclick="goStep(7)">مدري</button>
+      </div>
+    </div>
+
+    <!-- Step 7 -->
+    <div id="step7" class="hidden" style="width: 100%; text-align: center;">
+      <img class="kitty-img" src="https://pngimg.com/uploads/hello_kitty/hello_kitty_PNG19.png" alt="Hello Kitty">
+      <div class="dialog-container">
+        <div class="msg-box">اذا تحبين حسين دوسي على القلب 🥺</div>
+        <button class="big-heart" onclick="goStep(8)">💖</button>
+      </div>
+    </div>
+
+    <!-- Step 8 (Poem) -->
+    <div id="step8" class="hidden" style="width: 100%;">
+      <div class="poem-box">
+في حبكِ ماذا أقول؟
+القَلْمُ حائِرٌ بَينَ السُّطُور
+ارسمُ ورداً فلديِكِ اطيبُ العطور
+لو قُلتُ أحبُكِ فلن يكفيني
+فأنا مريضُ بحبكِ فَمَن يداويني؟
+وقلبي يهواكِ ويناديكِ
+ولو كان لي ألفُ قلبٍ لأحببتُكِ ولن يكفيني
+      </div>
+      <button class="btn-action" style="margin-top: 15px;" onclick="goStep(9)">اعشقج واحبج 🥺💖</button>
+    </div>
+
+    <!-- Step 9 (Music Player) -->
+    <div id="step9" class="hidden" style="width: 100%;">
+      <div class="player-card">
+        <div class="player-title">أغنيتنا المفضلة 🎵</div>
+        <div class="album-art">
+          <img src="https://pngimg.com/uploads/hello_kitty/hello_kitty_PNG19.png" alt="Hello Kitty">
+        </div>
+        <div class="song-title">ومالو - عمرو دياب ❤️</div>
+        
+        <audio id="audioPlayer" controls loop autoplay>
+          <source src="https://server8.mp3quran.net/media/wamalo.mp3" type="audio/mpeg">
+          <!-- رابط احتياطي للأغنية -->
+          <source src="https://files.freemusicarchive.org/storage-freemusicarchive-org/music/no_curator/Trio_Seneca/Trio_Seneca_-_01_-_Wamalo.mp3" type="audio/mpeg">
+        </audio>
+      </div>
+    </div>
+
   </div>
 
   <script>
-    function nextStep(stepNumber) {
-      document.querySelectorAll('.card').forEach(card => card.classList.add('hidden'));
-      const nextCard = document.getElementById('step' + stepNumber);
-      if (nextCard) {
-        nextCard.classList.remove('hidden');
+    function goStep(step) {
+      for (let i = 1; i <= 9; i++) {
+        const el = document.getElementById('step' + i);
+        if (el) el.classList.add('hidden');
       }
-      if (stepNumber === 7) {
-        const audio = document.getElementById('bgMusic');
-        audio.play().catch(() => console.log("Autoplay blocked"));
+      const target = document.getElementById('step' + step);
+      if (target) target.classList.remove('hidden');
+
+      if (step === 9) {
+        const player = document.getElementById('audioPlayer');
+        player.play().catch(e => console.log("Autoplay check:", e));
       }
     }
   </script>
